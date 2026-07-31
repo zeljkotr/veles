@@ -8,6 +8,36 @@ The goal of Veles is not only to answer questions, but to understand tasks, exec
 
 ---
 
+# Why the name Veles?
+
+The name Veles comes from Slavic mythology.
+
+Veles (Велес) was one of the most important ancient Slavic gods, associated with wisdom, knowledge, magic, nature, earth, wealth and the unseen world.
+
+In Slavic tradition, Veles represents intelligence, adaptability and the ability to understand hidden connections.
+
+The project name was chosen because the goal of this AI assistant is similar:
+
+- to collect knowledge
+- to understand complex systems
+- to connect information
+- to help with decisions
+- to work alongside humans
+
+Veles is not designed as a simple chatbot.
+
+The vision is to build an intelligent technical companion capable of assisting with:
+
+- SRE operations
+- DevOps workflows
+- infrastructure management
+- automation
+- system analysis
+
+The name represents the idea of combining ancient symbolism of knowledge and modern artificial intelligence.
+
+---
+
 # Vision
 
 Veles is built as a modular AI agent architecture.
