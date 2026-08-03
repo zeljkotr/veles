@@ -1,9 +1,98 @@
-venv/
+# ==========================
+# Veles AI - Git Ignore
+# ==========================
+
+# Python cache
 __pycache__/
-*.pyc
-*.db
-*.log
-.idea/
-.vscode/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+xtts-env/
+
+# Python tools
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ==========================
+# Secrets / Certificates
+# ==========================
+
+certs/
+*.key
+*.crt
+*.pem
+
+.env
+.env.*
+
+# ==========================
+# Veles runtime data
+# ==========================
+
+veles/logs/*.log
+veles/memory/*.db
+veles/web/static/audio/*
+
+# ==========================
 # External engines
+# ==========================
+
 piper1-gpl/
+
+# ==========================
+# AI models / training data
+# ==========================
+
+dataset/
+checkpoints/
+cv_sr_prepared/
+
+*.onnx
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# ==========================
+# Temporary files
+# ==========================
+
+*.tmp
+*.temp
+*.swp
+*.bak
+
+# ==========================
+# OS files
+# ==========================
+
+.DS_Store
+Thumbs.db
+
+# ==========================
+# IDE
+# ==========================
+
+.vscode/
+.idea/
+
+# ==========================
+# Build files
+# ==========================
+
+build/
+dist/
+*.egg-info/
+
+# ==========================
+# Local experiments
+# ==========================
+
+experiments/
+scratch/
