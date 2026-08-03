@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Logovi — Veles{% endblock %}
+{% block content %}
+<h2>Poslednji događaji</h2>
+{% if not entries %}
+<p class="muted">Nema zabeleženih događaja.</p>
+{% else %}
+<table>
+    <tr><th>Vreme</th><th>Događaj</th><th>Detalji</th></tr>
+    {% for e in entries %}
+    <tr>
+        <td>{{ e.timestamp }}</td>
+        <td>{{ e.event }}</td>
+        <td class="muted">{{ e }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

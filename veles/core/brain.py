@@ -91,7 +91,7 @@ def ask_veles(question):
 
         tool_result = executor.execute(
             plan["action"],
-            question
+            {"question": question, "plan": plan}
         )
 
         return {"answer": create_report(tool_result), "suggested_memory": None}

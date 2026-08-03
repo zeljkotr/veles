@@ -1,5 +1,9 @@
 from veles.core.brain import ask_veles
 from veles.memory.memory import remember
+from veles.tts.speak import speak
+
+
+VOICE_OUTPUT_ENABLED = True
 
 
 print("====================")
@@ -19,6 +23,12 @@ while True:
 
     print("\nVELES:")
     print(result["answer"])
+
+    if VOICE_OUTPUT_ENABLED:
+        try:
+            speak(result["answer"])
+        except Exception as e:
+            print(f"[veles] Glasovni izlaz nije uspeo: {e}")
 
     suggestion = result.get("suggested_memory")
     if suggestion:

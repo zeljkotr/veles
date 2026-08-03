@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Memorija — Veles{% endblock %}
+{% block content %}
+<h2>Šta Veles pamti</h2>
+{% if not memories %}
+<p class="muted">Nema sačuvanih stavki.</p>
+{% else %}
+<table>
+    <tr><th>Ključ</th><th>Vrednost</th><th></th></tr>
+    {% for id, key, value in memories %}
+    <tr>
+        <td>{{ key }}</td>
+        <td>{{ value }}</td>
+        <td>
+            <form method="post" action="{{ url_for('memory_delete', memory_id=id) }}" style="margin:0;">
+                <button type="submit" style="background:none;border:none;color:var(--fail);padding:0;margin:0;cursor:pointer;">Obriši</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

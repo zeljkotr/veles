@@ -19,11 +19,25 @@ Greška prilikom izvršavanja alata:
     if tool_name == "remember_fact":
         return _create_memory_confirmation(data)
 
+    if tool_name == "run_command":
+        return _create_command_report(data)
+
     return _create_system_report(data)
 
 
 def _create_memory_confirmation(data):
     return f"Zapamtio sam: {data['key']} = {data['value']}"
+
+
+def _create_command_report(data):
+    if not data.get("executed"):
+        return data.get("output", "Komanda nije izvršena.")
+
+    status = "uspešno" if data.get("success") else "sa greškom"
+    return f"""Komanda `{data['command']}` izvršena {status}.
+
+Izlaz:
+{data['output']}"""
 
 
 def _create_system_report(data):

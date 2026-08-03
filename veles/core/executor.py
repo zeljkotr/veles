@@ -1,5 +1,6 @@
 from ..tools.system import system_info
 from ..tools.memory_tools import remember_fact
+from ..tools.command_tool import run_command
 
 
 class Executor:
@@ -10,7 +11,8 @@ class Executor:
         self.tools = {
 
             "system_info": system_info,
-            "remember_fact": remember_fact
+            "remember_fact": remember_fact,
+            "run_command": run_command
 
         }
 

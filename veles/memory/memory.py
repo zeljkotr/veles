@@ -76,6 +76,44 @@ def recall():
     return result
 
 
+def recall_with_ids():
+    """Same as recall() but includes each row's id - needed so the web
+    interface can offer a delete button per memory entry."""
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT id, key, value
+        FROM memories
+        ORDER BY id ASC
+        """
+    )
+
+    result = cursor.fetchall()
+
+    conn.close()
+
+    return result
+
+
+def delete_memory(memory_id):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM memories WHERE id = ?",
+        (memory_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+
 
 def get_memory_text():
 

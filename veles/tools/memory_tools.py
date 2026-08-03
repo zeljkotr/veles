@@ -11,7 +11,9 @@ from ..memory.memory import remember
 from ..llm.ollama_client import call_ollama, extract_json
 
 
-def remember_fact(question):
+def remember_fact(context):
+    question = context["question"]
+
     prompt = f"""
 
 Izdvoji ključnu činjenicu iz sledeće rečenice i vrati je STROGO u JSON formatu,
