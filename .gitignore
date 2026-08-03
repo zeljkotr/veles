@@ -5,3 +5,5 @@ __pycache__/
 *.log
 .idea/
 .vscode/
+# External engines
+piper1-gpl/
