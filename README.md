@@ -5,6 +5,191 @@ za samo-proveru sistema, sa audit logom i whitelist-om koji sprečava agenta da
 sam izvrši rizične akcije bez tvoje potvrde.
 
 ## Struktura
+=======
+The goal of Veles is not only to answer questions, but to understand tasks, execute actions, analyze results and help with system administration, automation and infrastructure operations.
+
+---
+
+# Why the name Veles?
+
+The name Veles comes from Slavic mythology.
+
+Veles (Велес) was one of the most important ancient Slavic gods, associated with wisdom, knowledge, magic, nature, earth, wealth and the unseen world.
+
+In Slavic tradition, Veles represents intelligence, adaptability and the ability to understand hidden connections.
+
+The project name was chosen because the goal of this AI assistant is similar:
+
+- to collect knowledge
+- to understand complex systems
+- to connect information
+- to help with decisions
+- to work alongside humans
+
+Veles is not designed as a simple chatbot.
+
+The vision is to build an intelligent technical companion capable of assisting with:
+
+- SRE operations
+- DevOps workflows
+- infrastructure management
+- automation
+- system analysis
+
+The name represents the idea of combining ancient symbolism of knowledge and modern artificial intelligence.
+
+---
+
+# Vision
+
+Veles is built as a modular AI agent architecture.
+
+The idea is to create a local Jarvis-like assistant that can work as an infrastructure engineer:
+
+- monitor systems
+- execute tools
+- analyze problems
+- automate tasks
+- maintain knowledge
+- assist with DevOps/SRE operations
+
+Architecture:
+
+```
+User
+ |
+ v
+Brain
+ |
+ v
+Planner
+ |
+ v
+Executor
+ |
+ v
+Tools
+ |
+ v
+Reporter
+ |
+ v
+Response
+```
+
+---
+
+# Current Features
+
+## AI Brain
+
+- Local LLM integration using Ollama
+- Qwen2.5 7B model support
+- Serbian Latin language support
+- Custom personality system
+- Memory integration
+
+---
+
+## Planner
+
+Planner decides what action should happen.
+
+Examples:
+
+```
+proveri sistem
+
+proveri mi server
+
+daj mi stanje računara
+
+mozes li da proveris server
+```
+
+Example output:
+
+```json
+{
+    "action": "system_info"
+}
+```
+
+---
+
+## Executor
+
+Executor is the action layer.
+
+It receives commands from the planner and executes available tools.
+
+Current tools:
+
+```
+system_info
+```
+
+Executor provides:
+
+- tool validation
+- execution control
+- error handling
+- structured results
+
+---
+
+## System Tool
+
+Current system monitoring capabilities:
+
+- Hostname
+- Operating system
+- CPU usage
+- Memory usage
+- Disk usage
+
+Example result:
+
+```json
+{
+    "hostname": "meshcorers",
+    "os": "Linux",
+    "cpu_usage": "1%",
+    "memory_percent": "20%",
+    "disk_free": "800GB"
+}
+```
+
+---
+
+## Reporter
+
+Reporter converts tool results into readable reports.
+
+Example:
+
+```
+Izvršena je provera sistema.
+
+Server:
+meshcorers
+
+CPU:
+1%
+
+Memorija:
+20%
+
+Disk:
+800GB slobodno
+
+Status:
+Sistem radi normalno.
+```
+
+---
+
+# Project Structure
 
 ```
 main.py                     CLI ulazna tačka
