@@ -1,98 +1,124 @@
-# ==========================
-# Veles AI - Git Ignore
-# ==========================
+# ==================================
+# Veles AI Project .gitignore
+# ==================================
 
-# Python cache
+# --------------------------
+# Python
+# --------------------------
+
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Virtual environments
-venv/
-.venv/
-env/
-xtts-env/
+*.so
+*.egg
+*.egg-info/
 
-# Python tools
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 
-# ==========================
-# Secrets / Certificates
-# ==========================
+
+# --------------------------
+# Virtual environments
+# --------------------------
+
+venv/
+.venv/
+env/
+ENV/
+
+xtts-env/
+
+
+# --------------------------
+# Secrets / Security
+# --------------------------
+
+.env
+.env.*
 
 certs/
 *.key
 *.crt
 *.pem
 
-.env
-.env.*
 
-# ==========================
-# Veles runtime data
-# ==========================
+# --------------------------
+# Veles runtime
+# --------------------------
 
-veles/logs/*.log
+veles/logs/
+veles/*.log
+
 veles/memory/*.db
-veles/web/static/audio/*
 
-# ==========================
-# External engines
-# ==========================
+veles/web/static/audio/
+*.wav
 
-piper1-gpl/
 
-# ==========================
-# AI models / training data
-# ==========================
+# --------------------------
+# AI Models
+# --------------------------
+
+models/
+*.onnx
+*.onnx.json
+
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+
+
+# --------------------------
+# Training data
+# --------------------------
 
 dataset/
 checkpoints/
 cv_sr_prepared/
 
-*.onnx
-*.ckpt
-*.pt
-*.pth
-*.bin
-*.safetensors
 
-# ==========================
-# Temporary files
-# ==========================
+# --------------------------
+# External engines
+# --------------------------
+
+piper1-gpl/
+
+
+# --------------------------
+# Cache / temporary
+# --------------------------
+
+tmp/
+temp/
 
 *.tmp
-*.temp
-*.swp
 *.bak
+*.swp
 
-# ==========================
-# OS files
-# ==========================
 
-.DS_Store
-Thumbs.db
+# --------------------------
+# Build
+# --------------------------
 
-# ==========================
+build/
+dist/
+
+
+# --------------------------
 # IDE
-# ==========================
+# --------------------------
 
 .vscode/
 .idea/
 
-# ==========================
-# Build files
-# ==========================
 
-build/
-dist/
-*.egg-info/
+# --------------------------
+# OS
+# --------------------------
 
-# ==========================
-# Local experiments
-# ==========================
-
-experiments/
-scratch/
+.DS_Store
+Thumbs.db
