@@ -76,7 +76,7 @@ app.secret_key = "veles-dev-secret-change-me"
 
 
 
-TAILSCALE_IP = "100.90.76.41"
+TAILSCALE_IP = "0.0.0.0"
 
 
 CERT_FILE = "certs/meshcorers.taild94372.ts.net.crt"
@@ -213,6 +213,12 @@ def dashboard_view():
 
 @app.route("/chat", methods=["GET"])
 def chat():
+
+
+    if request.args.get("new") == "1":
+
+        session["history"] = []
+
 
 
     history = session.get(

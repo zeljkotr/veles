@@ -25,10 +25,12 @@ body {
 
     margin:0;
     padding:0;
+
     width:100%;
     height:100%;
 
     background:var(--bg);
+
     color:var(--text);
 
     font-family:
@@ -39,17 +41,19 @@ body {
 }
 
 
-
 /*
-GLAVNI LAYOUT
+GLOBAL LAYOUT
 */
 
 
 .app-layout {
 
     display:flex;
+
     width:100%;
+
     height:100vh;
+
     overflow:hidden;
 
 }
@@ -64,7 +68,9 @@ SIDEBAR
 .sidebar {
 
     width:260px;
+
     min-width:260px;
+
     height:100vh;
 
     background:
@@ -114,7 +120,7 @@ SIDEBAR
 
 
 /*
-NAVIGACIJA
+MENU
 */
 
 
@@ -142,8 +148,7 @@ NAVIGACIJA
 
     text-decoration:none;
 
-    border:
-        1px solid transparent;
+    border:1px solid transparent;
 
     transition:.3s;
 
@@ -164,7 +169,7 @@ NAVIGACIJA
 
 
 /*
-GLAVNI DEO
+MAIN
 */
 
 
@@ -180,11 +185,6 @@ GLAVNI DEO
 
 }
 
-
-
-/*
-TOP HEADER
-*/
 
 
 .top-header {
@@ -237,11 +237,6 @@ TOP HEADER
 
 
 
-/*
-PAGE
-*/
-
-
 .page-container {
 
     flex:1;
@@ -249,6 +244,25 @@ PAGE
     padding:20px;
 
     overflow:auto;
+
+}
+
+
+
+/*
+CARDS
+*/
+
+
+.card {
+
+    background:var(--panel);
+
+    border:
+
+        1px solid var(--border);
+
+    border-radius:16px;
 
 }
 
@@ -266,13 +280,11 @@ MARKDOWN
 }
 
 
-
 .markdown-body p {
 
     margin-bottom:12px;
 
 }
-
 
 
 .markdown-body h1,
@@ -282,7 +294,6 @@ MARKDOWN
     color:var(--gold);
 
 }
-
 
 
 .markdown-body code {
@@ -298,16 +309,13 @@ MARKDOWN
 }
 
 
-
 .markdown-body pre {
 
     background:#05080c;
 
-    border:
-        1px solid var(--border);
+    border:1px solid var(--border);
 
-    border-left:
-        4px solid var(--gold);
+    border-left:4px solid var(--gold);
 
     border-radius:10px;
 
@@ -320,7 +328,7 @@ MARKDOWN
 
 
 /*
-SCROLLBAR
+SCROLL
 */
 
 
@@ -346,26 +354,11 @@ SCROLLBAR
 
 }
 
-
-
 /*
 ================================================
 VELES CHAT CORE
 ================================================
 */
-
-
-.card {
-
-    background:var(--panel);
-
-    border:
-        1px solid var(--border);
-
-    border-radius:16px;
-
-}
-
 
 
 .chat-container {
@@ -383,8 +376,7 @@ VELES CHAT CORE
             #090d12
         );
 
-    border:
-        1px solid var(--border);
+    border:1px solid var(--border);
 
     border-radius:16px;
 
@@ -411,8 +403,7 @@ CHAT HEADER
 
     background:var(--panel);
 
-    border-bottom:
-        1px solid var(--border);
+    border-bottom:1px solid var(--border);
 
 }
 
@@ -437,6 +428,9 @@ CHAT HEADER
     color:var(--muted);
 
 }
+
+
+
 /*
 STATUS
 */
@@ -480,7 +474,7 @@ CHAT HISTORY
 */
 
 
-.chat-history {
+.chat-window {
 
     flex:1;
 
@@ -488,44 +482,8 @@ CHAT HISTORY
 
     overflow-y:auto;
 
-    display:flex;
-
-    flex-direction:column;
-
-    gap:16px;
-
 }
 
-
-
-/*
-EMPTY STATE
-*/
-
-
-.empty-state {
-
-    flex:1;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    text-align:center;
-
-    color:var(--muted);
-
-    font-size:18px;
-
-}
-
-
-
-/*
-MESSAGE
-*/
 
 
 .message {
@@ -538,31 +496,31 @@ MESSAGE
 
     line-height:1.6;
 
+    margin-bottom:16px;
+
 }
 
 
 
-.user-message {
+.message.user {
 
-    align-self:flex-end;
+    margin-left:auto;
 
     background:#243447;
 
-    border:
-        1px solid #34495e;
+    border:1px solid #34495e;
 
 }
 
 
 
-.assistant-message {
+.message.assistant {
 
-    align-self:flex-start;
+    margin-right:auto;
 
     background:var(--panel);
 
-    border:
-        1px solid var(--border);
+    border:1px solid var(--border);
 
 }
 
@@ -584,14 +542,6 @@ MESSAGE
 
 
 
-.user-message .message-role {
-
-    color:var(--gold2);
-
-}
-
-
-
 .message-text {
 
     color:var(--text);
@@ -601,27 +551,33 @@ MESSAGE
 
 
 /*
-MEMORY
+EMPTY CHAT
 */
 
 
-.memory-suggestion {
+.empty-chat {
 
-    margin:10px 25px;
+    height:100%;
 
-    padding:12px 15px;
+    display:flex;
 
-    background:#111820;
+    flex-direction:column;
 
-    border:
-        1px solid var(--border);
+    justify-content:center;
 
-    border-left:
-        3px solid var(--gold);
+    align-items:center;
 
-    border-radius:10px;
+    text-align:center;
 
     color:var(--muted);
+
+}
+
+
+
+.empty-chat h2 {
+
+    color:var(--gold);
 
 }
 
@@ -632,12 +588,11 @@ INPUT
 */
 
 
-..chat-input {
+.chat-input {
 
     background:var(--panel);
 
-    border-top:
-        1px solid var(--border);
+    border-top:1px solid var(--border);
 
     padding:15px;
 
@@ -659,8 +614,7 @@ INPUT
 
     color:var(--text);
 
-    border:
-        1px solid var(--border);
+    border:1px solid var(--border);
 
     border-radius:16px;
 
@@ -690,47 +644,28 @@ INPUT
 
 
 
-.chat-input:focus {
-
-    border-color:var(--gold);
-
-}
-
-
-
 /*
-ACTIONS
+BUTTONS
 */
 
 
-.chat-actions {
+.chat-buttons {
 
     display:flex;
 
     gap:12px;
 
-    padding:18px;
-
-    background:var(--panel);
-
-    border-top:
-        1px solid var(--border);
+    margin-top:15px;
 
 }
 
 
 
-.chat-actions button {
-
-    background:var(--gold);
-
-    color:#111;
-
-    border:none;
-
-    border-radius:10px;
+.chat-buttons button {
 
     padding:12px 18px;
+
+    border-radius:10px;
 
     font-weight:700;
 
@@ -742,7 +677,32 @@ ACTIONS
 
 
 
-.chat-actions button:hover {
+.btn-primary {
+
+    background:var(--gold);
+
+    color:#111;
+
+    border:none;
+
+}
+
+
+
+.btn-secondary {
+
+    background:#18222d;
+
+    color:var(--text);
+
+    border:1px solid var(--border);
+
+}
+
+
+
+.btn-secondary:hover,
+.btn-primary:hover {
 
     opacity:.85;
 
@@ -757,12 +717,7 @@ VOICE
 
 #voice-button {
 
-    background:#243447;
-
     color:var(--gold2);
-
-    border:
-        1px solid var(--border);
 
 }
 
@@ -775,12 +730,113 @@ NEW CHAT
 
 #new-chat-button {
 
-    background:#18222d;
-
     color:var(--text);
 
-    border:
-        1px solid var(--border);
+}
+
+
+
+/*
+THINKING OVERLAY
+*/
+
+
+#thinking-overlay {
+
+    position:fixed;
+
+    inset:0;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:rgba(11,15,20,.75);
+
+    z-index:9999;
+
+}
+
+
+
+.thinking-box {
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+
+.thinking-orb {
+
+    width:90px;
+
+    height:90px;
+
+    border-radius:50%;
+
+    background:var(--gold);
+
+    box-shadow:
+
+        0 0 40px var(--gold);
+
+    animation:
+
+        pulse-orb 1.5s infinite;
+
+}
+
+
+
+.thinking-text {
+
+    margin-top:20px;
+
+    color:var(--gold2);
+
+    font-size:18px;
+
+}
+
+
+
+@keyframes pulse-orb {
+
+
+    0% {
+
+        transform:scale(.8);
+
+        opacity:.5;
+
+    }
+
+
+    50% {
+
+        transform:scale(1.1);
+
+        opacity:1;
+
+    }
+
+
+    100% {
+
+        transform:scale(.8);
+
+        opacity:.5;
+
+    }
 
 }
 
@@ -801,7 +857,6 @@ RESPONSIVE
     }
 
 
-
     .message {
 
         max-width:95%;
@@ -809,81 +864,11 @@ RESPONSIVE
     }
 
 
-
-    .chat-actions {
+    .chat-buttons {
 
         flex-direction:column;
 
     }
 
-
-}
-
-#thinking-overlay {
-
-    display:none;
-
-    position:absolute;
-
-    inset:0;
-
-    background:rgba(11,15,20,.75);
-
-    justify-content:center;
-
-    align-items:center;
-
-    z-index:50;
-
-}
-
-
-.thinking-orb {
-
-    width:90px;
-
-    height:90px;
-
-    border-radius:50%;
-
-    background:var(--gold);
-
-    box-shadow:
-        0 0 40px var(--gold);
-
-    animation:
-        pulse-orb 1.5s infinite;
-
-}
-
-
-@keyframes pulse-orb {
-
-
-    0% {
-
-        transform:scale(.8);
-
-        opacity:.5;
-
-    }
-
-
-    50% {
-
-        transform:scale(1.15);
-
-        opacity:1;
-
-    }
-
-
-    100% {
-
-        transform:scale(.8);
-
-        opacity:.5;
-
-    }
 
 }

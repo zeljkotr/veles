@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
 {% block title %}
-Veles AI Console
+Veles AI Chat
 {% endblock %}
 
 
 {% block content %}
+
 
 <div class="chat-container">
 
@@ -19,14 +20,11 @@ Veles AI Console
                 Veles AI Core
             </h1>
 
-
             <p>
                 Lokalni AI Operations Assistant
             </p>
 
-
         </div>
-
 
 
         <div class="status-indicator">
@@ -43,71 +41,43 @@ Veles AI Console
 
 
 
-    <div
-        class="chat-history card"
-        id="chat-history"
-    >
+
+    <div class="chat-window card" id="chat-window">
 
 
         {% if history %}
 
 
-            {% for item in history %}
+            {% for message in history %}
 
 
-                {% if item.role == "user" %}
+                <div class="message {{ message.role }}">
 
 
-                    <div class="message user-message">
+                    <div class="message-role">
 
+                        {% if message.role == "user" %}
 
-                        <div class="message-role">
+                            TI
 
-                            USER
-
-                        </div>
-
-
-
-                        <div class="message-text markdown-body">
-
-                            {{ item.text|safe }}
-
-                        </div>
-
-
-                    </div>
-
-
-
-                {% else %}
-
-
-
-                    <div class="message assistant-message">
-
-
-                        <div class="message-role">
+                        {% else %}
 
                             VELES
 
-                        </div>
-
-
-
-                        <div class="message-text markdown-body">
-
-                            {{ item.text|safe }}
-
-                        </div>
-
+                        {% endif %}
 
                     </div>
 
 
 
-                {% endif %}
+                    <div class="message-text">
 
+                        {{ message.text | markdown | safe }}
+
+                    </div>
+
+
+                </div>
 
 
             {% endfor %}
@@ -117,21 +87,16 @@ Veles AI Console
         {% else %}
 
 
-
-            <div class="empty-state">
+            <div class="empty-chat">
 
 
                 <h2>
-
                     Veles spreman
-
                 </h2>
 
 
                 <p>
-
-                    Postavi pitanje ili pokreni zadatak.
-
+                    Postavi pitanje ili zadaj komandu.
                 </p>
 
 
@@ -142,67 +107,8 @@ Veles AI Console
         {% endif %}
 
 
-
     </div>
 
-
-
-
-
-    {% if suggestion %}
-
-
-
-    <div class="memory-suggestion card">
-
-
-        <h3>
-
-            Predlog memorije
-
-        </h3>
-
-
-
-        <form
-            method="POST"
-            action="{{ url_for('confirm_memory') }}"
-        >
-
-
-            <input
-                type="text"
-                name="key"
-                value="{{ suggestion.key }}"
-                readonly
-            >
-
-
-
-            <input
-                type="text"
-                name="value"
-                value="{{ suggestion.value }}"
-                readonly
-            >
-
-
-
-            <button type="submit">
-
-                Sačuvaj memoriju
-
-            </button>
-
-
-        </form>
-
-
-    </div>
-
-
-
-    {% endif %}
 
 
 
@@ -210,7 +116,6 @@ Veles AI Console
 
 
     <div class="chat-input card">
-
 
 
         <form
@@ -243,15 +148,24 @@ Veles AI Console
 
 
 
-            <div class="chat-actions">
+
+
+            <div class="chat-buttons">
 
 
 
-                <button type="submit">
+                <button
+
+                    type="submit"
+
+                    class="btn-primary"
+
+                >
 
                     Pošalji
 
                 </button>
+
 
 
 
@@ -263,6 +177,8 @@ Veles AI Console
 
                     id="voice-button"
 
+                    class="btn-secondary"
+
                 >
 
                     🎤 Veles
@@ -273,11 +189,15 @@ Veles AI Console
 
 
 
+
+
                 <button
 
                     type="button"
 
                     id="new-chat-button"
+
+                    class="btn-secondary"
 
                 >
 
@@ -291,6 +211,7 @@ Veles AI Console
 
 
 
+
         </form>
 
 
@@ -301,52 +222,80 @@ Veles AI Console
 
 
 
+</div>
 
-    <div id="thinking-overlay">
+
+
+
+
+
+
+
+<!-- Veles thinking overlay -->
+
+
+<div id="thinking-overlay">
+
+
+    <div class="thinking-box">
 
 
         <div class="thinking-orb"></div>
 
 
+        <div class="thinking-text">
+
+            Veles razmišlja...
+
+        </div>
+
+
     </div>
 
 
+</div>
 
 
 
 
-    {% if audio_url %}
 
 
 
-    <audio
+{% if audio_url %}
 
-        id="veles-audio"
 
-        autoplay
+<audio
+
+    id="veles-audio"
+
+    autoplay
+
+>
+
+
+    <source
+
+        src="{{ audio_url }}"
+
+        type="audio/wav"
 
     >
 
 
-        <source
-
-            src="{{ audio_url }}"
-
-            type="audio/wav"
-
-        >
-
-
-    </audio>
+</audio>
 
 
 
-    {% endif %}
+{% endif %}
 
 
 
 
-</div>
+
+
+
+<script src="{{ url_for('static', filename='js/veles.js') }}"></script>
+
 
 
 

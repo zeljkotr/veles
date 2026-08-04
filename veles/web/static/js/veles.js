@@ -1,11 +1,12 @@
-/*
-    VELES WEB JAVASCRIPT
-*/
-
-
 document.addEventListener(
     "DOMContentLoaded",
-    function(){
+    function () {
+
+
+        const form =
+            document.getElementById(
+                "chat-form"
+            );
 
 
         const textarea =
@@ -14,9 +15,15 @@ document.addEventListener(
             );
 
 
-        const form =
+        const newChatButton =
             document.getElementById(
-                "chat-form"
+                "new-chat-button"
+            );
+
+
+        const voiceButton =
+            document.getElementById(
+                "voice-button"
             );
 
 
@@ -27,118 +34,138 @@ document.addEventListener(
 
 
 
+
+
         /*
-        ENTER SEND
+        ENTER = SEND
+        SHIFT + ENTER = NOVI RED
         */
 
-        if(textarea && form){
+
+        if (textarea && form) {
+
 
             textarea.addEventListener(
                 "keydown",
-                function(event){
+                function (event) {
 
 
-                    if(
-                        event.key === "Enter" &&
+                    if (
+                        event.key === "Enter"
+                        &&
                         !event.shiftKey
-                    ){
+                    ) {
+
 
                         event.preventDefault();
 
-                        form.submit();
+
+                        form.requestSubmit();
+
 
                     }
 
+
                 }
             );
+
 
         }
 
 
 
+
+
+
+
         /*
-        THINKING OVERLAY
+        SUBMIT - PRIKAŽI VELES RAZMIŠLJANJE
         */
 
-        if(form && overlay){
+
+        if (form) {
+
 
             form.addEventListener(
                 "submit",
-                function(){
+                function () {
 
-                    overlay.style.display =
-                        "flex";
+
+                    if (overlay) {
+
+
+                        overlay.style.display =
+                            "flex";
+
+
+                    }
+
 
                 }
             );
 
+
         }
+
+
+
+
 
 
 
         /*
-        AUTO SCROLL
+        NOVI RAZGOVOR
         */
 
-        const history =
-            document.getElementById(
-                "chat-history"
+
+        if (newChatButton) {
+
+
+            newChatButton.addEventListener(
+                "click",
+                function () {
+
+
+                    window.location.href =
+                        "/chat?new=1";
+
+
+                }
             );
 
 
-        if(history){
-
-            history.scrollTop =
-                history.scrollHeight;
-
         }
+
+
+
+
 
 
 
         /*
-        VOICE
+        VOICE DUGME
         */
 
-        const voiceButton =
-            document.getElementById(
-                "voice-button"
+
+        if (voiceButton) {
+
+
+            voiceButton.addEventListener(
+                "click",
+                function () {
+
+
+                    alert(
+                        "Voice funkcija uskoro."
+                    );
+
+
+                }
             );
 
 
-        if(voiceButton){
-
-            voiceButton.onclick =
-                function(){
-
-                    voiceButton.innerHTML =
-                        "🎙 Aktivacija...";
-
-                };
-
         }
 
-
-
-        /*
-        NEW CHAT
-        */
-
-        const newChatButton =
-            document.getElementById(
-                "new-chat-button"
-            );
-
-
-        if(newChatButton){
-
-            newChatButton.onclick =
-                function(){
-
-                    location.reload();
-
-                };
-
-        }
 
 
     }
