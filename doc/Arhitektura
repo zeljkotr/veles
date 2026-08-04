@@ -1,0 +1,63 @@
+VELES AI OPERATIONS CENTER
+│
+├── Core AI
+│   ├── Ollama lokalni model
+│   ├── Planner
+│   ├── Memory
+│   └── Decision Engine
+│
+├── System Operations
+│   ├── CPU/RAM/Disk
+│   ├── Linux servis status
+│   ├── Process monitoring
+│   ├── Logs
+│   └── Auto remediation
+│
+├── Container Operations
+│   ├── Docker
+│   │   ├── containers
+│   │   ├── images
+│   │   ├── volumes
+│   │   └── restart/health
+│   │
+│   └── Kubernetes
+│       ├── nodes
+│       ├── pods
+│       ├── deployments
+│       ├── events
+│       └── rollout/restart
+│
+├── Cloud Operations
+│   ├── AWS
+│   │   ├── EC2
+│   │   ├── ECS
+│   │   ├── EKS
+│   │   ├── CloudWatch
+│   │   └── IAM status
+│   │
+│   ├── Azure
+│   │   ├── VM
+│   │   ├── AKS
+│   │   ├── Monitor
+│   │   └── Resource status
+│   │
+│   └── Cloud health
+│
+├── Monitoring Center
+│   ├── Metrics
+│   ├── Alerts
+│   ├── Anomaly detection
+│   └── Reports
+│
+├── Automation Engine
+│   ├── Restart service
+│   ├── Restart container
+│   ├── Scale workload
+│   ├── Cleanup disk
+│   └── Execute approved actions
+│
+└── Approval Center
+    ├── Plan
+    ├── Explain
+    ├── Approve
+    └── Execute
