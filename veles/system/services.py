@@ -1,0 +1,218 @@
+"""
+Veles System Services Manager
+
+Osnovni servisni sloj za:
+- Linux systemd servise
+- servisni status
+- restart servisa (kasnije preko approval sistema)
+
+Ne izvršava opasne akcije bez kontrole.
+"""
+
+
+import subprocess
+import shutil
+
+
+
+def check_systemd_available():
+
+    return shutil.which(
+        "systemctl"
+    ) is not None
+
+
+
+
+
+
+def get_service_status(service_name: str):
+
+    """
+    Vraća status Linux systemd servisa.
+    """
+
+    if not check_systemd_available():
+
+        return {
+            "service": service_name,
+            "status": "systemctl nije dostupan",
+            "running": False
+        }
+
+
+
+    try:
+
+        result = subprocess.run(
+            [
+                "systemctl",
+                "is-active",
+                service_name
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+
+
+        status = result.stdout.strip()
+
+
+        return {
+
+            "service": service_name,
+
+            "status": status,
+
+            "running": status == "active"
+
+        }
+
+
+
+    except Exception as e:
+
+
+        return {
+
+            "service": service_name,
+
+            "status": str(e),
+
+            "running": False
+
+        }
+
+
+
+
+
+
+
+
+def list_common_services():
+
+    """
+    Lista osnovnih servisa koje Veles prati.
+    
+    Kasnije će se proširiti:
+    Docker
+    Kubernetes
+    Cloud agenti
+    """
+
+    services = [
+
+        "ssh",
+
+        "docker",
+
+        "ollama",
+
+    ]
+
+
+    result = []
+
+
+    for service in services:
+
+
+        result.append(
+            get_service_status(
+                service
+            )
+        )
+
+
+    return result
+
+
+
+
+
+
+
+def restart_service(service_name: str):
+
+    """
+    Restart servisa.
+
+    Kasnije ide kroz:
+    Planner
+    Approval Center
+    Executor
+    """
+
+
+    if not check_systemd_available():
+
+        return {
+
+            "success": False,
+
+            "message": "systemctl nije dostupan"
+
+        }
+
+
+
+    try:
+
+
+        result = subprocess.run(
+            [
+                "systemctl",
+                "restart",
+                service_name
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+
+
+        if result.returncode == 0:
+
+
+            return {
+
+                "success": True,
+
+                "service": service_name,
+
+                "message": "Servis restartovan"
+
+            }
+
+
+
+        else:
+
+
+            return {
+
+                "success": False,
+
+                "service": service_name,
+
+                "message": result.stderr.strip()
+
+            }
+
+
+
+    except Exception as e:
+
+
+        return {
+
+            "success": False,
+
+            "service": service_name,
+
+            "message": str(e)
+
+        }

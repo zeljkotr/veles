@@ -1,374 +1,217 @@
 {% extends "base.html" %}
-{% block title %}Chat — Veles{% endblock %}
+
+{% block title %}
+Veles AI Console
+{% endblock %}
+
 {% block content %}
 
-<div id="thinking-overlay" class="thinking-overlay">
-    <div class="orb-container">
-        <div class="ring ring1"></div>
-        <div class="ring ring2"></div>
-        <div class="ring ring3"></div>
-        <div class="orb"></div>
-    </div>
-    <p class="thinking-text">VELES RAZMIŠLJA...</p>
+<div class="chat-container">
+
+<div class="chat-header card">
+
+```
+<div>
+    <h1>
+        Veles AI Core
+    </h1>
+
+    <p>
+        Lokalni AI Operations Assistant
+    </p>
 </div>
 
-<div class="chat-container" id="chat-container">
-    {% for msg in history %}
-        {% if msg.role == 'user' %}
-        <div class="msg msg-user"><div class="bubble">{{ msg.text }}</div></div>
+
+<div class="status-indicator">
+
+    <span class="status-dot"></span>
+
+    ONLINE
+
+</div>
+```
+
+</div>
+
+<div class="chat-history card" id="chat-history">
+
+```
+{% if history %}
+
+    {% for item in history %}
+
+
+        {% if item.role == "user" %}
+
+        <div class="message user-message">
+
+            <div class="message-role">
+                USER
+            </div>
+
+            <div class="message-text">
+                {{ item.text }}
+            </div>
+
+        </div>
+
+
         {% else %}
-        <div class="msg msg-assistant"><div class="bubble">{{ msg.text }}</div></div>
+
+
+        <div class="message assistant-message">
+
+            <div class="message-role">
+                VELES
+            </div>
+
+            <div class="message-text">
+                {{ item.text }}
+            </div>
+
+        </div>
+
+
         {% endif %}
+
+
     {% endfor %}
+
+
+{% else %}
+
+
+    <div class="empty-state">
+
+        <h2>
+            Veles spreman
+        </h2>
+
+        <p>
+            Postavi pitanje ili pokreni zadatak.
+        </p>
+
+    </div>
+
+
+{% endif %}
+```
+
 </div>
 
 {% if suggestion %}
-<div class="card suggestion-card">
-    <p>Veles predlaže da zapamti: <strong>{{ suggestion.key }}</strong> = {{ suggestion.value }}</p>
-    <form method="post" action="{{ url_for('confirm_memory') }}">
-        <input type="hidden" name="key" value="{{ suggestion.key }}">
-        <input type="hidden" name="value" value="{{ suggestion.value }}">
-        <button type="submit">Sačuvaj</button>
-    </form>
+
+<div class="memory-suggestion card">
+
+```
+<h3>
+    Predlog memorije
+</h3>
+
+
+<form method="POST"
+      action="{{ url_for('confirm_memory') }}">
+
+
+    <input
+        type="text"
+        name="key"
+        value="{{ suggestion.key }}"
+        readonly
+    >
+
+
+    <input
+        type="text"
+        name="value"
+        value="{{ suggestion.value }}"
+        readonly
+    >
+
+
+    <button type="submit">
+        Sačuvaj memoriju
+    </button>
+
+
+</form>
+```
+
 </div>
+
 {% endif %}
 
-<form method="post" action="{{ url_for('ask') }}" id="ask-form" class="input-bar">
-    <button type="button" id="mic-btn" class="mic-btn" title="Govori jednom">🎤</button>
-    <button type="button" id="wake-toggle" class="mic-btn" title="Uvek slušaj za 'Veles'">🎧</button>
-    <textarea name="question" rows="1" placeholder='Pitaj Veles-a nešto, ili reci "Veles, ..."' required autofocus></textarea>
-    <button type="submit">Pošalji</button>
+<div class="chat-input card">
+
+```
+<form method="POST"
+      action="{{ url_for('ask') }}"
+      id="chat-form">
+
+
+    <textarea
+        id="question"
+        name="question"
+        placeholder="Unesi komandu ili pitanje..."
+        autocomplete="off"
+        rows="3"></textarea>
+
+
+
+    <div class="chat-actions">
+
+
+        <button type="submit">
+            Pošalji
+        </button>
+
+
+
+        <button
+            type="button"
+            id="voice-button">
+
+            🎤
+
+        </button>
+
+
+
+        <button
+            type="button"
+            id="new-chat-button">
+
+            Novi razgovor
+
+        </button>
+
+
+
+    </div>
+
+
+
 </form>
+```
 
-<form method="post" action="{{ url_for('new_chat') }}" class="new-chat-form">
-    <button type="submit" class="new-chat-btn">Novi razgovor</button>
-</form>
-
-<style>
-.chat-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding-bottom: 120px;
-}
-.msg { display: flex; }
-.msg-user { justify-content: flex-end; }
-.msg-assistant { justify-content: flex-start; }
-.bubble {
-    max-width: 75%;
-    padding: 12px 16px;
-    border-radius: 14px;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    font-size: 0.95rem;
-}
-.msg-user .bubble {
-    background: var(--accent);
-    color: #14161c;
-    border-bottom-right-radius: 4px;
-}
-.msg-assistant .bubble {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
-}
-.suggestion-card { margin-bottom: 100px; }
-
-.input-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--bg-elevated);
-    border-top: 1px solid var(--border);
-    padding: 14px 24px;
-    display: flex;
-    gap: 10px;
-    max-width: 800px;
-    margin: 0 auto;
-}
-.input-bar textarea {
-    flex: 1;
-    resize: none;
-    margin: 0;
-}
-.input-bar button { margin: 0; }
-
-.mic-btn {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
-}
-.mic-btn.listening {
-    background: var(--fail);
-    border-color: var(--fail);
-    animation: mic-pulse 1s infinite;
-}
-@keyframes mic-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 95, 95, 0.5); }
-    50% { box-shadow: 0 0 0 10px rgba(239, 95, 95, 0); }
-}
-#wake-toggle.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #14161c;
-    animation: wake-pulse 2s infinite;
-}
-@keyframes wake-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(232, 163, 61, 0.5); }
-    50% { box-shadow: 0 0 0 8px rgba(232, 163, 61, 0); }
-}
-
-.new-chat-form {
-    position: fixed;
-    bottom: 78px;
-    left: 0;
-    right: 0;
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: right;
-    padding: 0 24px;
-    pointer-events: none;
-}
-.new-chat-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    padding: 6px 12px;
-    pointer-events: auto;
-}
-.new-chat-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-.thinking-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(18, 21, 27, 0.96);
-    z-index: 9999;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 28px;
-}
-.orb-container {
-    position: relative;
-    width: 220px;
-    height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.orb {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ffd48a, var(--accent) 60%, #8a5a1f 100%);
-    box-shadow: 0 0 40px var(--accent), 0 0 80px rgba(232, 163, 61, 0.4);
-    animation: pulse-orb 1.6s ease-in-out infinite;
-    z-index: 2;
-}
-.ring {
-    position: absolute;
-    border: 2px solid var(--accent);
-    border-radius: 50%;
-    opacity: 0;
-    animation: ring-expand 2.4s ease-out infinite;
-}
-.ring1 { animation-delay: 0s; }
-.ring2 { animation-delay: 0.8s; }
-.ring3 { animation-delay: 1.6s; }
-
-@keyframes pulse-orb {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.18); }
-}
-@keyframes ring-expand {
-    0% { width: 44px; height: 44px; opacity: 0.9; border-width: 2px; }
-    100% { width: 220px; height: 220px; opacity: 0; border-width: 0.5px; }
-}
-.thinking-text {
-    color: var(--accent);
-    font-family: ui-monospace, monospace;
-    font-size: 0.95rem;
-    letter-spacing: 0.15em;
-    animation: text-flicker 1.6s ease-in-out infinite;
-}
-@keyframes text-flicker {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-}
-</style>
+</div>
 
 {% if audio_url %}
-<audio id="tts-audio" src="{{ audio_url }}" autoplay></audio>
+
+<audio
+ id="veles-audio"
+ autoplay>
+
+```
+<source
+    src="{{ audio_url }}"
+    type="audio/wav">
+```
+
+</audio>
+
 {% endif %}
 
-<script>
-window.addEventListener('load', function() {
-    window.scrollTo(0, document.body.scrollHeight);
-});
+</div>
 
-document.getElementById('ask-form').addEventListener('submit', function() {
-    document.getElementById('thinking-overlay').style.display = 'flex';
-});
-
-document.querySelector('#ask-form textarea').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        document.getElementById('ask-form').requestSubmit();
-    }
-});
-
-// Voice INPUT (speech-to-text) - fills the textarea, doesn't auto-send,
-// so you can review/edit before hitting Enter or the send button.
-// Note: Serbian recognition quality/availability depends on the
-// browser's speech service and may be limited - English or a mix may
-// come through for some words.
-(function setupMic() {
-    const micBtn = document.getElementById('mic-btn');
-    const textarea = document.querySelector('#ask-form textarea');
-    const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognitionImpl) {
-        micBtn.style.display = 'none';
-        return;
-    }
-
-    const recognition = new SpeechRecognitionImpl();
-    recognition.lang = 'sr-RS';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    let listening = false;
-
-    micBtn.addEventListener('click', function() {
-        if (listening) {
-            recognition.stop();
-            return;
-        }
-        recognition.start();
-    });
-
-    recognition.onstart = function() {
-        listening = true;
-        micBtn.classList.add('listening');
-    };
-
-    recognition.onend = function() {
-        listening = false;
-        micBtn.classList.remove('listening');
-    };
-
-    recognition.onerror = function(event) {
-        console.error('Speech recognition error:', event.error);
-        listening = false;
-        micBtn.classList.remove('listening');
-    };
-
-    recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        textarea.value = transcript;
-        textarea.focus();
-    };
-})();
-
-// Wake-word mode ("Veles, ...") - runs continuously once toggled on.
-// Browsers require a user click to grant microphone access, so this
-// can't start automatically on page load - one click on 🎧 activates
-// it, after which no further clicks are needed, just say "Veles, ...".
-(function setupWakeWord() {
-    const wakeToggle = document.getElementById('wake-toggle');
-    const textarea = document.querySelector('#ask-form textarea');
-    const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognitionImpl) {
-        wakeToggle.style.display = 'none';
-        return;
-    }
-
-    let wakeRecognition = null;
-    let shouldRestart = false;
-
-    function createRecognition() {
-        const rec = new SpeechRecognitionImpl();
-        rec.lang = 'sr-RS';
-        rec.continuous = true;
-        rec.interimResults = false;
-        rec.maxAlternatives = 1;
-
-        rec.onresult = function(event) {
-            const last = event.results[event.results.length - 1];
-            const transcript = last[0].transcript.trim().toLowerCase();
-            const wakeIndex = transcript.indexOf('veles');
-            if (wakeIndex === -1) return;
-
-            const afterWake = transcript.slice(wakeIndex + 5).replace(/^[,.\s]+/, '').trim();
-            if (afterWake.length > 0) {
-                textarea.value = afterWake;
-                document.getElementById('ask-form').requestSubmit();
-            }
-        };
-
-        rec.onerror = function(event) {
-            console.error('Wake word recognition error:', event.error);
-        };
-
-        rec.onend = function() {
-            if (shouldRestart) {
-                try { rec.start(); } catch (e) { /* already running */ }
-            }
-        };
-
-        return rec;
-    }
-
-    wakeToggle.addEventListener('click', function() {
-        if (wakeToggle.classList.contains('active')) {
-            shouldRestart = false;
-            if (wakeRecognition) wakeRecognition.stop();
-            wakeToggle.classList.remove('active');
-        } else {
-            wakeRecognition = createRecognition();
-            shouldRestart = true;
-            wakeRecognition.start();
-            wakeToggle.classList.add('active');
-        }
-    });
-})();
-
-function speakAnswer(text) {
-    if (!('speechSynthesis' in window)) return;
-
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'sr-RS';
-
-    function pickVoiceAndSpeak() {
-        const voices = speechSynthesis.getVoices();
-        const srVoice = voices.find(v => v.lang.toLowerCase().startsWith('sr'));
-        if (srVoice) {
-            utter.voice = srVoice;
-        }
-        speechSynthesis.speak(utter);
-    }
-
-    if (speechSynthesis.getVoices().length > 0) {
-        pickVoiceAndSpeak();
-    } else {
-        speechSynthesis.onvoiceschanged = pickVoiceAndSpeak;
-    }
-}
-
-{% if latest_answer and not audio_url %}
-speakAnswer({{ latest_answer|tojson }});
-{% endif %}
-</script>
 {% endblock %}

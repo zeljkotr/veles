@@ -1,0 +1,172 @@
+/*
+    VELES LOG CENTAR
+
+    Modul:
+    - pregled događaja
+    - sistemski logovi
+    - aktivnosti
+*/
+
+
+.logs-container{
+
+    height:100%;
+
+    overflow-y:auto;
+
+    max-width:1100px;
+
+    margin:auto;
+
+}
+
+
+
+.logs-header h1{
+
+    color:var(--gold);
+
+}
+
+
+
+.logs-header p{
+
+    color:var(--muted);
+
+    margin-top:8px;
+
+}
+
+
+
+.logs-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+
+
+.log-item{
+
+    background:var(--panel);
+
+}
+
+
+
+.log-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.log-time{
+
+    color:var(--muted);
+
+    font-size:13px;
+
+}
+
+
+
+.log-level{
+
+    background:#1a2330;
+
+    color:var(--gold);
+
+    padding:5px 12px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+}
+
+
+
+.log-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+
+
+.log-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    padding:10px;
+
+    background:#10161d;
+
+    border-radius:8px;
+
+}
+
+
+
+.log-key{
+
+    color:var(--gold);
+
+    font-weight:600;
+
+}
+
+
+
+.log-value{
+
+    color:var(--text);
+
+    text-align:right;
+
+    word-break:break-word;
+
+}
+
+
+
+@media(max-width:900px){
+
+
+    .log-row{
+
+        flex-direction:column;
+
+    }
+
+
+    .log-value{
+
+        text-align:left;
+
+    }
+
+
+}

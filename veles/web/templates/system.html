@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Sistem — Veles
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="system-container">
+
+
+
+    <div class="card system-header">
+
+
+        <h1>
+            Veles System Panel
+        </h1>
+
+
+        <p>
+            Real-time pregled Linux sistema.
+        </p>
+
+
+    </div>
+
+
+
+
+
+
+
+    <div class="system-grid">
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                Hostname
+
+            </div>
+
+
+            <div class="system-value">
+
+                {{ system.hostname }}
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                Operativni sistem
+
+            </div>
+
+
+            <div class="system-value">
+
+                {{ system.os }}
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                Kernel
+
+            </div>
+
+
+            <div class="system-value">
+
+                {{ system.kernel }}
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                Arhitektura
+
+            </div>
+
+
+            <div class="system-value">
+
+                {{ system.architecture }}
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                Procesor
+
+            </div>
+
+
+
+            <div class="system-value">
+
+
+                {{ system.cpu.model }}
+
+
+            </div>
+
+
+
+            <p>
+
+                Jezgra:
+                {{ system.cpu.cores }}
+
+
+                |
+                
+                Thread:
+                {{ system.cpu.threads }}
+
+            </p>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                CPU opterećenje
+
+            </div>
+
+
+
+            <div class="system-value">
+
+                {{ system.cpu.usage }} %
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                Memorija
+
+            </div>
+
+
+
+            <div class="system-value">
+
+                {{ system.memory.used }}
+                /
+                {{ system.memory.total }}
+                GB
+
+            </div>
+
+
+
+            <p>
+
+                Iskorišćeno:
+                {{ system.memory.percent }} %
+
+            </p>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                Disk
+
+            </div>
+
+
+
+            <div class="system-value">
+
+                {{ system.disk.used }}
+                /
+                {{ system.disk.total }}
+                GB
+
+            </div>
+
+
+
+            <p>
+
+                Iskorišćeno:
+                {{ system.disk.percent }} %
+
+            </p>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                Uptime
+
+            </div>
+
+
+
+            <div class="system-value">
+
+                {{ system.uptime }}
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+    <div class="card">
+
+
+        <h2>
+            Veles servisi
+        </h2>
+
+
+
+        <div class="service-status">
+
+
+            <div>
+                Ollama
+            </div>
+
+
+            <span class="status-dot"></span>
+
+
+            <div>
+                Lokalni AI Engine
+            </div>
+
+
+        </div>
+
+
+
+
+
+        <div class="service-status">
+
+
+            <div>
+                Piper TTS
+            </div>
+
+
+            <span class="status-dot"></span>
+
+
+            <div>
+                Voice Engine
+            </div>
+
+
+        </div>
+
+
+
+
+    </div>
+
+
+
+
+
+
+</div>
+
+
+
+{% endblock %}

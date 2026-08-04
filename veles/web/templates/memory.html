@@ -1,23 +1,152 @@
 {% extends "base.html" %}
-{% block title %}Memorija — Veles{% endblock %}
+
+
+{% block title %}
+Memorija — Veles
+{% endblock %}
+
+
+
 {% block content %}
-<h2>Šta Veles pamti</h2>
-{% if not memories %}
-<p class="muted">Nema sačuvanih stavki.</p>
-{% else %}
-<table>
-    <tr><th>Ključ</th><th>Vrednost</th><th></th></tr>
-    {% for id, key, value in memories %}
-    <tr>
-        <td>{{ key }}</td>
-        <td>{{ value }}</td>
-        <td>
-            <form method="post" action="{{ url_for('memory_delete', memory_id=id) }}" style="margin:0;">
-                <button type="submit" style="background:none;border:none;color:var(--fail);padding:0;margin:0;cursor:pointer;">Obriši</button>
+
+
+<div class="memory-container">
+
+
+
+    <div class="card memory-header">
+
+
+        <h1>
+            Veles Memorija
+        </h1>
+
+
+        <p>
+            Informacije koje je Veles sačuvao u lokalnoj bazi.
+        </p>
+
+
+    </div>
+
+
+
+
+
+
+    {% if not memories %}
+
+
+
+    <div class="card empty-state">
+
+
+        <h2>
+            Memorija je prazna
+        </h2>
+
+
+        <p>
+            Veles trenutno nema sačuvanih informacija.
+        </p>
+
+
+    </div>
+
+
+
+
+
+    {% else %}
+
+
+
+    <div class="memory-list">
+
+
+
+        {% for id, key, value in memories %}
+
+
+
+        <div class="card memory-item">
+
+
+
+            <div class="memory-content">
+
+
+                <div class="memory-number">
+
+                    Memorija #{{ id }}
+
+                </div>
+
+
+
+                <h3>
+
+                    {{ key }}
+
+                </h3>
+
+
+
+                <p>
+
+                    {{ value }}
+
+                </p>
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <form method="POST"
+                  action="{{ url_for('memory_delete', memory_id=id) }}">
+
+
+
+                <button
+                    class="delete-button"
+                    type="submit">
+
+                    Obriši
+
+                </button>
+
+
+
             </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-{% endif %}
+
+
+
+        </div>
+
+
+
+        {% endfor %}
+
+
+
+    </div>
+
+
+
+    {% endif %}
+
+
+
+
+
+</div>
+
+
+
 {% endblock %}

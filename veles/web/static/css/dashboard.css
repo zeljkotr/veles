@@ -1,0 +1,488 @@
+/*
+VELES OPERATIONS MAP
+AI Operations Center Dashboard
+*/
+
+.veles-dashboard {
+
+width:100%;
+height:100%;
+
+display:flex;
+flex-direction:column;
+
+}
+
+.dashboard-header {
+
+text-align:center;
+
+flex-shrink:0;
+
+}
+
+.dashboard-header h1 {
+
+color:var(--gold);
+
+letter-spacing:4px;
+
+font-size:36px;
+
+}
+
+.dashboard-header p {
+
+color:var(--muted);
+
+}
+
+.operations-map {
+
+position:relative;
+
+width:100%;
+
+height:600px;
+
+overflow:hidden;
+
+}
+
+/*
+CONNECTION LAYER
+*/
+
+.connection-lines {
+
+position:absolute;
+
+inset:0;
+
+width:100%;
+
+height:100%;
+
+pointer-events:none;
+
+z-index:1;
+
+}
+
+.data-line {
+
+stroke:var(--gold);
+
+stroke-width:2;
+
+opacity:.45;
+
+filter:drop-shadow(
+0 0 8px var(--gold)
+);
+
+stroke-dasharray:10 12;
+
+animation:
+
+flow 3s linear infinite;
+
+}
+
+@keyframes flow {
+
+from {
+
+stroke-dashoffset:0;
+
+}
+
+to {
+
+stroke-dashoffset:-100;
+
+}
+
+}
+
+/*
+NODES
+*/
+
+.node {
+
+position:absolute;
+
+width:120px;
+
+height:120px;
+
+border-radius:50%;
+
+background:
+
+radial-gradient(
+circle,
+#263442,
+#10161d
+);
+
+border:2px solid var(--gold);
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+flex-direction:column;
+
+text-align:center;
+
+color:white;
+
+font-size:13px;
+
+cursor:pointer;
+
+z-index:2;
+
+transition:.3s;
+
+box-shadow:
+
+0 0 20px rgba(
+217,
+164,
+65,
+.35
+);
+
+}
+
+.node:hover {
+
+transform:scale(1.15);
+
+box-shadow:
+
+0 0 45px var(--gold);
+
+}
+
+/*
+VELES CORE
+*/
+
+.core {
+
+left:50%;
+
+top:50%;
+
+transform:
+
+translate(
+-50%,
+-50%
+);
+
+width:170px;
+
+height:170px;
+
+font-size:21px;
+
+background:
+
+radial-gradient(
+circle at 35% 30%,
+#fff3b0,
+var(--gold2),
+var(--gold)
+);
+
+color:#111;
+
+border:3px solid #ffe9a3;
+
+box-shadow:
+
+0 0 40px var(--gold),
+0 0 90px rgba(
+217,
+164,
+65,
+.7
+);
+
+animation:
+
+corePulse 3s ease-in-out infinite;
+
+}
+
+.core::before {
+
+content:"";
+
+position:absolute;
+
+inset:-15px;
+
+border-radius:50%;
+
+border:2px solid var(--gold);
+
+opacity:.6;
+
+animation:
+
+coreRing 3s linear infinite;
+
+}
+
+.core::after {
+
+content:"";
+
+position:absolute;
+
+inset:-35px;
+
+border-radius:50%;
+
+border:1px solid rgba(
+217,
+164,
+65,
+.35
+);
+
+animation:
+
+coreGlow 4s ease-in-out infinite;
+
+}
+
+.core:hover {
+
+transform:
+
+translate(
+-50%,
+-50%
+)
+scale(1.12);
+
+}
+
+@keyframes corePulse {
+
+0% {
+
+box-shadow:
+
+0 0 40px var(--gold),
+0 0 80px rgba(
+217,
+164,
+65,
+.5
+);
+
+}
+
+50% {
+
+box-shadow:
+
+0 0 70px var(--gold),
+0 0 140px rgba(
+217,
+164,
+65,
+.8
+);
+
+}
+
+100% {
+
+box-shadow:
+
+0 0 40px var(--gold),
+0 0 80px rgba(
+217,
+164,
+65,
+.5
+);
+
+}
+
+}
+
+@keyframes coreRing {
+
+from {
+
+transform:rotate(0deg)
+scale(1);
+
+}
+
+to {
+
+transform:rotate(360deg)
+scale(1.08);
+
+}
+
+}
+
+@keyframes coreGlow {
+
+0% {
+
+opacity:.3;
+
+}
+
+50% {
+
+opacity:.8;
+
+}
+
+100% {
+
+opacity:.3;
+
+}
+
+}
+
+/*
+MODULE POSITIONS
+*/
+
+.intelligence {
+
+left:50%;
+
+top:20px;
+
+transform:translateX(-50%);
+
+}
+
+.infrastructure {
+
+left:8%;
+
+top:220px;
+
+}
+
+.delivery {
+
+left:28%;
+
+top:100px;
+
+}
+
+.cloud {
+
+right:28%;
+
+top:100px;
+
+}
+
+.security {
+
+right:8%;
+
+top:220px;
+
+}
+
+.automation {
+
+left:18%;
+
+bottom:80px;
+
+}
+
+.observability {
+
+left:38%;
+
+bottom:20px;
+
+}
+
+.network {
+
+right:38%;
+
+bottom:20px;
+
+}
+
+.platform {
+
+right:18%;
+
+bottom:80px;
+
+}
+
+.data {
+
+left:28%;
+
+bottom:150px;
+
+}
+
+.testing {
+
+right:28%;
+
+bottom:150px;
+
+}
+
+.access {
+
+right:5%;
+
+bottom:20px;
+
+}
+
+@media(max-width:900px){
+
+.node {
+
+width:80px;
+
+height:80px;
+
+font-size:11px;
+
+}
+
+.core {
+
+width:120px;
+
+height:120px;
+
+}
+
+}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Servisi — Veles
+{% endblock %}
+
+
+
+
+{% block content %}
+
+
+<div class="system-container">
+
+
+
+    <div class="card system-header">
+
+
+        <h1>
+            Veles Service Center
+        </h1>
+
+
+        <p>
+            Praćenje Linux servisa i osnovnih komponenti.
+        </p>
+
+
+    </div>
+
+
+
+
+
+
+
+    <div class="system-grid">
+
+
+        {% for service in services %}
+
+
+        <div class="card system-card">
+
+
+            <div class="system-title">
+
+                {{ service.service }}
+
+            </div>
+
+
+
+            <div class="system-value">
+
+
+                {% if service.running %}
+
+                    <span class="status-online">
+                        AKTIVAN
+                    </span>
+
+
+                {% else %}
+
+
+                    <span class="status-offline">
+                        NEAKTIVAN
+                    </span>
+
+
+                {% endif %}
+
+
+            </div>
+
+
+
+            <div>
+
+                {{ service.status }}
+
+            </div>
+
+
+
+        </div>
+
+
+        {% endfor %}
+
+
+
+    </div>
+
+
+
+
+
+
+</div>
+
+
+{% endblock %}

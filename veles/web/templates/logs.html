@@ -1,19 +1,173 @@
 {% extends "base.html" %}
-{% block title %}Logovi — Veles{% endblock %}
+
+
+{% block title %}
+Logovi — Veles
+{% endblock %}
+
+
+
 {% block content %}
-<h2>Poslednji događaji</h2>
-{% if not entries %}
-<p class="muted">Nema zabeleženih događaja.</p>
-{% else %}
-<table>
-    <tr><th>Vreme</th><th>Događaj</th><th>Detalji</th></tr>
-    {% for e in entries %}
-    <tr>
-        <td>{{ e.timestamp }}</td>
-        <td>{{ e.event }}</td>
-        <td class="muted">{{ e }}</td>
-    </tr>
-    {% endfor %}
-</table>
-{% endif %}
+
+
+<div class="logs-container">
+
+
+
+    <div class="card logs-header">
+
+
+        <h1>
+            Veles Log Centar
+        </h1>
+
+
+        <p>
+            Pregled aktivnosti, događaja i izvršenih operacija.
+        </p>
+
+
+    </div>
+
+
+
+
+
+
+
+    {% if not entries %}
+
+
+
+    <div class="card empty-state">
+
+
+        <h2>
+            Nema logova
+        </h2>
+
+
+        <p>
+            Veles još nije zabeležio aktivnosti.
+        </p>
+
+
+    </div>
+
+
+
+
+
+    {% else %}
+
+
+
+
+    <div class="logs-list">
+
+
+
+        {% for entry in entries %}
+
+
+
+        <div class="card log-item">
+
+
+
+            <div class="log-header">
+
+
+
+                {% if entry.time %}
+
+                <span class="log-time">
+
+                    {{ entry.time }}
+
+                </span>
+
+                {% endif %}
+
+
+
+                {% if entry.level %}
+
+                <span class="log-level">
+
+                    {{ entry.level }}
+
+                </span>
+
+                {% endif %}
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <div class="log-content">
+
+
+
+                {% for key, value in entry.items() %}
+
+
+
+                    <div class="log-row">
+
+
+                        <span class="log-key">
+
+                            {{ key }}
+
+                        </span>
+
+
+                        <span class="log-value">
+
+                            {{ value }}
+
+                        </span>
+
+
+                    </div>
+
+
+
+                {% endfor %}
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+
+        {% endfor %}
+
+
+
+    </div>
+
+
+
+
+    {% endif %}
+
+
+
+
+</div>
+
+
+
 {% endblock %}

@@ -8,6 +8,8 @@ from ..language_filter import clean_response, validate_serbian
 
 from ..memory.memory import get_memory_text
 
+from ..knowledge.search import get_knowledge_context
+
 from ..llm.ollama_client import call_ollama, extract_json
 
 
@@ -18,94 +20,143 @@ MAX_LANGUAGE_RETRIES = 2
 
 SYSTEM_RULES = """
 
-STROGA PRAVILA:
+STROGA PRAVILA ZA VELES:
 
 JEZIK:
 
-- Piši isključivo srpskim jezikom.
+- Koristi srpski jezik.
 - Koristi latinicu.
-- Nikada ne koristi ćirilicu.
 - Koristi ekavski standard.
 
 
 STIL:
 
-- Odgovaraj kao iskusan sistem inženjer.
-- Budi precizan.
-- Budi praktičan.
-- Koristi jasne rečenice.
+- Odgovaraj kao iskusan sistem inzenjer.
+- Budi precizan i praktican.
+- Ne pisi nepotrebne uvode.
 
 
-TEHNIČKI ODGOVORI:
+LOKALNO ZNANJE:
 
-- Komande piši u code blokovima.
-- Objašnjavaj korak po korak.
+- Ako postoji LOKALNO ZNANJE u promptu, koristi ga kao glavni izvor.
+- Ne izmisljaj informacije koje nisu u lokalnom znanju.
+- Ne menjaj komande iz dokumentacije.
+- Na kraju odgovora navedi izvor dokumenta.
+
+
+TEHNICKI ODGOVORI:
+
+- Komande pisi u code blokovima.
+- Objasnjavaj korak po korak.
 - Ako nisi siguran reci da nisi siguran.
 
 """
 
 
+
 def _detect_memorable_fact(question, answer):
-    """
-    Lightweight second pass after an ordinary chat exchange: asks the
-    model whether anything in it is worth remembering long-term (a
-    stated preference, a fact about Zeljko's environment, a decision) -
-    NOT a routine technical question with no lasting value. Returns
-    None for the vast majority of exchanges, which is expected.
-    """
+
     prompt = f"""
 
-Analiziraj sledeću razmenu i oceni da li sadrži TRAJNU činjenicu vrednu
-pamćenja (npr. lični podatak, preferenca, odluka, konfiguracija sistema) -
-NE običnu tehničko pitanje ili odgovor bez trajne vrednosti.
+Analiziraj sledecu razmenu.
 
-Ako POSTOJI takva činjenica, vrati STROGO JSON: {{"key": "...", "value": "..."}}
-Ako NE POSTOJI, vrati STROGO: {{}}
-Bez ikakvog dodatnog teksta.
+Ako postoji trajna cinjenica vredna pamcenja,
+vrati samo JSON:
 
-Korisnik: {question}
-Veles: {answer}
+{{"key":"...","value":"..."}}
+
+Ako ne postoji vrati:
+
+{{}}
+
+Bez dodatnog teksta.
+
+
+Korisnik:
+
+{question}
+
+
+Veles:
+
+{answer}
 
 """
-    raw = call_ollama(prompt, temperature=0.0, num_predict=80)
+
+
+    raw = call_ollama(
+        prompt,
+        temperature=0.0,
+        num_predict=80
+    )
+
+
     parsed = extract_json(raw)
+
 
     if parsed and parsed.get("key") and parsed.get("value"):
         return parsed
+
+
     return None
 
 
+
 def ask_veles(question):
-    """
-    Returns a dict: {"answer": str, "suggested_memory": dict|None}.
-    suggested_memory, when present, is a {"key", "value"} pair the
-    caller (main.py) should offer to save - Veles never saves an
-    auto-detected fact without the user confirming it first.
-    """
+
 
     plan = create_plan(question)
 
     print("PLAN:", plan)
 
+
     if plan["action"] != "chat":
+
 
         tool_result = executor.execute(
             plan["action"],
-            {"question": question, "plan": plan}
+            {
+                "question": question,
+                "plan": plan
+            }
         )
 
-        return {"answer": create_report(tool_result), "suggested_memory": None}
+
+        return {
+            "answer": create_report(tool_result),
+            "suggested_memory": None
+        }
+
+
 
     personality = load_personality()
 
+
     memory = get_memory_text()
+
+
+    knowledge = get_knowledge_context(question)
+
+
+    print("\n========== LOKALNO ZNANJE ==========")
+    print(knowledge)
+    print("=====================================\n")
+
+
 
     prompt = f"""
 
 {personality}
 
 
+MEMORIJA:
+
 {memory}
+
+
+LOKALNO ZNANJE:
+
+{knowledge}
 
 
 {SYSTEM_RULES}
@@ -120,22 +171,45 @@ Veles:
 
 """
 
-    print("Veles razmišlja...")
+
+
+    print("Veles razmislja...")
+
 
     answer = ""
+
+
     for attempt in range(MAX_LANGUAGE_RETRIES + 1):
-        raw_answer = call_ollama(prompt, temperature=0.2, num_predict=200)
+
+
+        raw_answer = call_ollama(
+            prompt,
+            temperature=0.2,
+            num_predict=250
+        )
+
+
         answer = clean_response(raw_answer)
+
 
         if validate_serbian(answer):
             break
 
-        print(f"[veles] Odgovor je sadržao ćirilicu, pokušavam ponovo "
-              f"({attempt + 1}/{MAX_LANGUAGE_RETRIES})...")
-    else:
-        print("[veles] Nisam uspeo da dobijem čist latinični odgovor "
-              "posle svih pokušaja - vraćam poslednji dobijeni.")
 
-    suggested_memory = _detect_memorable_fact(question, answer)
+        print(
+            "[veles] Jezik nije prosao proveru "
+            f"({attempt + 1}/{MAX_LANGUAGE_RETRIES})"
+        )
 
-    return {"answer": answer, "suggested_memory": suggested_memory}
+
+
+    suggested_memory = _detect_memorable_fact(
+        question,
+        answer
+    )
+
+
+    return {
+        "answer": answer,
+        "suggested_memory": suggested_memory
+    }

@@ -1,61 +1,222 @@
 """
 veles/core/planner.py
 
-Decides what Veles should DO with a given request: have an ordinary
-chat, look up system status, remember a fact, or run a command.
+Planner for Veles AI assistant.
 
-Previously this was pure keyword matching (fast, free, but rigid - only
-handled two fixed intents). Now a single call to the local model decides
-the action AND, for run_command, the exact shell command to run. This
-is more flexible ("pokreni nginx", "proveri da li radi docker", etc.)
-but costs one model call per request instead of being instant/free -
-worth it for the flexibility, and will matter less once running on
-GPU hardware.
+Decision order:
+1. Local rules
+2. Ollama planner
 """
+
+import re
 
 from ..llm.ollama_client import call_ollama, extract_json
 
 
 PLANNER_PROMPT_TEMPLATE = """
 
-Ti si planer za AI asistenta po imenu Veles, koji radi na Linux serveru.
+Ti si planer za AI asistenta Veles.
 
-Tvoj zadatak je da analiziraš zahtev korisnika i odlučiš KOJU akciju treba izvršiti.
+Odredi akciju korisnika.
 
-Dostupne akcije:
-- "chat": običan razgovor ili pitanje - ne treba ništa izvršavati na sistemu
-- "system_info": korisnik želi da vidi trenutno stanje sistema (CPU, RAM, disk)
-- "remember_fact": korisnik eksplicitno traži da se nešto zapamti (npr. kaže "zapamti", "upamti", "seti se")
-- "run_command": korisnik traži da se izvrši konkretna komanda na serveru (npr. "pokreni", "restartuj", "proveri da li radi X", "zaustavi")
+Akcije:
 
-Ako je akcija "run_command", u polju "command" napiši TAČNU shell komandu koju treba
-izvršiti (npr. "systemctl status nginx", "systemctl restart nginx"). Ako akcija
-NIJE "run_command", polje "command" ostavi prazno.
+- chat:
+  Pitanje, objasnjenje, ucenje.
+  Ne izvrsavaj komande.
 
-Vrati STROGO JSON, bez ikakvog dodatnog teksta:
-{{"action": "...", "command": "..."}}
+- system_info:
+  Korisnik trazi stanje sistema.
 
-Zahtev korisnika: "{question}"
+- remember_fact:
+  Korisnik trazi pamcenje informacije.
+
+- run_command:
+  Korisnik direktno trazi izvrsavanje komande.
+
+
+Primer:
+
+Korisnik:
+Kako restartujem linux servis
+
+Odgovor:
+
+{{
+"action": "chat",
+"command": ""
+}}
+
+
+Korisnik:
+Restartuj nginx
+
+Odgovor:
+
+{{
+"action": "run_command",
+"command": "systemctl restart nginx"
+}}
+
+
+Vrati samo JSON:
+
+{{
+"action": "...",
+"command": "..."
+}}
+
+
+Zahtev:
+
+"{question}"
 
 """
 
-VALID_ACTIONS = ("chat", "system_info", "remember_fact", "run_command")
+
+VALID_ACTIONS = (
+    "chat",
+    "system_info",
+    "remember_fact",
+    "run_command"
+)
+
+
+
+def local_intent_check(question):
+
+    q = question.lower().strip()
+
+
+    explanation_patterns = [
+        r"^kako ",
+        r"^sta ",
+        r"^šta ",
+        r"^objasni",
+        r"^zasto ",
+        r"^zašto "
+    ]
+
+
+    for pattern in explanation_patterns:
+
+        if re.search(pattern, q):
+
+            return {
+                "action": "chat",
+                "command": ""
+            }
+
+
+
+    system_words = [
+        "proveri sistem",
+        "stanje sistema",
+        "cpu",
+        "ram",
+        "memorija",
+        "disk"
+    ]
+
+
+    for word in system_words:
+
+        if word in q:
+
+            return {
+                "action": "system_info",
+                "command": ""
+            }
+
+
+
+    commands = [
+        "restartuj ",
+        "restartaj ",
+        "pokreni ",
+        "startuj ",
+        "zaustavi ",
+        "ugasi "
+    ]
+
+
+    for cmd in commands:
+
+        if cmd in q:
+
+            service = q.split(cmd, 1)[1].strip()
+
+            if service:
+
+                return {
+                    "action": "run_command",
+                    "command": f"systemctl restart {service}"
+                }
+
+
+
+    return None
+
+
 
 
 def create_plan(question):
-    prompt = PLANNER_PROMPT_TEMPLATE.format(question=question)
-    raw = call_ollama(prompt, temperature=0.0, num_predict=120)
+
+    local_plan = local_intent_check(question)
+
+    if local_plan:
+
+        return local_plan
+
+
+
+    prompt = PLANNER_PROMPT_TEMPLATE.format(
+        question=question
+    )
+
+
+    raw = call_ollama(
+        prompt,
+        temperature=0.0,
+        num_predict=120
+    )
+
+
     parsed = extract_json(raw)
 
-    if not parsed or "action" not in parsed:
-        # If the planner call fails or returns something unparseable,
-        # fall back to plain chat rather than silently guessing.
-        return {"action": "chat", "command": ""}
 
-    action = parsed.get("action", "chat")
-    command = parsed.get("command", "") or ""
+    if not parsed or "action" not in parsed:
+
+        return {
+            "action": "chat",
+            "command": ""
+        }
+
+
+
+    action = parsed.get(
+        "action",
+        "chat"
+    )
+
+
+    command = parsed.get(
+        "command",
+        ""
+    ) or ""
+
+
 
     if action not in VALID_ACTIONS:
-        return {"action": "chat", "command": ""}
 
-    return {"action": action, "command": command}
+        return {
+            "action": "chat",
+            "command": ""
+        }
+
+
+
+    return {
+        "action": action,
+        "command": command
+    }
