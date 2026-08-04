@@ -77,15 +77,11 @@ stroke-width:2;
 
 opacity:.45;
 
-filter:drop-shadow(
-0 0 8px var(--gold)
-);
-
-stroke-dasharray:10 12;
+stroke-dasharray:1 15;
 
 animation:
 
-flow 3s linear infinite;
+flow 2s linear infinite;
 
 }
 
@@ -99,7 +95,7 @@ stroke-dashoffset:0;
 
 to {
 
-stroke-dashoffset:-100;
+stroke-dashoffset:-16;
 
 }
 
@@ -157,6 +153,8 @@ box-shadow:
 65,
 .35
 );
+
+text-decoration:none;
 
 }
 

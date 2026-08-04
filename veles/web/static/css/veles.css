@@ -759,116 +759,73 @@ THINKING OVERLAY
 
 }
 
-
-
-.thinking-box {
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    justify-content:center;
-
-}
-
-
-
-.thinking-orb {
-
-    width:90px;
-
-    height:90px;
-
-    border-radius:50%;
-
-    background:var(--gold);
-
-    box-shadow:
-
-        0 0 40px var(--gold);
-
-    animation:
-
-        pulse-orb 1.5s infinite;
-
-}
-
-
-
-.thinking-text {
-
-    margin-top:20px;
-
-    color:var(--gold2);
-
-    font-size:18px;
-
-}
-
-
-
-@keyframes pulse-orb {
-
-
-    0% {
-
-        transform:scale(.8);
-
-        opacity:.5;
-
-    }
-
-
-    50% {
-
-        transform:scale(1.1);
-
-        opacity:1;
-
-    }
-
-
-    100% {
-
-        transform:scale(.8);
-
-        opacity:.5;
-
-    }
-
-}
-
-
-
 /*
-RESPONSIVE
+================================================
+VELES DASHBOARD BASIC STYLE
+================================================
 */
 
+.veles-dashboard {
 
-@media(max-width:900px) {
+    width:100%;
 
+    min-height:700px;
 
-    .sidebar {
-
-        display:none;
-
-    }
+}
 
 
-    .message {
+.operations-map {
 
-        max-width:95%;
+    position:relative;
 
-    }
+    min-height:650px;
+
+}
 
 
-    .chat-buttons {
+.node {
 
-        flex-direction:column;
+    background:var(--panel);
 
-    }
+    border:1px solid var(--border);
 
+    border-radius:16px;
+
+    padding:20px;
+
+    text-align:center;
+
+    color:var(--text);
+
+    font-weight:700;
+
+    transition:.3s;
+  
+}
+
+
+.node:hover {
+
+    border-color:var(--gold);
+
+    box-shadow:0 0 20px rgba(217,164,65,.25);
+
+}
+
+
+.node-status {
+
+    margin-top:8px;
+
+    color:var(--green);
+
+    font-size:12px;
+
+}
+
+
+.core {
+
+    border:2px solid var(--gold);
 
 }

@@ -13,6 +13,8 @@ import os
 import json
 import shutil
 import uuid
+from veles.modules.registry import get_modules
+from veles.modules.infrastructure.service import infrastructure
 
 from pathlib import Path
 
@@ -178,12 +180,26 @@ def _generate_answer_audio(text: str):
 def dashboard():
 
 
+    modules = get_modules()
+
+
     return render_template(
-        "dashboard.html"
+        "dashboard.html",
+        modules=modules
     )
 
 
+@app.route("/infrastructure")
+def infrastructure_page():
 
+    infrastructure.discover()
+
+    data = infrastructure.get_status()
+
+    return render_template(
+        "infrastructure.html",
+        data=data
+    )
 
 
 

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Veles Infrastructure Center
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="card" style="padding:30px;">
+
+
+<h1>
+🖥 Infrastructure Center
+</h1>
+
+
+<p>
+Veles inventar i nadzor infrastrukture
+</p>
+
+
+
+<h2>
+Servers
+</h2>
+
+
+{% for server in data.servers %}
+
+<div class="card" style="padding:20px;margin-bottom:15px;">
+
+
+<h3>
+🟢 {{ server.name }}
+</h3>
+
+
+<p>
+Hostname:
+{{ server.hostname }}
+</p>
+
+
+<p>
+IP:
+{{ server.ip }}
+</p>
+
+
+<p>
+OS:
+{{ server.os }}
+</p>
+
+
+<p>
+Status:
+{{ server.status }}
+</p>
+
+
+<p>
+Last seen:
+{{ server.last_seen }}
+</p>
+
+
+</div>
+
+
+{% else %}
+
+<p>
+Nema registrovanih servera.
+</p>
+
+{% endfor %}
+
+
+
+</div>
+
+
+{% endblock %}

@@ -1,13 +1,17 @@
 {% extends "base.html" %}
 
+
 {% block title %}
 Veles Operations Center
 {% endblock %}
 
 
+
 {% block content %}
 
+
 <div class="veles-dashboard">
+
 
 
 <div class="dashboard-header">
@@ -23,7 +27,11 @@ Veles Operations Center
 </div>
 
 
+
+
+
 <div class="operations-map">
+
 
 
 <div class="floating-clouds">
@@ -38,6 +46,8 @@ Veles Operations Center
 <div class="cloud-particle cloud-8"></div>
 
 </div>
+
+
 
 
 
@@ -60,82 +70,214 @@ Veles Operations Center
 
 
 
+
+
 <div class="node intelligence">
+
 🧠<br>
+
 INTELIGENCIJA
+
+<div class="node-status">
+{{ modules.intelligence.status }}
+</div>
+
 </div>
 
 
-<div class="node infrastructure">
+
+
+
+<a href="/infrastructure" class="node infrastructure">
+
 🖥<br>
+
 INFRASTRUKTURA
+
+<div class="node-status">
+{{ modules.infrastructure.status }}
 </div>
+
+</a>
+
+
+
 
 
 <div class="node delivery">
+
 📦<br>
+
 ISPORUKA
+
+<div class="node-status">
+{{ modules.delivery.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node core">
+
 ◉<br>
+
 VELES
+
+<div class="node-status">
+CORE ONLINE
 </div>
+
+</div>
+
+
+
 
 
 <div class="node cloud">
+
 ☁<br>
+
 OBLAK
+
+<div class="node-status">
+{{ modules.cloud.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node security">
+
 🔐<br>
+
 BEZBEDNOST
+
+<div class="node-status">
+{{ modules.security.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node automation">
+
 ⚙<br>
+
 AUTOMATIZACIJA
+
+<div class="node-status">
+{{ modules.automation.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node observability">
+
 📊<br>
+
 NADZOR
+
+<div class="node-status">
+{{ modules.observability.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node network">
+
 🌐<br>
+
 MREŽA
+
+<div class="node-status">
+{{ modules.network.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node platform">
+
 🏗<br>
+
 PLATFORMA
+
+<div class="node-status">
+{{ modules.platform.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node data">
+
 🗄<br>
+
 PODACI
+
+<div class="node-status">
+{{ modules.data.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node testing">
+
 🧪<br>
+
 TESTIRANJE
+
+<div class="node-status">
+{{ modules.testing.status }}
 </div>
+
+</div>
+
+
+
 
 
 <div class="node access">
+
 🔐<br>
+
 PRISTUP
+
+<div class="node-status">
+{{ modules.access.status }}
 </div>
+
+</div>
+
+
+
 
 
 </div>
