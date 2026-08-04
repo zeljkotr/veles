@@ -1,0 +1,228 @@
+"""
+veles/core/planner.py
+
+Planner za Veles AI asistenta.
+
+Redosled odlucivanja:
+1. Lokalna pravila za jasne namere
+2. Ollama planer za nejasne slucajeve
+
+Cilj:
+- "kako restartujem servis" -> objašnjenje
+- "restartuj nginx" -> izvršenje
+- "proveri sistem" -> system_info
+"""
+
+import re
+
+from ..llm.ollama_client import call_ollama, extract_json
+
+
+PLANNER_PROMPT_TEMPLATE = """
+
+Ti si planer za AI asistenta po imenu Veles.
+
+Analiziraj zahtev korisnika i odluci akciju.
+
+Dostupne akcije:
+
+- "chat":
+  Pitanja, objašnjenja, ucenje, kako nešto radi.
+  Ne izvršavati komande.
+
+- "system_info":
+  Korisnik želi trenutno stanje racunara:
+  CPU, RAM, disk, sistem.
+
+- "remember_fact":
+  Korisnik traži da se nešto zapamti.
+
+- "run_command":
+  Korisnik direktno traži akciju na sistemu.
+
+Primeri:
+
+Korisnik:
+"Kako restartujem linux servis"
+
+Odgovor:
+{
+"action":"chat",
+"command":""
+}
+
+
+Korisnik:
+"Restartuj nginx"
+
+Odgovor:
+{
+"action":"run_command",
+"command":"systemctl restart nginx"
+}
+
+
+Korisnik:
+"Proveri disk"
+
+Odgovor:
+{
+"action":"run_command",
+"command":"df -h"
+}
+
+
+Vrati samo JSON:
+
+{{"action":"...","command":"..."}}
+
+
+Zahtev korisnika:
+
+"{question}"
+
+"""
+
+
+VALID_ACTIONS = (
+    "chat",
+    "system_info",
+    "remember_fact",
+    "run_command"
+)
+
+
+def local_intent_check(question):
+    """
+    Brza lokalna procena.
+    Sprecava da LLM pogrešno izvrši komandu
+    kada korisnik samo pita za objašnjenje.
+    """
+
+    q = question.lower().strip()
+
+
+    # Edukativna pitanja
+    explanation_patterns = [
+        r"^kako ",
+        r"^šta ",
+        r"^sta ",
+        r"^objasni",
+        r"^zašto ",
+        r"^zasto ",
+        r"^cemu ",
+        r"^cemu ",
+        r"šta znaci",
+        r"sta znaci",
+    ]
+
+    for pattern in explanation_patterns:
+        if re.search(pattern, q):
+            return {
+                "action": "chat",
+                "command": ""
+            }
+
+
+    # Sistem informacije
+    system_patterns = [
+        "proveri sistem",
+        "stanje sistema",
+        "koliko imam rama",
+        "cpu",
+        "memorija",
+        "disk prostor",
+        "slobodan prostor"
+    ]
+
+    for item in system_patterns:
+        if item in q:
+            return {
+                "action": "system_info",
+                "command": ""
+            }
+
+
+    # Direktne servis komande
+    command_patterns = [
+        "restartuj ",
+        "restartaj ",
+        "pokreni ",
+        "startuj ",
+        "zaustavi ",
+        "ugasi ",
+        "stopiraj "
+    ]
+
+
+    for item in command_patterns:
+        if item in q:
+
+            service = q.split(item, 1)[1].strip()
+
+            if service:
+
+                return {
+                    "action": "run_command",
+                    "command": f"systemctl restart {service}"
+                }
+
+
+    return None
+
+
+
+def create_plan(question):
+
+    local_plan = local_intent_check(question)
+
+    if local_plan:
+        return local_plan
+
+
+    prompt = PLANNER_PROMPT_TEMPLATE.format(
+        question=question
+    )
+
+
+    raw = call_ollama(
+        prompt,
+        temperature=0.0,
+        num_predict=120
+    )
+
+
+    parsed = extract_json(raw)
+
+
+    if not parsed or "action" not in parsed:
+        return {
+            "action": "chat",
+            "command": ""
+        }
+
+
+    action = parsed.get(
+        "action",
+        "chat"
+    )
+
+
+    command = parsed.get(
+        "command",
+        ""
+    ) or ""
+
+
+    if action not in VALID_ACTIONS:
+
+        return {
+            "action": "chat",
+            "command": ""
+        }
+
+
+    return {
+        "action": action,
+        "command": command
+    }

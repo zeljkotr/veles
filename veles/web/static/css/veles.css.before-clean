@@ -1,16 +1,25 @@
 :root {
 
     --bg:#0b0f14;
+
     --panel:#141b23;
+
     --panel2:#1a2330;
+
     --border:#293646;
+
     --gold:#d9a441;
+
     --gold2:#ffe9a3;
+
     --green:#55d66b;
+
     --muted:#8d9aaa;
+
     --text:#e8edf2;
 
 }
+
 
 
 * {
@@ -20,18 +29,24 @@
 }
 
 
+
 html,
 body {
 
     margin:0;
+
     padding:0;
+
     width:100%;
+
     height:100%;
 
     background:var(--bg);
+
     color:var(--text);
 
     font-family:
+
         "Segoe UI",
         Arial,
         sans-serif;
@@ -48,8 +63,11 @@ GLAVNI LAYOUT
 .app-layout {
 
     display:flex;
+
     width:100%;
+
     height:100vh;
+
     overflow:hidden;
 
 }
@@ -57,17 +75,20 @@ GLAVNI LAYOUT
 
 
 /*
-SIDEBAR
+LEVI MENI
 */
 
 
 .sidebar {
 
     width:260px;
+
     min-width:260px;
+
     height:100vh;
 
     background:
+
         linear-gradient(
             180deg,
             #111820,
@@ -75,6 +96,7 @@ SIDEBAR
         );
 
     border-right:
+
         1px solid var(--border);
 
     padding:25px 15px;
@@ -142,7 +164,10 @@ NAVIGACIJA
 
     text-decoration:none;
 
+    background:transparent;
+
     border:
+
         1px solid transparent;
 
     transition:.3s;
@@ -183,7 +208,7 @@ GLAVNI DEO
 
 
 /*
-TOP HEADER
+GORNJI HEADER
 */
 
 
@@ -192,6 +217,7 @@ TOP HEADER
     height:70px;
 
     background:
+
         linear-gradient(
             90deg,
             #141b23,
@@ -199,6 +225,7 @@ TOP HEADER
         );
 
     border-bottom:
+
         1px solid var(--border);
 
     display:flex;
@@ -238,7 +265,7 @@ TOP HEADER
 
 
 /*
-PAGE
+SADRZAJ
 */
 
 
@@ -255,11 +282,13 @@ PAGE
 
 
 /*
-MARKDOWN
+MARKDOWN CHAT
 */
 
 
 .markdown-body {
+
+    white-space:normal;
 
     line-height:1.6;
 
@@ -281,6 +310,19 @@ MARKDOWN
 
     color:var(--gold);
 
+    margin:15px 0 10px;
+
+}
+
+
+
+.markdown-body ul,
+.markdown-body ol {
+
+    margin-left:25px;
+
+    margin-bottom:15px;
+
 }
 
 
@@ -295,6 +337,12 @@ MARKDOWN
 
     border-radius:6px;
 
+    font-family:
+
+        "JetBrains Mono",
+        Consolas,
+        monospace;
+
 }
 
 
@@ -304,16 +352,46 @@ MARKDOWN
     background:#05080c;
 
     border:
+
         1px solid var(--border);
 
     border-left:
+
         4px solid var(--gold);
 
     border-radius:10px;
 
     padding:18px;
 
-    overflow:auto;
+    margin:15px 0;
+
+    overflow-x:auto;
+
+}
+
+
+
+.markdown-body pre code {
+
+    background:none;
+
+    color:#d8f3dc;
+
+    padding:0;
+
+}
+
+
+
+.markdown-body blockquote {
+
+    border-left:
+
+        4px solid var(--green);
+
+    padding-left:15px;
+
+    color:var(--muted);
 
 }
 
@@ -350,22 +428,10 @@ SCROLLBAR
 
 /*
 ================================================
-VELES CHAT CORE
+VELES CHAT CORE UI
+DODATO - NE MENJA POSTOJEĆI LAYOUT
 ================================================
 */
-
-
-.card {
-
-    background:var(--panel);
-
-    border:
-        1px solid var(--border);
-
-    border-radius:16px;
-
-}
-
 
 
 .chat-container {
@@ -377,6 +443,7 @@ VELES CHAT CORE
     flex-direction:column;
 
     background:
+
         linear-gradient(
             180deg,
             #111820,
@@ -384,6 +451,7 @@ VELES CHAT CORE
         );
 
     border:
+
         1px solid var(--border);
 
     border-radius:16px;
@@ -412,6 +480,7 @@ CHAT HEADER
     background:var(--panel);
 
     border-bottom:
+
         1px solid var(--border);
 
 }
@@ -437,9 +506,7 @@ CHAT HEADER
     color:var(--muted);
 
 }
-/*
-STATUS
-*/
+
 
 
 .status-indicator {
@@ -469,6 +536,7 @@ STATUS
     border-radius:50%;
 
     box-shadow:
+
         0 0 10px var(--green);
 
 }
@@ -476,11 +544,11 @@ STATUS
 
 
 /*
-CHAT HISTORY
+CHAT PROZOR
 */
 
 
-.chat-history {
+.chat-window {
 
     flex:1;
 
@@ -492,39 +560,14 @@ CHAT HISTORY
 
     flex-direction:column;
 
-    gap:16px;
+    gap:15px;
 
 }
 
 
 
 /*
-EMPTY STATE
-*/
-
-
-.empty-state {
-
-    flex:1;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    text-align:center;
-
-    color:var(--muted);
-
-    font-size:18px;
-
-}
-
-
-
-/*
-MESSAGE
+PORUKE
 */
 
 
@@ -532,11 +575,11 @@ MESSAGE
 
     max-width:80%;
 
-    padding:16px 20px;
+    padding:15px 18px;
 
     border-radius:14px;
 
-    line-height:1.6;
+    line-height:1.5;
 
 }
 
@@ -549,6 +592,7 @@ MESSAGE
     background:#243447;
 
     border:
+
         1px solid #34495e;
 
 }
@@ -562,129 +606,55 @@ MESSAGE
     background:var(--panel);
 
     border:
+
         1px solid var(--border);
 
 }
 
 
 
-.message-role {
-
-    color:var(--gold);
-
-    font-size:13px;
-
-    font-weight:700;
-
-    margin-bottom:8px;
-
-    text-transform:uppercase;
-
-}
-
-
-
-.user-message .message-role {
-
-    color:var(--gold2);
-
-}
-
-
-
-.message-text {
-
-    color:var(--text);
-
-}
-
-
-
 /*
-MEMORY
+INPUT ZONA
 */
 
 
-.memory-suggestion {
+.chat-input-area {
 
-    margin:10px 25px;
+    display:flex;
 
-    padding:12px 15px;
+    gap:12px;
 
-    background:#111820;
-
-    border:
-        1px solid var(--border);
-
-    border-left:
-        3px solid var(--gold);
-
-    border-radius:10px;
-
-    color:var(--muted);
-
-}
-
-
-
-/*
-INPUT
-*/
-
-
-..chat-input {
+    padding:18px;
 
     background:var(--panel);
 
     border-top:
-        1px solid var(--border);
 
-    padding:15px;
+        1px solid var(--border);
 
 }
 
 
 
-#question {
+.chat-input {
 
-    width:100%;
-
-    min-height:70px;
-
-    max-height:160px;
-
-    resize:vertical;
+    flex:1;
 
     background:#0b1016;
 
     color:var(--text);
 
     border:
+
         1px solid var(--border);
 
-    border-radius:16px;
+    border-radius:10px;
 
-    padding:15px 18px;
+    padding:14px;
 
     font-size:16px;
 
     outline:none;
-
-}
-
-
-
-#question::placeholder {
-
-    color:var(--muted);
-
-}
-
-
-
-#question:focus {
-
-    border-color:var(--gold);
 
 }
 
@@ -699,28 +669,11 @@ INPUT
 
 
 /*
-ACTIONS
+DUGMAD
 */
 
 
-.chat-actions {
-
-    display:flex;
-
-    gap:12px;
-
-    padding:18px;
-
-    background:var(--panel);
-
-    border-top:
-        1px solid var(--border);
-
-}
-
-
-
-.chat-actions button {
+.chat-button {
 
     background:var(--gold);
 
@@ -742,7 +695,7 @@ ACTIONS
 
 
 
-.chat-actions button:hover {
+.chat-button:hover {
 
     opacity:.85;
 
@@ -750,36 +703,24 @@ ACTIONS
 
 
 
-/*
-VOICE
-*/
-
-
-#voice-button {
+.voice-button {
 
     background:#243447;
 
     color:var(--gold2);
 
-    border:
-        1px solid var(--border);
-
 }
 
 
 
-/*
-NEW CHAT
-*/
-
-
-#new-chat-button {
+.new-chat-button {
 
     background:#18222d;
 
     color:var(--text);
 
     border:
+
         1px solid var(--border);
 
 }
@@ -793,13 +734,11 @@ RESPONSIVE
 
 @media(max-width:900px) {
 
-
     .sidebar {
 
         display:none;
 
     }
-
 
 
     .message {
@@ -809,80 +748,9 @@ RESPONSIVE
     }
 
 
-
-    .chat-actions {
+    .chat-input-area {
 
         flex-direction:column;
-
-    }
-
-
-}
-
-#thinking-overlay {
-
-    display:none;
-
-    position:absolute;
-
-    inset:0;
-
-    background:rgba(11,15,20,.75);
-
-    justify-content:center;
-
-    align-items:center;
-
-    z-index:50;
-
-}
-
-
-.thinking-orb {
-
-    width:90px;
-
-    height:90px;
-
-    border-radius:50%;
-
-    background:var(--gold);
-
-    box-shadow:
-        0 0 40px var(--gold);
-
-    animation:
-        pulse-orb 1.5s infinite;
-
-}
-
-
-@keyframes pulse-orb {
-
-
-    0% {
-
-        transform:scale(.8);
-
-        opacity:.5;
-
-    }
-
-
-    50% {
-
-        transform:scale(1.15);
-
-        opacity:1;
-
-    }
-
-
-    100% {
-
-        transform:scale(.8);
-
-        opacity:.5;
 
     }
 

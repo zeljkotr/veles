@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}
+Veles AI Console
+{% endblock %}
+
+{% block content %}
+
+<div class="chat-container">
+
+<div class="chat-header card">
+
+```
+<div>
+    <h1>
+        Veles AI Core
+    </h1>
+
+    <p>
+        Lokalni AI Operations Assistant
+    </p>
+</div>
+
+
+<div class="status-indicator">
+
+    <span class="status-dot"></span>
+
+    ONLINE
+
+</div>
+```
+
+</div>
+
+<div class="chat-history card" id="chat-history">
+
+```
+{% if history %}
+
+    {% for item in history %}
+
+
+        {% if item.role == "user" %}
+
+        <div class="message user-message">
+
+            <div class="message-role">
+                USER
+            </div>
+
+            <div class="message-text">
+                {{ item.text }}
+            </div>
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="message assistant-message">
+
+            <div class="message-role">
+                VELES
+            </div>
+
+            <div class="message-text">
+                {{ item.text }}
+            </div>
+
+        </div>
+
+
+        {% endif %}
+
+
+    {% endfor %}
+
+
+{% else %}
+
+
+    <div class="empty-state">
+
+        <h2>
+            Veles spreman
+        </h2>
+
+        <p>
+            Postavi pitanje ili pokreni zadatak.
+        </p>
+
+    </div>
+
+
+{% endif %}
+```
+
+</div>
+
+{% if suggestion %}
+
+<div class="memory-suggestion card">
+
+```
+<h3>
+    Predlog memorije
+</h3>
+
+
+<form method="POST"
+      action="{{ url_for('confirm_memory') }}">
+
+
+    <input
+        type="text"
+        name="key"
+        value="{{ suggestion.key }}"
+        readonly
+    >
+
+
+    <input
+        type="text"
+        name="value"
+        value="{{ suggestion.value }}"
+        readonly
+    >
+
+
+    <button type="submit">
+        Sačuvaj memoriju
+    </button>
+
+
+</form>
+```
+
+</div>
+
+{% endif %}
+
+<div class="chat-input card">
+
+```
+<form method="POST"
+      action="{{ url_for('ask') }}"
+      id="chat-form">
+
+
+    <textarea
+        id="question"
+        name="question"
+        placeholder="Unesi komandu ili pitanje..."
+        autocomplete="off"
+        rows="3"></textarea>
+
+
+
+    <div class="chat-actions">
+
+
+        <button type="submit">
+            Pošalji
+        </button>
+
+
+
+        <button
+            type="button"
+            id="voice-button">
+
+            🎤
+
+        </button>
+
+
+
+        <button
+            type="button"
+            id="new-chat-button">
+
+            Novi razgovor
+
+        </button>
+
+
+
+    </div>
+
+
+
+</form>
+```
+
+</div>
+
+{% if audio_url %}
+
+<audio
+ id="veles-audio"
+ autoplay>
+
+```
+<source
+    src="{{ audio_url }}"
+    type="audio/wav">
+```
+
+</audio>
+
+{% endif %}
+
+</div>
+
+{% endblock %}
