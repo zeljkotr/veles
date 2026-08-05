@@ -52,6 +52,7 @@ Registered resources managed by Veles
 
 
 
+
 <div class="resource-list">
 
 
@@ -66,6 +67,8 @@ Registered resources managed by Veles
 
 <a href="{{ url_for('resource_detail', resource_id=resource.id) }}"
    class="resource-item">
+
+
 
 
 
@@ -99,12 +102,16 @@ Registered resources managed by Veles
 
 
 
+
 <div class="resource-info">
+
 
 
 <h2>
 {{ resource.name }}
 </h2>
+
+
 
 
 
@@ -118,10 +125,11 @@ TYPE
 </label>
 
 <strong>
-{{ resource.type }}
+{{ resource.type or "-" }}
 </strong>
 
 </div>
+
 
 
 
@@ -133,10 +141,59 @@ HOST
 </label>
 
 <strong>
-{{ resource.host }}
+{{ resource.host or "-" }}
 </strong>
 
 </div>
+
+
+
+
+
+<div>
+
+<label>
+SSH PORT
+</label>
+
+<strong>
+{{ resource.port or "-" }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+USERNAME
+</label>
+
+<strong>
+{{ resource.username or "-" }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+GROUP
+</label>
+
+<strong>
+{{ resource.group or "-" }}
+</strong>
+
+</div>
+
 
 
 
@@ -147,8 +204,8 @@ HOST
 STATUS
 </label>
 
-<strong>
-{{ resource.status }}
+<strong class="status-online">
+{{ resource.status or "-" }}
 </strong>
 
 </div>
@@ -160,6 +217,7 @@ STATUS
 
 
 </div>
+
 
 
 
@@ -174,6 +232,7 @@ STATUS
 
 
 </a>
+
 
 
 

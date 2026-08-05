@@ -18,7 +18,6 @@ Veles Resource Detail
 
 
 
-
 {% block content %}
 
 
@@ -39,31 +38,7 @@ Veles Infrastructure Center
 </p>
 
 
-
-<div class="infra-status">
-
-
-<span>
-🟢 RESOURCE ONLINE
-</span>
-
-
-<span>
-CORE CONNECTED
-</span>
-
-
-<span>
-CMDB VIEW
-</span>
-
-
-</div>
-
-
 </header>
-
-
 
 
 
@@ -107,13 +82,14 @@ CMDB VIEW
 
 
 <span>
-{{ resource.status }}
+
+🟢 {{ resource.status }}
+
 </span>
 
 
+
 </div>
-
-
 
 
 
@@ -139,7 +115,6 @@ ID
 
 
 
-
 <div>
 
 <label>
@@ -155,7 +130,6 @@ TYPE
 
 
 
-
 <div>
 
 <label>
@@ -163,11 +137,10 @@ HOST
 </label>
 
 <strong>
-{{ resource.host or "N/A" }}
+{{ resource.host or "-" }}
 </strong>
 
 </div>
-
 
 
 
@@ -175,15 +148,14 @@ HOST
 <div>
 
 <label>
-PORT
+SSH PORT
 </label>
 
 <strong>
-{{ resource.port or "N/A" }}
+{{ resource.port or "-" }}
 </strong>
 
 </div>
-
 
 
 
@@ -195,11 +167,10 @@ USERNAME
 </label>
 
 <strong>
-{{ resource.username or "N/A" }}
+{{ resource.username or "-" }}
 </strong>
 
 </div>
-
 
 
 
@@ -211,15 +182,10 @@ GROUP
 </label>
 
 <strong>
-{{ resource.group or "default" }}
+{{ resource.group or "-" }}
 </strong>
 
 </div>
-
-
-
-</div>
-
 
 
 
@@ -241,11 +207,22 @@ GROUP
 
 
 
+
 <button class="infra-button">
 
-🔍 DISCOVER
+🔍 PING
 
 </button>
+
+
+
+
+<button class="infra-button">
+
+🔎 DISCOVER
+
+</button>
+
 
 
 
@@ -254,6 +231,7 @@ GROUP
 📊 MONITOR
 
 </button>
+
 
 
 
@@ -271,9 +249,14 @@ GROUP
 
 
 
+</div>
+
+
+
+
+
 
 {% else %}
-
 
 
 <div class="empty-state">
@@ -281,7 +264,6 @@ GROUP
 ⚠ Resource nije pronađen.
 
 </div>
-
 
 
 {% endif %}
