@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
+{% endblock %}
+
+
+
+{% block title %}
+
+Veles Resource Detail
+
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+
+<div class="infra-page">
+
+
+
+<header class="infra-header">
+
+
+<h1>
+🖥 RESOURCE DETAIL
+</h1>
+
+
+<p>
+Veles Infrastructure Center
+</p>
+
+
+
+<div class="infra-status">
+
+
+<span>
+🟢 RESOURCE ONLINE
+</span>
+
+
+<span>
+CORE CONNECTED
+</span>
+
+
+<span>
+CMDB VIEW
+</span>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+
+
+
+<section class="inventory-panel">
+
+
+
+{% if resource %}
+
+
+
+
+<div class="server-card">
+
+
+
+<div class="server-title">
+
+
+<h3>
+
+{% if resource.type == "server" %}
+🖥
+{% elif resource.type == "container" %}
+🐳
+{% elif resource.type == "agent" %}
+🤖
+{% elif resource.type == "device" %}
+📡
+{% else %}
+☁
+{% endif %}
+
+{{ resource.name }}
+
+</h3>
+
+
+
+<span>
+{{ resource.status }}
+</span>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="server-grid">
+
+
+
+<div>
+
+<label>
+ID
+</label>
+
+<strong>
+{{ resource.id }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+TYPE
+</label>
+
+<strong>
+{{ resource.type }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+HOST
+</label>
+
+<strong>
+{{ resource.host or "N/A" }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+PORT
+</label>
+
+<strong>
+{{ resource.port or "N/A" }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+USERNAME
+</label>
+
+<strong>
+{{ resource.username or "N/A" }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+GROUP
+</label>
+
+<strong>
+{{ resource.group or "default" }}
+</strong>
+
+</div>
+
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+<section class="infra-actions">
+
+
+<a href="/infrastructure" class="infra-button">
+
+⬅ BACK
+
+</a>
+
+
+
+<button class="infra-button">
+
+🔍 DISCOVER
+
+</button>
+
+
+
+<button class="infra-button">
+
+📊 MONITOR
+
+</button>
+
+
+
+<button class="infra-button">
+
+⚙ EXECUTE
+
+</button>
+
+
+
+</section>
+
+
+
+
+
+
+{% else %}
+
+
+
+<div class="empty-state">
+
+⚠ Resource nije pronađen.
+
+</div>
+
+
+
+{% endif %}
+
+
+
+</section>
+
+
+
+
+
+
+</div>
+
+
+
+{% endblock %}

@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
+{% endblock %}
+
+
+
+{% block title %}
+
+Server Details
+
+{% endblock %}
+
+
+
+
+
+
+{% block content %}
+
+
+<div class="infra-page">
+
+
+
+
+
+<header class="infra-header">
+
+
+<h1>
+🖥 SERVER DETAILS
+</h1>
+
+
+<p>
+Veles managed infrastructure node
+</p>
+
+
+</header>
+
+
+
+
+
+
+
+
+<section class="infra-monitor">
+
+
+
+<h2>
+🌐 {{ server.name }}
+</h2>
+
+
+
+
+<div class="monitor-grid">
+
+
+
+
+
+<div class="monitor-item">
+
+<label>
+Server ID
+</label>
+
+<strong>
+{{ server.id }}
+</strong>
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+<label>
+Hostname
+</label>
+
+<strong>
+{{ server.host }}
+</strong>
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+<label>
+SSH Port
+</label>
+
+<strong>
+{{ server.port }}
+</strong>
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+<label>
+Username
+</label>
+
+<strong>
+{{ server.username }}
+</strong>
+
+</div>
+
+
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="inventory-panel">
+
+
+<h2>
+📊 Server Status
+</h2>
+
+
+
+
+
+<div class="server-card">
+
+
+
+<div class="server-title">
+
+
+<h3>
+🟡 {{ server.name }}
+</h3>
+
+
+<span>
+{{ server.group }}
+</span>
+
+
+</div>
+
+
+
+
+
+<div class="server-grid">
+
+
+
+
+
+<div>
+
+<label>
+Host
+</label>
+
+<strong>
+{{ server.host }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+Status
+</label>
+
+<strong>
+REGISTERED
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+Connection
+</label>
+
+<strong>
+NOT CONNECTED
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+Agent
+</label>
+
+<strong>
+NONE
+</strong>
+
+</div>
+
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="inventory-panel">
+
+
+<h2>
+⚙ Actions
+</h2>
+
+
+
+<div class="server-card">
+
+
+<button>
+🔌 Connect SSH
+</button>
+
+
+<button>
+🔍 Discovery
+</button>
+
+
+<button>
+❤️ Health Check
+</button>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+</div>
+
+
+{% endblock %}

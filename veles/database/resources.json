@@ -1,0 +1,42 @@
+{
+    "servers": [
+        {
+            "id": "res-6dd4cd",
+            "type": "server",
+            "name": "Production Server 01",
+            "host": "192.168.1.10",
+            "port": "22",
+            "username": "",
+            "group": "",
+            "status": "registered"
+        },
+        {
+            "id": "res-05d598",
+            "type": "server",
+            "name": "Database Server",
+            "host": "192.168.1.20",
+            "port": "22",
+            "username": "dbadmin",
+            "group": "database",
+            "status": "registered"
+        },
+        {
+            "id": "res-30fa71",
+            "type": "server",
+            "name": "docker node",
+            "host": "192.168.1.30",
+            "port": "22",
+            "username": "dockeradmin",
+            "group": "docker",
+            "status": "registered"
+        },
+        {
+            "type": "server",
+            "name": "TEST SERVER"
+        }
+    ],
+    "containers": [],
+    "agents": [],
+    "devices": [],
+    "cloud": []
+}

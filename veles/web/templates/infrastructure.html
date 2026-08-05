@@ -26,8 +26,6 @@ Veles Infrastructure Center
 
 
 
-
-
 <header class="infra-header">
 
 
@@ -56,9 +54,19 @@ CORE ONLINE
 
 
 <span>
-LOCAL NODE
+INFRASTRUCTURE READY
 </span>
 
+
+</div>
+
+
+
+<div class="infra-actions">
+
+<a href="{{ url_for('add_resource') }}" class="infra-button">
+➕ ADD RESOURCE
+</a>
 
 </div>
 
@@ -66,6 +74,297 @@ LOCAL NODE
 </header>
 
 
+
+
+
+
+
+
+<section class="resource-overview">
+
+
+<h2>
+📦 RESOURCE REGISTRY
+</h2>
+
+
+
+<div class="resource-grid">
+
+
+
+<a href="{{ url_for('resource_group', group='servers') }}">
+
+<div class="resource-card">
+
+<h3>
+🖥 SERVERS
+</h3>
+
+<div class="resource-number">
+{{ data.resources.servers|length }}
+</div>
+
+</div>
+
+</a>
+
+
+
+
+
+
+<a href="{{ url_for('resource_group', group='containers') }}">
+
+<div class="resource-card">
+
+<h3>
+🐳 CONTAINERS
+</h3>
+
+<div class="resource-number">
+{{ data.resources.containers|length }}
+</div>
+
+</div>
+
+</a>
+
+
+
+
+
+
+<a href="{{ url_for('resource_group', group='agents') }}">
+
+<div class="resource-card">
+
+<h3>
+🤖 AGENTS
+</h3>
+
+<div class="resource-number">
+{{ data.resources.agents|length }}
+</div>
+
+</div>
+
+</a>
+
+
+
+
+
+
+<a href="{{ url_for('resource_group', group='devices') }}">
+
+<div class="resource-card">
+
+<h3>
+📡 DEVICES
+</h3>
+
+<div class="resource-number">
+{{ data.resources.devices|length }}
+</div>
+
+</div>
+
+</a>
+
+
+
+
+
+
+<a href="{{ url_for('resource_group', group='cloud') }}">
+
+<div class="resource-card">
+
+<h3>
+☁ CLOUD
+</h3>
+
+<div class="resource-number">
+{{ data.resources.cloud|length }}
+</div>
+
+</div>
+
+</a>
+
+
+
+
+
+</div>
+
+
+</section>
+
+<section class="inventory-panel">
+
+
+<h2>
+🌐 REGISTERED SERVERS
+</h2>
+
+
+
+
+
+{% if data.resources.servers %}
+
+
+
+
+{% for server in data.resources.servers %}
+
+
+
+<div class="server-card">
+
+
+
+<div class="server-title">
+
+
+<h3>
+🟡 {{ server.name }}
+</h3>
+
+
+
+<span>
+{{ server.status }}
+</span>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="server-grid">
+
+
+
+<div>
+
+<label>
+HOST
+</label>
+
+<strong>
+{{ server.host }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+PORT
+</label>
+
+<strong>
+{{ server.port }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+USERNAME
+</label>
+
+<strong>
+{{ server.username or "N/A" }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+GROUP
+</label>
+
+<strong>
+{{ server.group or "default" }}
+</strong>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+{% endfor %}
+
+
+
+{% else %}
+
+
+<div class="empty-state">
+
+⚠ Nema registrovanih servera.
+
+</div>
+
+
+{% endif %}
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+
+
+<section class="infra-monitor">
+
+
+<div class="monitor-header">
+
+<h2>
+🖥 VELES CORE LIVE STATUS
+</h2>
+
+</div>
 
 
 
@@ -110,6 +409,7 @@ System load average
 
 
 
+
 <div class="infra-card">
 
 
@@ -125,23 +425,21 @@ MEMORY
 
 <div class="infra-value">
 
-
 {{ server.memory.used_gb }}
 /
 {{ server.memory.total_gb }}
 GB
-
 
 </div>
 
 
 <p>
 RAM usage
-
 </p>
 
 
 </div>
+
 
 
 
@@ -164,19 +462,16 @@ STORAGE
 
 <div class="infra-value">
 
-
 {{ server.disk.used_gb }}
 /
 {{ server.disk.total_gb }}
 GB
-
 
 </div>
 
 
 <p>
 Root filesystem
-
 </p>
 
 
@@ -196,41 +491,19 @@ Root filesystem
 
 
 
-<section class="infra-monitor">
-
-
-
-<div class="monitor-header">
-
-<h2>
-📊 System Overview
-</h2>
-
-</div>
-
-
-
-
 <div class="monitor-grid">
 
 
 
-
-
 <div class="monitor-item">
-
 
 <label>
 Hostname
 </label>
 
-
 <strong>
-
 {{ server.hostname }}
-
 </strong>
-
 
 </div>
 
@@ -239,21 +512,15 @@ Hostname
 
 
 
-
 <div class="monitor-item">
-
 
 <label>
 IP Address
 </label>
 
-
 <strong>
-
 {{ server.ip }}
-
 </strong>
-
 
 </div>
 
@@ -262,24 +529,17 @@ IP Address
 
 
 
-
 <div class="monitor-item">
-
 
 <label>
 Operating System
 </label>
 
-
 <strong>
-
 {{ server.os }}
-
 </strong>
 
-
 </div>
-
 
 
 
@@ -288,143 +548,12 @@ Operating System
 
 <div class="monitor-item">
 
-
 <label>
 Uptime
 </label>
 
-
 <strong>
-
 {{ server.uptime }}
-
-</strong>
-
-
-</div>
-
-
-
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-
-
-
-
-<section class="inventory-panel">
-
-
-<h2>
-📦 Server Inventory
-</h2>
-
-
-
-
-
-{% for server in data.servers %}
-
-
-
-
-<div class="server-card">
-
-
-
-<div class="server-title">
-
-
-<h3>
-🟢 {{ server.name }}
-</h3>
-
-
-<span>
-
-{{ server.status }}
-
-</span>
-
-
-</div>
-
-
-
-
-
-<div class="server-grid">
-
-
-
-<div>
-
-<label>
-Hostname
-</label>
-
-
-<strong>
-{{ server.hostname }}
-</strong>
-
-</div>
-
-
-
-
-
-<div>
-
-<label>
-IP Address
-</label>
-
-
-<strong>
-{{ server.ip }}
-</strong>
-
-</div>
-
-
-
-
-
-<div>
-
-<label>
-OS
-</label>
-
-
-<strong>
-{{ server.os }}
-</strong>
-
-</div>
-
-
-
-
-
-<div>
-
-<label>
-Last Seen
-</label>
-
-
-<strong>
-{{ server.last_seen }}
 </strong>
 
 </div>
@@ -432,33 +561,12 @@ Last Seen
 
 
 </div>
-
-
-
-</div>
-
-
-
-
-{% else %}
-
-
-
-<div class="empty-state">
-
-⚠ Nema registrovanih servera.
-
-</div>
-
-
-{% endfor %}
 
 
 
 
 
 </section>
-
 
 
 

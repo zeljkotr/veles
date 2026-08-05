@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
+{% endblock %}
+
+
+
+{% block title %}
+
+Add Infrastructure Resource
+
+{% endblock %}
+
+
+
+
+{% block content %}
+
+
+<div class="infra-page">
+
+
+<header class="infra-header">
+
+
+<h1>
+➕ ADD INFRASTRUCTURE RESOURCE
+</h1>
+
+
+<p>
+Registracija resursa u Veles Infrastructure Center
+</p>
+
+
+</header>
+
+
+
+
+
+<section class="infra-monitor">
+
+
+<div class="monitor-header">
+
+<h2>
+🌐 Resource Registration
+</h2>
+
+</div>
+
+
+
+
+
+<form method="POST">
+
+
+
+<div class="monitor-grid">
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Resource Type
+</label>
+
+
+<select name="type">
+
+
+<option value="server">
+🖥 Server
+</option>
+
+
+<option value="container">
+🐳 Container
+</option>
+
+
+<option value="agent">
+🤖 Agent
+</option>
+
+
+<option value="device">
+📡 Device
+</option>
+
+
+<option value="cloud">
+☁ Cloud
+</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Name
+</label>
+
+
+<input 
+type="text"
+name="name"
+placeholder="Production Server"
+required
+>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Host / IP Address
+</label>
+
+
+<input 
+type="text"
+name="host"
+placeholder="192.168.1.10"
+>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Port
+</label>
+
+
+<input 
+type="number"
+name="port"
+value="22"
+>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Username
+</label>
+
+
+<input 
+type="text"
+name="username"
+placeholder="admin"
+>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Group
+</label>
+
+
+<input 
+type="text"
+name="group"
+placeholder="production"
+>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+<br>
+
+
+<button type="submit" class="infra-button">
+
+REGISTER RESOURCE
+
+</button>
+
+
+
+</form>
+
+
+
+</section>
+
+
+
+
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
+{% endblock %}
+
+
+
+{% block title %}
+
+Veles Resource Registry
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+<div class="infra-page">
+
+
+<header class="infra-header">
+
+
+<h1>
+📦 {{ title }}
+</h1>
+
+
+<p>
+Registered resources managed by Veles
+</p>
+
+
+</header>
+
+
+
+
+
+<section class="inventory-panel">
+
+
+<h2>
+🌐 REGISTERED {{ title.upper() }}
+</h2>
+
+
+
+
+<div class="resource-list">
+
+
+
+{% if resources %}
+
+
+
+{% for resource in resources %}
+
+
+
+<a href="{{ url_for('resource_detail', resource_id=resource.id) }}"
+   class="resource-item">
+
+
+
+<div class="resource-icon">
+
+
+{% if resource.type == "server" %}
+🖥
+
+{% elif resource.type == "container" %}
+🐳
+
+{% elif resource.type == "agent" %}
+🤖
+
+{% elif resource.type == "device" %}
+📡
+
+{% elif resource.type == "cloud" %}
+☁
+
+{% else %}
+📦
+
+{% endif %}
+
+
+</div>
+
+
+
+
+
+<div class="resource-info">
+
+
+<h2>
+{{ resource.name }}
+</h2>
+
+
+
+<div class="resource-meta">
+
+
+<div>
+
+<label>
+TYPE
+</label>
+
+<strong>
+{{ resource.type }}
+</strong>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+HOST
+</label>
+
+<strong>
+{{ resource.host }}
+</strong>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+STATUS
+</label>
+
+<strong>
+{{ resource.status }}
+</strong>
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<div class="resource-arrow">
+
+→
+
+</div>
+
+
+
+</a>
+
+
+
+{% endfor %}
+
+
+
+{% else %}
+
+
+<div class="empty-state">
+
+⚠ Nema registrovanih resursa.
+
+</div>
+
+
+{% endif %}
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+</div>
+
+
+{% endblock %}

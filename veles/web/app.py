@@ -13,6 +13,7 @@ import os
 import json
 import shutil
 import uuid
+
 from veles.modules.registry import get_modules
 from veles.modules.infrastructure.service import infrastructure
 
@@ -176,8 +177,10 @@ def _generate_answer_audio(text: str):
 
 
 
+
 @app.route("/infrastructure")
 def infrastructure_page():
+
 
     server = infrastructure.discover()
 
@@ -195,7 +198,169 @@ def infrastructure_page():
 
 
 
+@app.route("/infrastructure/<group>")
+def resource_group(group):
 
+
+    allowed_groups = [
+        "servers",
+        "containers",
+        "agents",
+        "devices",
+        "cloud"
+    ]
+
+
+    if group not in allowed_groups:
+
+        return redirect(
+            url_for(
+                "infrastructure_page"
+            )
+        )
+
+
+    resources = infrastructure.get_resources(
+        group
+    )
+
+
+    return render_template(
+        "resources.html",
+        title=group.capitalize(),
+        resources=resources
+    )
+
+
+
+
+
+@app.route("/infrastructure/resource/<resource_id>")
+def resource_detail(resource_id):
+
+
+    resources = infrastructure.get_resources()
+
+
+    resource = None
+
+
+    for group in resources.values():
+
+        for item in group:
+
+            if item.get("id") == resource_id:
+
+                resource = item
+                break
+
+
+        if resource:
+            break
+
+
+
+    return render_template(
+        "resource_detail.html",
+        resource=resource
+    )
+
+
+
+
+
+
+@app.route("/infrastructure/server/<server_id>")
+def server_details(server_id):
+
+
+    server = infrastructure.get_registered_server(
+        server_id
+    )
+
+
+    return render_template(
+        "server.html",
+        server=server
+    )
+
+
+
+
+
+
+@app.route("/infrastructure/add", methods=["GET", "POST"])
+def add_resource():
+
+
+    if request.method == "POST":
+
+
+        resource = {
+
+
+            "id": f"res-{uuid.uuid4().hex[:6]}",
+
+
+            "type": request.form.get(
+                "type",
+                "server"
+            ),
+
+
+            "name": request.form.get(
+                "name",
+                "Unnamed Resource"
+            ),
+
+
+            "host": request.form.get(
+                "host",
+                ""
+            ),
+
+
+            "port": request.form.get(
+                "port",
+                "22"
+            ),
+
+
+            "username": request.form.get(
+                "username",
+                ""
+            ),
+
+
+            "group": request.form.get(
+                "group",
+                "default"
+            ),
+
+
+            "status": "registered"
+
+        }
+
+
+
+        infrastructure.add_resource(
+            resource
+        )
+
+
+
+        return redirect(
+            url_for(
+                "infrastructure_page"
+            )
+        )
+
+
+
+    return render_template(
+        "add_resource.html"
+    )
 
 @app.route("/")
 @app.route("/dashboard")
@@ -252,7 +417,6 @@ def chat():
 
 
 
-
 @app.route("/ask", methods=["POST"])
 def ask():
 
@@ -270,6 +434,7 @@ def ask():
         return redirect(
             url_for("chat")
         )
+
 
 
 
@@ -321,9 +486,14 @@ def ask():
 
 
 
+
+
+
     audio_url = _generate_answer_audio(
         answer
     )
+
+
 
 
 
@@ -352,7 +522,6 @@ def ask():
 
 
 
-
 @app.route("/new_chat", methods=["POST"])
 def new_chat():
 
@@ -363,7 +532,6 @@ def new_chat():
     return redirect(
         url_for("chat")
     )
-
 
 
 
@@ -417,7 +585,6 @@ def confirm_memory():
 
 
 
-
 @app.route("/memory")
 def memory_view():
 
@@ -430,7 +597,6 @@ def memory_view():
         "memory.html",
         memories=memories
     )
-
 
 
 
@@ -457,7 +623,6 @@ def memory_delete(memory_id):
     return redirect(
         url_for("memory_view")
     )
-
 
 
 
@@ -526,7 +691,6 @@ def logs_view():
 
 
 
-
 @app.route("/system")
 def system_view():
 
@@ -550,7 +714,6 @@ def system_view():
 
 
 
-
 @app.route("/services")
 def services_view():
 
@@ -563,7 +726,6 @@ def services_view():
         "services.html",
         services=services
     )
-
 
 
 
