@@ -8,9 +8,11 @@ Osnovni objekti infrastrukture:
 """
 
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+
+
 
 
 
@@ -25,9 +27,26 @@ class Server:
 
     os: str
 
+
     status: str = "unknown"
 
+
     last_seen: Optional[str] = None
+
+
+
+    cpu: str = "unknown"
+
+
+    memory: dict = None
+
+
+    disk: dict = None
+
+
+    uptime: str = "unknown"
+
+
 
 
 
@@ -36,6 +55,10 @@ class Server:
         self.last_seen = datetime.now().isoformat()
 
         self.status = "online"
+
+
+
+
 
 
 
@@ -54,6 +77,10 @@ class Device:
 
 
 
+
+
+
+
 @dataclass
 class Agent:
 
@@ -67,7 +94,13 @@ class Agent:
 
 
 
-# testni objekti za razvoj
+
+
+
+
+
+# testni objekat za razvoj
+
 
 LOCAL_SERVER = Server(
 

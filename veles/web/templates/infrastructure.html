@@ -1,20 +1,38 @@
 {% extends "base.html" %}
 
 
-{% block title %}
-Veles Infrastructure Center
+{% block extra_css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
 {% endblock %}
+
+
+
+{% block title %}
+
+Veles Infrastructure Center
+
+{% endblock %}
+
+
 
 
 
 {% block content %}
 
 
-<div class="card" style="padding:30px;">
+<div class="infra-page">
+
+
+
+
+
+<header class="infra-header">
 
 
 <h1>
-🖥 Infrastructure Center
+🖥 INFRASTRUCTURE CENTER
 </h1>
 
 
@@ -24,14 +42,305 @@ Veles inventar i nadzor infrastrukture
 
 
 
+<div class="infra-status">
+
+
+<span>
+🟢 DISCOVERY ACTIVE
+</span>
+
+
+<span>
+CORE ONLINE
+</span>
+
+
+<span>
+LOCAL NODE
+</span>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+
+
+
+
+<section class="infra-cards">
+
+
+
+<div class="infra-card">
+
+
+<div class="infra-icon">
+⚡
+</div>
+
+
+<h3>
+CPU LOAD
+</h3>
+
+
+<div class="infra-value">
+
+{{ server.cpu }}
+
+</div>
+
+
+<p>
+System load average
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="infra-card">
+
+
+<div class="infra-icon">
+🧠
+</div>
+
+
+<h3>
+MEMORY
+</h3>
+
+
+<div class="infra-value">
+
+
+{{ server.memory.used_gb }}
+/
+{{ server.memory.total_gb }}
+GB
+
+
+</div>
+
+
+<p>
+RAM usage
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="infra-card">
+
+
+<div class="infra-icon">
+💾
+</div>
+
+
+<h3>
+STORAGE
+</h3>
+
+
+<div class="infra-value">
+
+
+{{ server.disk.used_gb }}
+/
+{{ server.disk.total_gb }}
+GB
+
+
+</div>
+
+
+<p>
+Root filesystem
+
+</p>
+
+
+</div>
+
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="infra-monitor">
+
+
+
+<div class="monitor-header">
+
 <h2>
-Servers
+📊 System Overview
 </h2>
+
+</div>
+
+
+
+
+<div class="monitor-grid">
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Hostname
+</label>
+
+
+<strong>
+
+{{ server.hostname }}
+
+</strong>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+IP Address
+</label>
+
+
+<strong>
+
+{{ server.ip }}
+
+</strong>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Operating System
+</label>
+
+
+<strong>
+
+{{ server.os }}
+
+</strong>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="monitor-item">
+
+
+<label>
+Uptime
+</label>
+
+
+<strong>
+
+{{ server.uptime }}
+
+</strong>
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="inventory-panel">
+
+
+<h2>
+📦 Server Inventory
+</h2>
+
+
+
 
 
 {% for server in data.servers %}
 
-<div class="card" style="padding:20px;margin-bottom:15px;">
+
+
+
+<div class="server-card">
+
+
+
+<div class="server-title">
 
 
 <h3>
@@ -39,46 +348,120 @@ Servers
 </h3>
 
 
-<p>
-Hostname:
-{{ server.hostname }}
-</p>
+<span>
 
-
-<p>
-IP:
-{{ server.ip }}
-</p>
-
-
-<p>
-OS:
-{{ server.os }}
-</p>
-
-
-<p>
-Status:
 {{ server.status }}
-</p>
 
-
-<p>
-Last seen:
-{{ server.last_seen }}
-</p>
+</span>
 
 
 </div>
 
 
+
+
+
+<div class="server-grid">
+
+
+
+<div>
+
+<label>
+Hostname
+</label>
+
+
+<strong>
+{{ server.hostname }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+IP Address
+</label>
+
+
+<strong>
+{{ server.ip }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+OS
+</label>
+
+
+<strong>
+{{ server.os }}
+</strong>
+
+</div>
+
+
+
+
+
+<div>
+
+<label>
+Last Seen
+</label>
+
+
+<strong>
+{{ server.last_seen }}
+</strong>
+
+</div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
 {% else %}
 
-<p>
-Nema registrovanih servera.
-</p>
+
+
+<div class="empty-state">
+
+⚠ Nema registrovanih servera.
+
+</div>
+
 
 {% endfor %}
+
+
+
+
+
+</section>
+
+
+
+
 
 
 

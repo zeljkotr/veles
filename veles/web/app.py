@@ -176,46 +176,37 @@ def _generate_answer_audio(text: str):
 
 
 
-@app.route("/")
-def dashboard():
+@app.route("/infrastructure")
+def infrastructure_page():
 
+    server = infrastructure.discover()
+
+    data = infrastructure.get_status()
+
+
+    return render_template(
+        "infrastructure.html",
+        data=data,
+        server=server
+    )
+
+
+
+
+
+
+
+
+@app.route("/")
+@app.route("/dashboard")
+def dashboard_view():
 
     modules = get_modules()
-
 
     return render_template(
         "dashboard.html",
         modules=modules
     )
-
-
-@app.route("/infrastructure")
-def infrastructure_page():
-
-    infrastructure.discover()
-
-    data = infrastructure.get_status()
-
-    return render_template(
-        "infrastructure.html",
-        data=data
-    )
-
-
-
-
-
-
-
-
-@app.route("/dashboard")
-def dashboard_view():
-
-
-    return render_template(
-        "dashboard.html"
-    )
-
 
 
 

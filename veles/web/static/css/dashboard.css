@@ -3,168 +3,424 @@ VELES OPERATIONS MAP
 AI Operations Center Dashboard
 */
 
+
 .veles-dashboard {
 
-width:100%;
-height:100%;
+    width:100%;
+    height:100%;
 
-display:flex;
-flex-direction:column;
+    display:flex;
+    flex-direction:column;
 
 }
+
 
 .dashboard-header {
 
-text-align:center;
-
-flex-shrink:0;
+    text-align:center;
+    flex-shrink:0;
 
 }
+
 
 .dashboard-header h1 {
 
-color:var(--gold);
+    color:var(--gold);
 
-letter-spacing:4px;
+    letter-spacing:4px;
 
-font-size:36px;
+    font-size:36px;
 
 }
+
 
 .dashboard-header p {
 
-color:var(--muted);
+    color:var(--muted);
 
 }
+
+
 
 .operations-map {
 
-position:relative;
+    position:relative;
 
-width:100%;
+    width:100%;
 
-height:600px;
+    height:600px;
 
-overflow:hidden;
+    overflow:hidden;
 
 }
+
+
+
+
 
 /*
 CONNECTION LAYER
 */
 
+
 .connection-lines {
 
-position:absolute;
+    position:absolute;
 
-inset:0;
+    top:0;
 
-width:100%;
+    left:0;
 
-height:100%;
+    width:100%;
 
-pointer-events:none;
+    height:100%;
 
-z-index:1;
+    overflow:visible;
+
+    pointer-events:none;
+
+    z-index:1;
 
 }
+
+
+
+
 
 .data-line {
 
-stroke:var(--gold);
 
-stroke-width:2;
+    stroke:var(--gold);
 
-opacity:.45;
+    stroke-width:2.5;
 
-stroke-dasharray:1 15;
+    opacity:.75;
 
-animation:
+    stroke-linecap:round;
 
-flow 2s linear infinite;
+
+    stroke-dasharray:
+
+    10 18;
+
+
+    filter:
+
+    drop-shadow(
+        0 0 6px var(--gold)
+    );
+
+
+    animation:
+
+    flow 2s linear infinite,
+    linePulse 4s ease-in-out infinite;
+
 
 }
+
+
 
 @keyframes flow {
 
-from {
 
-stroke-dashoffset:0;
+    from {
+
+        stroke-dashoffset:0;
+
+    }
+
+
+    to {
+
+        stroke-dashoffset:-28;
+
+    }
 
 }
 
-to {
 
-stroke-dashoffset:-16;
+
+
+@keyframes linePulse {
+
+
+    0% {
+
+        opacity:.45;
+
+    }
+
+
+    50% {
+
+        opacity:1;
+
+    }
+
+
+    100% {
+
+        opacity:.45;
+
+    }
 
 }
 
+
+
+
+
+
+/*
+DATA PACKETS
+*/
+
+
+.data-packet {
+
+
+    fill:var(--gold);
+
+
+    filter:
+
+    drop-shadow(
+        0 0 8px var(--gold)
+    );
+
+
+    animation:
+
+    packetGlow 2s ease-in-out infinite;
+
+
 }
+
+
+
+@keyframes packetGlow {
+
+
+    0% {
+
+
+        opacity:.4;
+
+        r:3;
+
+
+    }
+
+
+    50% {
+
+
+        opacity:1;
+
+        r:5;
+
+
+    }
+
+
+    100% {
+
+
+        opacity:.4;
+
+        r:3;
+
+
+    }
+
+}
+
+
+
+
+
 
 /*
 NODES
 */
 
+
 .node {
 
-position:absolute;
 
-width:120px;
+    position:absolute;
 
-height:120px;
 
-border-radius:50%;
+    width:120px;
 
-background:
 
-radial-gradient(
-circle,
-#263442,
-#10161d
-);
+    height:120px;
 
-border:2px solid var(--gold);
 
-display:flex;
+    border-radius:50%;
 
-justify-content:center;
 
-align-items:center;
+    background:
 
-flex-direction:column;
 
-text-align:center;
+    radial-gradient(
 
-color:white;
+        circle,
 
-font-size:13px;
+        #263442,
 
-cursor:pointer;
+        #10161d
 
-z-index:2;
+    );
 
-transition:.3s;
 
-box-shadow:
 
-0 0 20px rgba(
-217,
-164,
-65,
-.35
-);
+    border:2px solid var(--gold);
 
-text-decoration:none;
+
+
+    display:flex;
+
+
+    justify-content:center;
+
+
+    align-items:center;
+
+
+    flex-direction:column;
+
+
+
+    text-align:center;
+
+
+    color:white;
+
+
+
+    font-size:13px;
+
+
+
+    cursor:pointer;
+
+
+
+    z-index:2;
+
+
+
+    transition:.3s;
+
+
+
+    text-decoration:none;
+
+
+
+    animation:
+
+
+    nodeBreath 5s ease-in-out infinite;
+
+
 
 }
 
+
+
+
 .node:hover {
 
-transform:scale(1.15);
 
-box-shadow:
+    transform:scale(1.15);
 
-0 0 45px var(--gold);
+
+
+    box-shadow:
+
+
+    0 0 45px var(--gold);
+
+
+
+}
+
+
+
+
+
+
+@keyframes nodeBreath {
+
+
+    0% {
+
+
+        box-shadow:
+
+
+        0 0 20px rgba(
+
+            217,
+
+            164,
+
+            65,
+
+            .35
+
+        );
+
+    }
+
+
+
+    50% {
+
+
+        box-shadow:
+
+
+        0 0 35px rgba(
+
+            217,
+
+            164,
+
+            65,
+
+            .7
+
+        );
+
+
+    }
+
+
+
+    100% {
+
+
+        box-shadow:
+
+
+        0 0 20px rgba(
+
+            217,
+
+            164,
+
+            65,
+
+            .35
+
+        );
+
+
+    }
 
 }
 
@@ -172,315 +428,764 @@ box-shadow:
 VELES CORE
 */
 
+
 .core {
 
-left:50%;
 
-top:50%;
+    left:50%;
 
-transform:
+    top:50%;
 
-translate(
--50%,
--50%
-);
 
-width:170px;
+    transform:
 
-height:170px;
+    translate(
+        -50%,
+        -50%
+    );
 
-font-size:21px;
 
-background:
 
-radial-gradient(
-circle at 35% 30%,
-#fff3b0,
-var(--gold2),
-var(--gold)
-);
+    width:170px;
 
-color:#111;
 
-border:3px solid #ffe9a3;
+    height:170px;
 
-box-shadow:
 
-0 0 40px var(--gold),
-0 0 90px rgba(
-217,
-164,
-65,
-.7
-);
 
-animation:
+    font-size:21px;
 
-corePulse 3s ease-in-out infinite;
+
+
+    background:
+
+
+    radial-gradient(
+
+        circle at 35% 30%,
+
+        #fff3b0,
+
+        var(--gold2),
+
+        var(--gold)
+
+    );
+
+
+
+    color:#111;
+
+
+
+    border:3px solid #ffe9a3;
+
+
+
+    box-shadow:
+
+
+    0 0 40px var(--gold),
+
+
+    0 0 90px rgba(
+
+        217,
+
+        164,
+
+        65,
+
+        .7
+
+    );
+
+
+
+    animation:
+
+
+    corePulse 3s ease-in-out infinite;
+
+
 
 }
+
+
+
 
 .core::before {
 
-content:"";
 
-position:absolute;
+    content:"";
 
-inset:-15px;
 
-border-radius:50%;
+    position:absolute;
 
-border:2px solid var(--gold);
 
-opacity:.6;
+    inset:-15px;
 
-animation:
 
-coreRing 3s linear infinite;
+
+    border-radius:50%;
+
+
+
+    border:2px solid var(--gold);
+
+
+
+    opacity:.6;
+
+
+
+    animation:
+
+
+    coreRing 3s linear infinite;
+
+
 
 }
+
+
+
 
 .core::after {
 
-content:"";
 
-position:absolute;
+    content:"";
 
-inset:-35px;
 
-border-radius:50%;
+    position:absolute;
 
-border:1px solid rgba(
-217,
-164,
-65,
-.35
-);
 
-animation:
 
-coreGlow 4s ease-in-out infinite;
+    inset:-35px;
+
+
+
+    border-radius:50%;
+
+
+
+    border:1px solid rgba(
+
+        217,
+
+        164,
+
+        65,
+
+        .35
+
+    );
+
+
+
+    animation:
+
+
+    coreGlow 4s ease-in-out infinite;
+
+
 
 }
+
+
+
 
 .core:hover {
 
-transform:
 
-translate(
--50%,
--50%
-)
-scale(1.12);
+    transform:
+
+
+    translate(
+
+        -50%,
+
+        -50%
+
+    )
+
+    scale(1.12);
+
+
 
 }
+
+
+
 
 @keyframes corePulse {
 
-0% {
 
-box-shadow:
+    0% {
 
-0 0 40px var(--gold),
-0 0 80px rgba(
-217,
-164,
-65,
-.5
-);
+
+        box-shadow:
+
+
+        0 0 40px var(--gold),
+
+
+        0 0 80px rgba(
+
+            217,
+
+            164,
+
+            65,
+
+            .5
+
+        );
+
+
+    }
+
+
+
+    50% {
+
+
+        box-shadow:
+
+
+        0 0 70px var(--gold),
+
+
+        0 0 140px rgba(
+
+            217,
+
+            164,
+
+            65,
+
+            .8
+
+        );
+
+
+    }
+
+
+
+    100% {
+
+
+        box-shadow:
+
+
+        0 0 40px var(--gold),
+
+
+        0 0 80px rgba(
+
+            217,
+
+            164,
+
+            65,
+
+            .5
+
+        );
+
+
+    }
 
 }
 
-50% {
 
-box-shadow:
 
-0 0 70px var(--gold),
-0 0 140px rgba(
-217,
-164,
-65,
-.8
-);
 
-}
-
-100% {
-
-box-shadow:
-
-0 0 40px var(--gold),
-0 0 80px rgba(
-217,
-164,
-65,
-.5
-);
-
-}
-
-}
 
 @keyframes coreRing {
 
-from {
 
-transform:rotate(0deg)
-scale(1);
+    from {
+
+
+        transform:
+
+        rotate(0deg)
+
+        scale(1);
+
+
+    }
+
+
+    to {
+
+
+        transform:
+
+        rotate(360deg)
+
+        scale(1.08);
+
+
+    }
 
 }
 
-to {
 
-transform:rotate(360deg)
-scale(1.08);
 
-}
-
-}
 
 @keyframes coreGlow {
 
-0% {
 
-opacity:.3;
+    0% {
+
+
+        opacity:.3;
+
+
+    }
+
+
+    50% {
+
+
+        opacity:.8;
+
+
+    }
+
+
+    100% {
+
+
+        opacity:.3;
+
+
+    }
 
 }
 
-50% {
 
-opacity:.8;
 
-}
 
-100% {
 
-opacity:.3;
-
-}
-
-}
 
 /*
 MODULE POSITIONS
 */
 
+
 .intelligence {
 
-left:50%;
 
-top:20px;
+    left:50%;
 
-transform:translateX(-50%);
+
+    top:20px;
+
+
+    transform:translateX(-50%);
+
 
 }
+
+
+
 
 .infrastructure {
 
-left:8%;
 
-top:220px;
+    left:8%;
+
+
+    top:220px;
+
 
 }
+
+
+
 
 .delivery {
 
-left:28%;
 
-top:100px;
+    left:28%;
+
+
+    top:100px;
+
 
 }
+
+
+
 
 .cloud {
 
-right:28%;
 
-top:100px;
+    right:28%;
+
+
+    top:100px;
+
 
 }
+
+
+
 
 .security {
 
-right:8%;
 
-top:220px;
+    right:8%;
+
+
+    top:220px;
+
 
 }
+
+
+
 
 .automation {
 
-left:18%;
 
-bottom:80px;
+    left:18%;
+
+
+    bottom:80px;
+
 
 }
+
+
+
 
 .observability {
 
-left:38%;
 
-bottom:20px;
+    left:38%;
+
+
+    bottom:20px;
+
 
 }
+
+
+
 
 .network {
 
-right:38%;
 
-bottom:20px;
+    right:38%;
+
+
+    bottom:20px;
+
 
 }
+
+
+
 
 .platform {
 
-right:18%;
 
-bottom:80px;
+    right:18%;
+
+
+    bottom:80px;
+
 
 }
+
+
+
 
 .data {
 
-left:28%;
 
-bottom:150px;
+    left:28%;
+
+
+    bottom:150px;
+
 
 }
+
+
+
 
 .testing {
 
-right:28%;
 
-bottom:150px;
+    right:28%;
+
+
+    bottom:150px;
+
 
 }
+
+
+
 
 .access {
 
-right:5%;
 
-bottom:20px;
+    right:5%;
+
+
+    bottom:20px;
+
 
 }
+
+
+
+
+
+
+/*
+FLOATING CLOUD PARTICLES
+*/
+
+
+.cloud-particle {
+
+
+    position:absolute;
+
+
+    width:4px;
+
+
+    height:4px;
+
+
+    background:var(--gold);
+
+
+    border-radius:50%;
+
+
+    opacity:.5;
+
+
+
+    box-shadow:
+
+
+    0 0 12px var(--gold);
+
+
+
+    animation:
+
+
+    cloudMove 15s linear infinite;
+
+
+
+}
+
+
+
+@keyframes cloudMove {
+
+
+    from {
+
+
+        transform:
+
+        translateY(50px);
+
+
+        opacity:0;
+
+
+    }
+
+
+
+    50% {
+
+
+        opacity:1;
+
+
+    }
+
+
+
+    to {
+
+
+        transform:
+
+        translateY(-600px);
+
+
+        opacity:0;
+
+
+    }
+
+
+}
+
+
+
+
+
+
+.cloud-1 {
+
+
+    left:10%;
+
+    bottom:-20px;
+
+    animation-delay:0s;
+
+}
+
+
+
+.cloud-2 {
+
+
+    left:25%;
+
+    bottom:-50px;
+
+    animation-delay:3s;
+
+}
+
+
+
+.cloud-3 {
+
+
+    left:40%;
+
+    bottom:-30px;
+
+    animation-delay:6s;
+
+}
+
+
+
+.cloud-4 {
+
+
+    left:55%;
+
+    bottom:-60px;
+
+    animation-delay:2s;
+
+}
+
+
+
+.cloud-5 {
+
+
+    left:70%;
+
+    bottom:-40px;
+
+    animation-delay:5s;
+
+}
+
+
+
+.cloud-6 {
+
+
+    left:85%;
+
+    bottom:-20px;
+
+    animation-delay:8s;
+
+}
+
+
+
+.cloud-7 {
+
+
+    left:60%;
+
+    bottom:-70px;
+
+    animation-delay:10s;
+
+}
+
+
+
+.cloud-8 {
+
+
+    left:35%;
+
+    bottom:-80px;
+
+    animation-delay:12s;
+
+}
+
+
+
+
+
+
+
+/*
+RESPONSIVE
+*/
+
 
 @media(max-width:900px){
 
-.node {
 
-width:80px;
+    .node {
 
-height:80px;
 
-font-size:11px;
+        width:80px;
 
-}
 
-.core {
+        height:80px;
 
-width:120px;
 
-height:120px;
+        font-size:11px;
 
-}
+
+    }
+
+
+
+    .core {
+
+
+        width:120px;
+
+
+        height:120px;
+
+
+    }
+
 
 }
