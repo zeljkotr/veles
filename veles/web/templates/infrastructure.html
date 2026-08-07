@@ -64,9 +64,14 @@ INFRASTRUCTURE READY
 
 <div class="infra-actions">
 
-<a href="{{ url_for('add_resource') }}" class="infra-button">
-➕ ADD RESOURCE
-</a>
+    <a href="/infrastructure/add" class="infra-button">
+        ➕ ADD RESOURCE
+    </a>
+
+
+    <a href="/discovery" class="infra-button">
+        🔎 DISCOVER
+    </a>
 
 </div>
 
@@ -210,7 +215,98 @@ INFRASTRUCTURE READY
 </h2>
 
 
+{% if discovered %}
 
+<section class="inventory-panel">
+
+
+<h2>
+🔎 DISCOVERED HOSTS
+</h2>
+
+
+
+{% for host in discovered %}
+
+
+<div class="server-card">
+
+
+<div class="server-title">
+
+<h3>
+🖥 {{ host.name }}
+</h3>
+
+
+<span>
+FOUND
+</span>
+
+
+</div>
+
+
+
+<div class="server-grid">
+
+
+<div>
+
+<label>
+HOST
+</label>
+
+
+<strong>
+{{ host.host }}
+</strong>
+
+</div>
+
+
+
+<div>
+
+<label>
+PORT
+</label>
+
+
+<strong>
+{{ host.port }}
+</strong>
+
+</div>
+
+
+
+<div>
+
+<label>
+TYPE
+</label>
+
+
+<strong>
+{{ host.type }}
+</strong>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+{% endfor %}
+
+
+</section>
+
+{% endif %}
 
 
 {% if data.resources.servers %}

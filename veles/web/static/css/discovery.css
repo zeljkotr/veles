@@ -1,0 +1,472 @@
+/* ========================================= */
+/* VELES DISCOVERY CENTER */
+/* ========================================= */
+
+
+.discovery-container {
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:25px;
+
+}
+
+
+
+.discovery-header {
+
+    text-align:center;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.discovery-header h1 {
+
+    color:var(--gold);
+
+    letter-spacing:4px;
+
+    font-size:34px;
+
+    margin:0;
+
+}
+
+
+
+.discovery-header p {
+
+    color:var(--muted);
+
+    margin-top:10px;
+
+}
+
+
+
+
+
+/* ========================================= */
+/* DISCOVERY CARD */
+/* ========================================= */
+
+
+.discovery-card {
+
+    background:var(--panel);
+
+    border:1px solid var(--border);
+
+    border-radius:18px;
+
+    padding:25px;
+
+    transition:.3s;
+
+}
+
+
+
+.discovery-card:hover {
+
+    border-color:var(--gold);
+
+}
+
+
+
+
+
+.discovery-card h2 {
+
+    color:var(--gold2);
+
+    margin-top:0;
+
+}
+
+
+
+
+
+/* ========================================= */
+/* TARGETS */
+/* ========================================= */
+
+
+.target-item {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    background:#0b0f14;
+
+    border:1px solid var(--border);
+
+    border-radius:14px;
+
+    padding:18px;
+
+    margin-bottom:15px;
+
+    transition:.25s;
+
+}
+
+
+
+.target-item:hover {
+
+    border-color:var(--gold);
+
+    transform:translateY(-3px);
+
+}
+
+
+
+.target-item label {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    width:100%;
+
+    color:var(--text);
+
+    font-size:16px;
+
+    overflow-wrap:anywhere;
+
+}
+
+
+
+.target-item input {
+
+    width:22px;
+
+    height:22px;
+
+}
+
+
+
+
+
+/* ========================================= */
+/* DISCOVERED RESOURCE */
+/* ========================================= */
+
+
+.resource-card {
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:
+
+    linear-gradient(
+
+        145deg,
+
+        #1a2330,
+
+        #10161d
+
+    );
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    padding:22px;
+
+    margin-bottom:18px;
+
+    transition:.25s;
+
+}
+
+
+
+.resource-card:hover {
+
+    border-color:var(--gold);
+
+    transform:translateY(-4px);
+
+}
+
+
+
+.resource-card h3 {
+
+    margin:0 0 15px 0;
+
+    color:var(--gold2);
+
+    font-size:22px;
+
+}
+
+
+
+.resource-card p {
+
+    color:var(--text);
+
+    margin:8px 0;
+
+}
+
+
+
+.resource-card strong {
+
+    color:var(--muted);
+
+}
+
+
+
+
+
+/* ========================================= */
+/* SERVICES */
+/* ========================================= */
+
+
+.services {
+
+    margin-top:15px;
+
+    padding-top:15px;
+
+    border-top:1px solid var(--border);
+
+}
+
+
+
+.service-box {
+
+    display:inline-flex;
+
+    align-items:center;
+
+    background:#0b0f14;
+
+    border:1px solid var(--border);
+
+    border-radius:10px;
+
+    padding:8px 12px;
+
+    margin:5px;
+
+    color:var(--green);
+
+}
+
+
+
+
+
+/* ========================================= */
+/* BUTTONS */
+/* ========================================= */
+
+
+.scan-button,
+
+.add-selected {
+
+
+    background:#141b23;
+
+    border:1px solid var(--gold);
+
+    border-radius:10px;
+
+    color:var(--gold2);
+
+    padding:12px 25px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    margin-top:20px;
+
+    transition:.2s;
+
+
+}
+
+
+
+.scan-button:hover,
+
+.add-selected:hover {
+
+
+    background:#1a2330;
+
+    transform:translateY(-2px);
+
+
+}
+
+
+
+
+
+/* ========================================= */
+/* HIDDEN */
+/* ========================================= */
+
+
+.resource-card input[type="hidden"] {
+
+    display:none;
+
+}
+
+
+
+
+
+/* ========================================= */
+/* SCAN STATUS */
+/* ========================================= */
+
+
+.scan-status,
+
+#scan-status {
+
+
+    font-size:20px;
+
+    margin:20px 0;
+
+
+}
+
+
+
+
+
+/* ========================================= */
+/* SCAN ORB */
+/* ========================================= */
+
+
+#scanner {
+
+
+    text-align:center;
+
+    margin-top:30px;
+
+
+}
+
+
+
+.orb {
+
+
+    width:60px;
+
+    height:60px;
+
+    border-radius:50%;
+
+    border:5px solid var(--green);
+
+    border-top-color:transparent;
+
+    margin:20px auto;
+
+    animation:spin 1s linear infinite;
+
+
+}
+
+
+
+@keyframes spin {
+
+
+from {
+
+    transform:rotate(0deg);
+
+}
+
+
+to {
+
+    transform:rotate(360deg);
+
+}
+
+
+}
+
+
+
+
+
+/* ========================================= */
+/* RESPONSIVE */
+/* ========================================= */
+
+
+@media(max-width:900px){
+
+
+.discovery-container {
+
+    padding:15px;
+
+}
+
+
+
+.discovery-card,
+
+.resource-card {
+
+    padding:15px;
+
+}
+
+
+
+.scan-button,
+
+.add-selected {
+
+    width:100%;
+
+}
+
+
+}

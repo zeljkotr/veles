@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}
+Veles Discovery Center
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/discovery.css') }}">
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+{% if messages %}
+
+<div class="discovery-notification">
+
+{% for category, message in messages %}
+
+🟢 {{ message }}
+
+{% endfor %}
+
+</div>
+
+{% endif %}
+
+{% endwith %}
+
+
+
+<div class="discovery-container">
+
+
+<h1>
+    🔎 DISCOVERY CENTER
+</h1>
+
+
+<p>
+    Network Resource Discovery
+</p>
+
+
+
+<form action="/discovery/scan" method="POST">
+
+
+
+<div class="discovery-card">
+
+
+<h2>
+    🌐 DISCOVERY TARGETS
+</h2>
+
+
+
+{% for target in targets %}
+
+
+<div class="target-item">
+
+
+<input
+
+type="checkbox"
+
+name="network"
+
+value="{{ target.network }}"
+
+checked
+
+>
+
+
+<span>
+
+🌐 {{ target.interface }}
+
+</span>
+
+
+<br>
+
+
+<span>
+
+{{ target.network }}
+
+</span>
+
+
+</div>
+
+
+
+{% endfor %}
+
+
+
+<button
+
+class="scan-button"
+
+type="submit">
+
+
+🚀 START SCAN
+
+
+</button>
+
+
+</div>
+
+
+</form>
+
+
+
+
+
+{% if discovered %}
+
+
+<div class="discovery-card">
+
+
+<h2>
+    🖥 DISCOVERED RESOURCES
+</h2>
+
+
+
+{% for device in discovered %}
+
+
+
+<div class="resource-card">
+
+
+
+<h3>
+
+🖥 {{ device.name }}
+
+</h3>
+
+
+
+<p>
+
+<strong>
+STATUS
+</strong>
+
+<br>
+
+🟢 {{ device.status }}
+
+</p>
+
+
+
+<p>
+
+<strong>
+TYPE
+</strong>
+
+<br>
+
+{{ device.type }}
+
+</p>
+
+
+
+<p>
+
+<strong>
+HOST
+</strong>
+
+<br>
+
+{{ device.host }}
+
+</p>
+
+
+
+<p>
+
+<strong>
+PORT
+</strong>
+
+<br>
+
+{{ device.port or "-" }}
+
+</p>
+
+
+
+
+
+<p>
+
+<strong>
+SERVICES
+</strong>
+
+</p>
+
+
+
+{% if device.services %}
+
+
+
+{% for service in device.services %}
+
+
+
+<div>
+
+🟢 {{ service.service }} : {{ service.port }}
+
+</div>
+
+
+
+{% endfor %}
+
+
+
+{% else %}
+
+
+<div>
+
+⚪ UNKNOWN
+
+</div>
+
+
+{% endif %}
+
+
+
+
+
+<form action="/discovery/add" method="POST">
+
+
+
+<input
+
+type="hidden"
+
+name="resource"
+
+value='{{ device | tojson }}'
+
+>
+
+
+
+<button
+
+class="add-button"
+
+type="submit">
+
+
+➕ ADD RESOURCE
+
+
+</button>
+
+
+
+</form>
+
+
+
+</div>
+
+
+
+{% endfor %}
+
+
+
+</div>
+
+
+
+{% endif %}
+
+
+
+</div>
+
+
+
+<script>
+
+setTimeout(
+
+function(){
+
+let popup = document.querySelector(
+".discovery-notification"
+);
+
+
+if(popup){
+
+popup.remove();
+
+}
+
+
+},
+
+3000
+
+);
+
+
+</script>
+
+
+
+{% endblock %}

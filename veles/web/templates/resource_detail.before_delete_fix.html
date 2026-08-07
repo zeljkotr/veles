@@ -10,7 +10,6 @@
 
 
 
-
 {% block title %}
 
 Veles Resource Detail
@@ -21,16 +20,11 @@ Veles Resource Detail
 
 
 
-
 {% block content %}
 
 
 
-
-
 <div class="infra-page">
-
-
 
 
 
@@ -55,13 +49,11 @@ Veles Infrastructure Center
 
 
 
-
 <section class="inventory-panel">
 
 
 
 {% if resource %}
-
 
 
 
@@ -79,7 +71,6 @@ Veles Infrastructure Center
 
 
 <h3>
-
 
 
 {% if resource.type == "server" %}
@@ -127,8 +118,6 @@ Veles Infrastructure Center
 
 
 
-
-
 <div>
 
 <label>
@@ -140,7 +129,6 @@ ID
 </strong>
 
 </div>
-
 
 
 
@@ -160,7 +148,6 @@ TYPE
 
 
 
-
 <div>
 
 <label>
@@ -172,7 +159,6 @@ HOST
 </strong>
 
 </div>
-
 
 
 
@@ -192,7 +178,6 @@ SSH PORT
 
 
 
-
 <div>
 
 <label>
@@ -208,7 +193,6 @@ USERNAME
 
 
 
-
 <div>
 
 <label>
@@ -221,51 +205,6 @@ GROUP
 
 </div>
 
-
-<div>
-
-<label>
-GROUP
-</label>
-
-<strong>
-{{ resource.group or "-" }}
-</strong>
-
-</div>
-
-
-<!-- OVDE UBACI VERIFICATION -->
-
-
-<div>
-
-<label>
-VERIFICATION
-</label>
-
-<strong>
-
-{% if resource.verification.status == "verified" %}
-🟢 VERIFIED
-
-{% elif resource.verification.status == "failed" %}
-🔴 FAILED
-
-{% elif resource.verification.status == "checking" %}
-🟡 CHECKING
-
-{% else %}
-⚪ UNKNOWN
-
-{% endif %}
-
-</strong>
-
-</div>
-
-
-</div>
 
 
 </div>
@@ -282,14 +221,9 @@ VERIFICATION
 
 
 
-
-
-
 <h4>
 NAVIGATION
 </h4>
-
-
 
 
 
@@ -298,15 +232,11 @@ NAVIGATION
 
 
 
-
-
 <a href="/infrastructure" class="infra-button">
 
 ⬅ BACK
 
 </a>
-
-
 
 
 
@@ -320,36 +250,33 @@ NAVIGATION
 
 
 
+<div class="delete-area">
 
 
-<button type="button"
-        class="infra-button"
-        onclick="showDeleteConfirm()">
+
+<details>
+
+
+
+<summary class="infra-button">
+
 
 🗑 DELETE
 
-</button>
+
+</summary>
 
 
 
 
 
-</div>
-
-
-
-
-
-
-
-<div id="delete-confirm"
-     style="display:none; margin-top:20px;">
+<div class="delete-confirm">
 
 
 
 <p>
 
-⚠ Da li ste sigurni da želite da obrišete:
+⚠ Potvrda brisanja resursa:
 
 </p>
 
@@ -364,6 +291,7 @@ NAVIGATION
 
 
 
+
 <form method="POST"
       action="/infrastructure/resource/{{ resource.id }}/delete">
 
@@ -371,17 +299,7 @@ NAVIGATION
 
 <button type="submit" class="infra-button">
 
-🗑 POTVRDI BRISANJE
-
-</button>
-
-
-
-<button type="button"
-        class="infra-button"
-        onclick="hideDeleteConfirm()">
-
-⬅ ODUSTANI
+🗑 OBRIŠI
 
 </button>
 
@@ -391,9 +309,22 @@ NAVIGATION
 
 
 
+
 </div>
 
 
+
+
+</details>
+
+
+
+</div>
+
+
+
+
+</div>
 
 
 
@@ -408,33 +339,46 @@ ACTIONS
 
 
 
+<div class="action-row">
 
-
-
-<div class="actions">
-
-<a class="infra-button" href="{{ url_for('verify_resource', resource_id=resource.id) }}">
-    🔍 VERIFY
-</a>
-
-
-<a class="infra-button" href="{{ url_for('discover_infrastructure') }}">
-    🔎 DISCOVER
-</a>
 
 
 <button class="infra-button">
-    📊 MONITOR
+
+🔍 VERIFY
+
 </button>
+
+
 
 
 <button class="infra-button">
-    ⚙ EXECUTE
+
+🔎 DISCOVER
+
 </button>
+
+
+
+
+<button class="infra-button">
+
+📊 MONITOR
+
+</button>
+
+
+
+
+<button class="infra-button">
+
+⚙ EXECUTE
+
+</button>
+
+
 
 </div>
-
-
 
 
 
@@ -447,7 +391,6 @@ ACTIONS
 
 
 
-
 </div>
 
 
@@ -455,10 +398,7 @@ ACTIONS
 
 
 
-
 {% else %}
-
-
 
 
 
@@ -472,11 +412,7 @@ ACTIONS
 
 
 
-
-
 {% endif %}
-
-
 
 
 
@@ -491,35 +427,6 @@ ACTIONS
 
 
 </div>
-
-
-
-
-
-
-
-
-<script>
-
-function showDeleteConfirm(){
-
-    document.getElementById(
-        "delete-confirm"
-    ).style.display = "block";
-
-}
-
-
-
-function hideDeleteConfirm(){
-
-    document.getElementById(
-        "delete-confirm"
-    ).style.display = "none";
-
-}
-
-</script>
 
 
 

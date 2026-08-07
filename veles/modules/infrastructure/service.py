@@ -4,24 +4,24 @@ Veles Infrastructure Service
 Glavni servis infrastrukture.
 
 Povezuje:
+
 - local discovery
-- server registry
-- resource registry
+- network discovery
+- resource registry (PostgreSQL)
 - inventory
 """
 
 
 from .inventory import inventory
 
-from .discovery import discover_local_server
-
-from .server_registry import ServerRegistry
+from .discovery import (
+    discover_local_server,
+    discover_network_hosts
+)
 
 from .resource_registry import ResourceRegistry
 
 from .models import Server, LOCAL_SERVER
-
-
 
 
 
@@ -32,13 +32,9 @@ class InfrastructureService:
 
         self.inventory = inventory
 
-        self.registry = ServerRegistry()
-
         self.resource_registry = ResourceRegistry()
 
         self.loaded = False
-
-
 
 
 
@@ -65,79 +61,18 @@ class InfrastructureService:
                 return
 
 
-
-        self.inventory.add_server(
-            server
-        )
-
-
-
-
-
-
-
-    def _load_registry_servers(self):
-
-        """
-        Učitava registrovane servere
-        iz servers.json
-        """
-
-
-        servers = self.registry.list_servers()
-
-
-
-        for item in servers:
-
-
-            server = Server(
-
-                name=item.get(
-                    "name",
-                    "Unknown"
-                ),
-
-
-                hostname=item.get(
-                    "host",
-                    "unknown"
-                ),
-
-
-                ip=item.get(
-                    "host",
-                    "unknown"
-                ),
-
-
-                os="unknown",
-
-
-                status=item.get(
-                    "status",
-                    "registered"
-                )
-
-            )
-
-
-            self._add_if_missing(
-                server
-            )
-
-
-
-
-
-
+        self.inventory.add_server(server)
 
 
 
     def discover(self):
 
         """
-        Discovery lokalnog Veles servera.
+        Discovery lokalnog servera
+        i mrežnih resursa.
+
+        Discovery samo pronalazi.
+        Ne registruje automatski.
         """
 
 
@@ -149,18 +84,23 @@ class InfrastructureService:
         )
 
 
-        return server
+        hosts = discover_network_hosts()
 
 
+        return {
 
+            "local": server,
 
+            "discovered": hosts
+
+        }
 
 
 
     def initialize(self):
 
         """
-        Učitavanje početnog stanja infrastrukture.
+        Učitavanje početnog stanja.
         """
 
 
@@ -169,29 +109,19 @@ class InfrastructureService:
             return
 
 
-
         self._add_if_missing(
             LOCAL_SERVER
         )
-
-
-
-        self._load_registry_servers()
-
 
 
         self.loaded = True
 
 
 
-
-
-
-
     def add_resource(self, resource):
 
         """
-        Dodavanje resursa u Infrastructure Registry.
+        Ručno dodavanje potvrđenog resursa.
         """
 
         return self.resource_registry.add_resource(
@@ -200,37 +130,24 @@ class InfrastructureService:
 
 
 
-
-
-
-
-
-
     def get_registered_server(self, server_id):
 
-        """
-        Vraća server iz Server Registry baze.
-        """
+        resources = self.resource_registry.get_resources()
 
 
-        return self.registry.get_server(
-            server_id
-        )
+        for resource in resources:
 
 
+            if str(resource["id"]) == str(server_id):
+
+                return resource
 
 
-
-
+        return None
 
 
 
     def get_resources(self, group=None):
-
-        """
-        Vraća Infrastructure resurse.
-        """
-
 
         return self.resource_registry.get_resources(
             group
@@ -238,64 +155,104 @@ class InfrastructureService:
 
 
 
-
-
-
-
-
-
     def get_status(self):
+
+        """
+        Status infrastrukture.
+
+        UI očekuje Server objekte
+        iz inventory-ja.
+        """
 
 
         self.initialize()
+
+
+        local_server = discover_local_server()
+
+
+        self._add_if_missing(
+            local_server
+        )
+
+
+        resources = self.resource_registry.get_resources()
+
+
+
+        grouped_resources = {
+
+
+            "servers": [],
+
+            "containers": [],
+
+            "agents": [],
+
+            "devices": [],
+
+            "cloud": []
+
+        }
+
+
+
+        mapping = {
+
+
+            "server": "servers",
+
+            "container": "containers",
+
+            "agent": "agents",
+
+            "device": "devices",
+
+            "cloud": "cloud"
+
+        }
+
+
+
+        for resource in resources:
+
+
+            group = mapping.get(
+
+                resource.get("type"),
+
+                "servers"
+
+            )
+
+
+            grouped_resources[group].append(
+                resource
+            )
 
 
 
         return {
 
 
-
-            "inventory":
-
-                self.inventory.summary(),
+            "inventory": self.inventory.summary(),
 
 
+            "servers": self.inventory.get_servers(),
 
 
-            "servers":
-
-                self.inventory.get_servers(),
+            "devices": self.inventory.get_devices(),
 
 
+            "agents": self.inventory.get_agents(),
 
 
-            "devices":
-
-                self.inventory.get_devices(),
-
-
-
-
-            "agents":
-
-                self.inventory.get_agents(),
-
-
-            "resources":
-
-                self.resource_registry.get_resources()
-
+            "resources": grouped_resources
 
         }
 
 
 
-
-
-
-
-
-# globalni servis
-
+# Globalni servis
 
 infrastructure = InfrastructureService()
