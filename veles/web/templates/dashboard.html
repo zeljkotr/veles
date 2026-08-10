@@ -184,15 +184,20 @@ AUTOMATIZACIJA
 
 
 
-<div class="node observability">
+<div class="node observability"
+onclick="window.location.href='{{ url_for("monitoring_view") }}'">
 
-📊<br>
 
-NADZOR
+    📊<br>
 
-<div class="node-status">
-{{ modules.observability.status }}
-</div>
+
+    MONITORING
+
+
+    <div class="node-status">
+        {{ modules.observability.status }}
+    </div>
+
 
 </div>
 

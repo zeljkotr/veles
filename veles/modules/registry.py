@@ -56,11 +56,11 @@ MODULES = {
 
 
     "observability": {
-        "name": "Nadzor",
-        "icon": "📊",
-        "status": "planned",
-        "description": "Monitoring and alerts"
-    },
+    "name": "Nadzor",
+    "icon": "📊",
+    "status": "building",
+    "description": "Monitoring, health checks and alerts"
+},
 
 
     "network": {

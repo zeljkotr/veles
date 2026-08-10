@@ -423,9 +423,18 @@ ACTIONS
 </a>
 
 
-<button class="infra-button">
+
+<a
+    class="infra-button"
+    href="{{ url_for(
+        'monitor_resource',
+        resource_id=resource.id
+    ) }}"
+>
     📊 MONITOR
-</button>
+</a>
+
+
 
 
 <button class="infra-button">

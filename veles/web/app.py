@@ -13,6 +13,7 @@ import shutil
 import uuid
 import socket
 from pathlib import Path
+from veles.modules.monitoring import monitoring
 
 BASE_DIR = os.path.abspath(
     os.path.join(
@@ -595,10 +596,53 @@ def monitor_resource(resource_id):
     )
 
 
+    if not resource:
+
+        return redirect(
+            url_for(
+                "infrastructure_page"
+            )
+        )
+
+
+    # RUN CHECK ONLY FOR THIS RESOURCE
+
+    if request.args.get("check") == "1":
+
+        monitoring.check_resource(
+            resource
+        )
+
+
+    # GET CURRENT HEALTH
+
+    health = monitoring.get_health(
+        resource_id
+    )
+
+
+    # HANDLE ID TYPE DIFFERENCES
+
+    if health is None:
+
+        for key, item in monitoring.get_all_health().items():
+
+            if str(key) == str(resource_id):
+
+                health = item
+
+                break
+
+
     return render_template(
         "resource_monitor.html",
-        resource=resource
+        resource=resource,
+        health=health
     )
+
+
+
+
 
 
 
@@ -643,92 +687,6 @@ def delete_resource(resource_id):
 
 
 
-@app.route(
-    "/infrastructure/resource/<resource_id>/edit",
-    methods=["GET", "POST"]
-)
-def edit_resource(resource_id):
-
-    resource = infrastructure.resource_registry.get_resource(
-        resource_id
-    )
-
-
-    if not resource:
-
-        return redirect(
-            url_for(
-                "infrastructure_page"
-            )
-        )
-
-
-    if request.method == "POST":
-
-        data = {
-
-            "name": request.form.get(
-                "name"
-            ),
-
-            "host": request.form.get(
-                "host"
-            ),
-
-            "port": request.form.get(
-                "port"
-            ),
-
-            "username": request.form.get(
-                "username"
-            ),
-
-            "group": request.form.get(
-                "group"
-            ),
-
-            "status": request.form.get(
-                "status"
-            )
-
-        }
-
-
-        infrastructure.resource_registry.update_resource(
-            resource_id,
-            data
-        )
-
-
-        return redirect(
-            url_for(
-                "resource_detail",
-                resource_id=resource_id
-            )
-        )
-
-
-    return render_template(
-        "edit_resource.html",
-        resource=resource
-    )
-
-
-
-@app.route(
-    "/infrastructure/server/<server_id>"
-)
-def server_details(server_id):
-
-    server = infrastructure.get_registered_server(
-        server_id
-    )
-
-
-    return render_template(
-        "server.html",
-        server=server
-    )
 
 
 @app.route(
@@ -1012,12 +970,10 @@ def memory_delete(memory_id):
 # LOGS
 # ==========================================
 
-
 @app.route("/logs")
 def logs_view():
 
     entries = []
-
 
     if os.path.exists(LOG_FILE):
 
@@ -1038,7 +994,6 @@ def logs_view():
                     json.loads(line)
                 )
 
-
             except json.JSONDecodeError:
 
                 pass
@@ -1052,9 +1007,47 @@ def logs_view():
 
 
 # ==========================================
-# SYSTEM
+# MONITORING
 # ==========================================
 
+
+@app.route("/monitoring")
+def monitoring_view():
+
+    resources = infrastructure.get_resources()
+
+    health = monitoring.get_all_health()
+
+    return render_template(
+        "monitoring.html",
+        resources=resources,
+        health=health,
+        data=monitoring.get_status()
+    )
+
+
+@app.route("/monitoring/check")
+def monitoring_check():
+
+    resources = infrastructure.get_resources()
+
+    monitoring.check_resources(
+        resources
+    )
+
+    return redirect(
+        url_for(
+            "monitoring_view"
+        )
+    )
+
+
+
+
+
+# ==========================================
+# SYSTEM
+# ==========================================
 
 @app.route("/system")
 def system_view():
@@ -1068,6 +1061,9 @@ def system_view():
     )
 
 
+# ==========================================
+# SERVICES
+# ==========================================
 
 @app.route("/services")
 def services_view():

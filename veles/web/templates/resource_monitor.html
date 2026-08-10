@@ -1,0 +1,488 @@
+```html
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
+{% endblock %}
+
+
+{% block title %}
+
+Veles Resource Monitor
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="infra-page">
+
+
+    <header class="infra-header">
+
+        <h1>
+            📊 RESOURCE MONITOR
+        </h1>
+
+        <p>
+            Resource health monitoring
+        </p>
+
+    </header>
+
+
+    {% if resource %}
+
+
+        <!-- RESOURCE INFORMATION -->
+
+        <section class="inventory-panel">
+
+            <h2>
+                RESOURCE
+            </h2>
+
+
+            <div class="server-card">
+
+
+                <div class="server-title">
+
+                    <h3>
+
+                        {% if resource.type == "server" %}
+                            🖥
+                        {% elif resource.type == "container" %}
+                            🐳
+                        {% elif resource.type == "agent" %}
+                            🤖
+                        {% elif resource.type == "device" %}
+                            📡
+                        {% else %}
+                            ☁
+                        {% endif %}
+
+                        {{ resource.name }}
+
+                    </h3>
+
+
+                    <span>
+                        {{ resource.status }}
+                    </span>
+
+                </div>
+
+
+                <div class="server-grid">
+
+
+                    <div>
+
+                        <label>
+                            ID
+                        </label>
+
+                        <strong>
+                            {{ resource.id }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            TYPE
+                        </label>
+
+                        <strong>
+                            {{ resource.type }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            HOST
+                        </label>
+
+                        <strong>
+                            {{ resource.host or "-" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            PORT
+                        </label>
+
+                        <strong>
+                            {{ resource.port or "-" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            USERNAME
+                        </label>
+
+                        <strong>
+                            {{ resource.username or "-" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            GROUP
+                        </label>
+
+                        <strong>
+                            {{ resource.group or "-" }}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- MONITORING ACTIONS -->
+
+        <section class="infra-actions">
+
+            <h4>
+                MONITORING
+            </h4>
+
+
+            <div class="action-row">
+
+
+                <a
+                    href="{{ url_for(
+                        'monitor_resource',
+                        resource_id=resource.id,
+                        check='1'
+                    ) }}"
+                    class="infra-button"
+                >
+
+                    ▶ RUN CHECK
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('monitoring_view') }}"
+                    class="infra-button"
+                >
+
+                    📊 MONITORING CENTER
+
+                </a>
+
+
+                <a
+                    href="{{ url_for(
+                        'resource_detail',
+                        resource_id=resource.id
+                    ) }}"
+                    class="infra-button"
+                >
+
+                    ⬅ RESOURCE DETAIL
+
+                </a>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- HEALTH STATUS -->
+
+        <section class="resource-overview">
+
+            <h2>
+                HEALTH STATUS
+            </h2>
+
+
+            <div class="resource-grid">
+
+
+                <div class="resource-card">
+
+                    <h3>
+                        STATUS
+                    </h3>
+
+                    <div class="resource-number">
+
+
+                        {% if health %}
+
+
+                            {% if health.status == "healthy" %}
+
+                                🟢
+
+                            {% elif health.status == "critical" %}
+
+                                🔴
+
+                            {% elif health.status == "warning" %}
+
+                                🟡
+
+                            {% else %}
+
+                                ⚪
+
+                            {% endif %}
+
+
+                        {% else %}
+
+                            ⚪
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+                <div class="resource-card">
+
+                    <h3>
+                        CHECKS
+                    </h3>
+
+                    <div class="resource-number">
+
+
+                        {% if health %}
+
+                            {{ health.checks|length }}
+
+                        {% else %}
+
+                            0
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+                <div class="resource-card">
+
+                    <h3>
+                        LAST CHECK
+                    </h3>
+
+                    <div
+                        class="resource-number"
+                        style="font-size:18px;"
+                    >
+
+
+                        {% if health %}
+
+                            {{ health.last_check }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- CHECK RESULTS -->
+
+        <section class="inventory-panel">
+
+            <h2>
+                CHECK RESULTS
+            </h2>
+
+
+            {% if health and health.checks %}
+
+
+                <div class="resource-list">
+
+
+                    {% for check in health.checks %}
+
+
+                        <div class="resource-item">
+
+
+                            <div class="resource-icon">
+
+
+                                {% if check.status == "online" %}
+
+                                    🟢
+
+                                {% elif check.status == "offline" %}
+
+                                    🔴
+
+                                {% else %}
+
+                                    🟡
+
+                                {% endif %}
+
+
+                            </div>
+
+
+                            <div class="resource-info">
+
+                                <h2>
+                                    {{ check.check_type|upper }}
+                                </h2>
+
+
+                                <div class="resource-meta">
+
+
+                                    <div>
+
+                                        <label>
+                                            STATUS
+                                        </label>
+
+                                        <strong>
+                                            {{ check.status|upper }}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <label>
+                                            RESPONSE
+                                        </label>
+
+                                        <strong>
+
+
+                                            {% if check.response_time_ms is not none %}
+
+                                                {{ check.response_time_ms }} ms
+
+                                            {% else %}
+
+                                                —
+
+                                            {% endif %}
+
+
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <label>
+                                            MESSAGE
+                                        </label>
+
+                                        <strong>
+
+                                            {{ check.message or "—" }}
+
+                                        </strong>
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+
+                    {% endfor %}
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <div class="empty-state">
+
+                    ⚪ Resource has not been checked yet.
+
+                </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+
+    {% else %}
+
+
+        <div class="empty-state">
+
+            ⚠ Resource nije pronađen.
+
+        </div>
+
+
+    {% endif %}
+
+
+</div>
+
+{% endblock %}
+```

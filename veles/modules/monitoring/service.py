@@ -83,6 +83,7 @@ class MonitoringService:
         )
 
 
+
         health = ResourceHealth(
             resource_id=resource_id,
             status=status,
@@ -91,7 +92,9 @@ class MonitoringService:
         )
 
 
+
         self.health[resource_id] = health
+
 
 
         return health
@@ -139,6 +142,30 @@ class MonitoringService:
 
 
 
+    def get_status(self):
+        """
+        VELES module status interface.
+        Used by WEB dashboard.
+        """
+
+        return {
+
+            "name": "Monitoring",
+
+            "status": "active",
+
+            "resources": list(
+                self.health.values()
+            ),
+
+            "count": len(
+                self.health
+            )
+
+        }
+
+
+
     def _calculate_status(
         self,
         results
@@ -152,10 +179,15 @@ class MonitoringService:
             return "unknown"
 
 
+
         statuses = [
+
             item.status
+
             for item in results
+
         ]
+
 
 
         if "offline" in statuses:
@@ -163,12 +195,16 @@ class MonitoringService:
             return "critical"
 
 
+
         if "unknown" in statuses:
 
             return "warning"
 
 
+
         return "healthy"
+
+
 
 
 
