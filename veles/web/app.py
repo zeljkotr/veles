@@ -14,6 +14,7 @@ import uuid
 import socket
 from pathlib import Path
 from veles.modules.monitoring import monitoring
+from veles.modules.network.service import network
 
 BASE_DIR = os.path.abspath(
     os.path.join(
@@ -294,8 +295,7 @@ def add_discovered_resource():
         ),
 
         "port": data.get(
-            "port",
-            0
+            "port"
         ),
 
         "services": data.get(
@@ -752,6 +752,20 @@ def add_resource():
         "add_resource.html"
     )
 
+
+# ==========================================
+# NETWORK
+# ==========================================
+
+@app.route("/network")
+def network_view():
+
+    data = network.get_status()
+
+    return render_template(
+        "network.html",
+        data=data
+    )
 
 
 # ==========================================

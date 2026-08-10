@@ -1,4 +1,3 @@
-```html
 {% extends "base.html" %}
 
 
@@ -6,6 +5,78 @@
 
 <link rel="stylesheet"
       href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
+<style>
+
+.check-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.check-result-item {
+    display: grid;
+    grid-template-columns: 55px 180px 1fr;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 20px;
+}
+
+.check-result-icon {
+    font-size: 28px;
+    text-align: center;
+}
+
+.check-result-info h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+}
+
+.check-result-info .check-type {
+    font-size: 12px;
+    opacity: 0.65;
+    letter-spacing: 1px;
+}
+
+.check-result-meta {
+    display: grid;
+    grid-template-columns: 140px 140px minmax(180px, 1fr);
+    gap: 20px;
+    align-items: center;
+}
+
+.check-result-meta label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.check-result-meta strong {
+    display: block;
+    word-break: break-word;
+}
+
+@media (max-width: 900px) {
+
+    .check-result-item {
+        grid-template-columns: 45px 1fr;
+    }
+
+    .check-result-meta {
+        grid-column: 1 / -1;
+        grid-template-columns: 1fr 1fr;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .check-result-meta {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
 
 {% endblock %}
 
@@ -49,7 +120,6 @@ Veles Resource Monitor
 
             <div class="server-card">
 
-
                 <div class="server-title">
 
                     <h3>
@@ -70,7 +140,6 @@ Veles Resource Monitor
 
                     </h3>
 
-
                     <span>
                         {{ resource.status }}
                     </span>
@@ -80,87 +149,37 @@ Veles Resource Monitor
 
                 <div class="server-grid">
 
-
                     <div>
-
-                        <label>
-                            ID
-                        </label>
-
-                        <strong>
-                            {{ resource.id }}
-                        </strong>
-
+                        <label>ID</label>
+                        <strong>{{ resource.id }}</strong>
                     </div>
 
-
                     <div>
-
-                        <label>
-                            TYPE
-                        </label>
-
-                        <strong>
-                            {{ resource.type }}
-                        </strong>
-
+                        <label>TYPE</label>
+                        <strong>{{ resource.type }}</strong>
                     </div>
 
-
                     <div>
-
-                        <label>
-                            HOST
-                        </label>
-
-                        <strong>
-                            {{ resource.host or "-" }}
-                        </strong>
-
+                        <label>HOST</label>
+                        <strong>{{ resource.host or "-" }}</strong>
                     </div>
 
-
                     <div>
-
-                        <label>
-                            PORT
-                        </label>
-
-                        <strong>
-                            {{ resource.port or "-" }}
-                        </strong>
-
+                        <label>PORT</label>
+                        <strong>{{ resource.port or "-" }}</strong>
                     </div>
 
-
                     <div>
-
-                        <label>
-                            USERNAME
-                        </label>
-
-                        <strong>
-                            {{ resource.username or "-" }}
-                        </strong>
-
+                        <label>USERNAME</label>
+                        <strong>{{ resource.username or "-" }}</strong>
                     </div>
 
-
                     <div>
-
-                        <label>
-                            GROUP
-                        </label>
-
-                        <strong>
-                            {{ resource.group or "-" }}
-                        </strong>
-
+                        <label>GROUP</label>
+                        <strong>{{ resource.group or "-" }}</strong>
                     </div>
-
 
                 </div>
-
 
             </div>
 
@@ -178,7 +197,6 @@ Veles Resource Monitor
 
             <div class="action-row">
 
-
                 <a
                     href="{{ url_for(
                         'monitor_resource',
@@ -187,9 +205,7 @@ Veles Resource Monitor
                     ) }}"
                     class="infra-button"
                 >
-
                     ▶ RUN CHECK
-
                 </a>
 
 
@@ -197,9 +213,7 @@ Veles Resource Monitor
                     href="{{ url_for('monitoring_view') }}"
                     class="infra-button"
                 >
-
                     📊 MONITORING CENTER
-
                 </a>
 
 
@@ -210,11 +224,8 @@ Veles Resource Monitor
                     ) }}"
                     class="infra-button"
                 >
-
                     ⬅ RESOURCE DETAIL
-
                 </a>
-
 
             </div>
 
@@ -232,7 +243,6 @@ Veles Resource Monitor
 
             <div class="resource-grid">
 
-
                 <div class="resource-card">
 
                     <h3>
@@ -241,35 +251,23 @@ Veles Resource Monitor
 
                     <div class="resource-number">
 
-
                         {% if health %}
 
-
                             {% if health.status == "healthy" %}
-
                                 🟢
-
                             {% elif health.status == "critical" %}
-
                                 🔴
-
                             {% elif health.status == "warning" %}
-
                                 🟡
-
                             {% else %}
-
                                 ⚪
-
                             {% endif %}
-
 
                         {% else %}
 
                             ⚪
 
                         {% endif %}
-
 
                     </div>
 
@@ -284,17 +282,11 @@ Veles Resource Monitor
 
                     <div class="resource-number">
 
-
                         {% if health %}
-
                             {{ health.checks|length }}
-
                         {% else %}
-
                             0
-
                         {% endif %}
-
 
                     </div>
 
@@ -312,22 +304,15 @@ Veles Resource Monitor
                         style="font-size:18px;"
                     >
 
-
                         {% if health %}
-
                             {{ health.last_check }}
-
                         {% else %}
-
                             —
-
                         {% endif %}
-
 
                     </div>
 
                 </div>
-
 
             </div>
 
@@ -345,99 +330,82 @@ Veles Resource Monitor
 
             {% if health and health.checks %}
 
-
-                <div class="resource-list">
-
+                <div class="check-results-list">
 
                     {% for check in health.checks %}
 
+                        <div class="resource-item check-result-item">
 
-                        <div class="resource-item">
 
-
-                            <div class="resource-icon">
-
+                            <div class="check-result-icon">
 
                                 {% if check.status == "online" %}
-
                                     🟢
-
                                 {% elif check.status == "offline" %}
-
                                     🔴
-
                                 {% else %}
-
                                     🟡
-
                                 {% endif %}
-
 
                             </div>
 
 
-                            <div class="resource-info">
+                            <div class="check-result-info">
 
-                                <h2>
+                                <h3>
                                     {{ check.check_type|upper }}
-                                </h2>
+                                </h3>
+
+                                <div class="check-type">
+                                    CHECK TYPE
+                                </div>
+
+                            </div>
 
 
-                                <div class="resource-meta">
+                            <div class="check-result-meta">
+
+                                <div>
+
+                                    <label>
+                                        STATUS
+                                    </label>
+
+                                    <strong>
+                                        {{ check.status|upper }}
+                                    </strong>
+
+                                </div>
 
 
-                                    <div>
+                                <div>
 
-                                        <label>
-                                            STATUS
-                                        </label>
+                                    <label>
+                                        RESPONSE
+                                    </label>
 
-                                        <strong>
-                                            {{ check.status|upper }}
-                                        </strong>
+                                    <strong>
 
-                                    </div>
+                                        {% if check.response_time_ms is not none %}
+                                            {{ check.response_time_ms }} ms
+                                        {% else %}
+                                            —
+                                        {% endif %}
 
+                                    </strong>
 
-                                    <div>
-
-                                        <label>
-                                            RESPONSE
-                                        </label>
-
-                                        <strong>
+                                </div>
 
 
-                                            {% if check.response_time_ms is not none %}
+                                <div>
 
-                                                {{ check.response_time_ms }} ms
+                                    <label>
+                                        MESSAGE
+                                    </label>
 
-                                            {% else %}
-
-                                                —
-
-                                            {% endif %}
-
-
-                                        </strong>
-
-                                    </div>
-
-
-                                    <div>
-
-                                        <label>
-                                            MESSAGE
-                                        </label>
-
-                                        <strong>
-
-                                            {{ check.message or "—" }}
-
-                                        </strong>
-
-                                    </div>
-
+                                    <strong>
+                                        {{ check.message or "—" }}
+                                    </strong>
 
                                 </div>
 
@@ -446,15 +414,12 @@ Veles Resource Monitor
 
                         </div>
 
-
                     {% endfor %}
-
 
                 </div>
 
 
             {% else %}
-
 
                 <div class="empty-state">
 
@@ -462,9 +427,7 @@ Veles Resource Monitor
 
                 </div>
 
-
             {% endif %}
-
 
         </section>
 
@@ -485,4 +448,3 @@ Veles Resource Monitor
 </div>
 
 {% endblock %}
-```
