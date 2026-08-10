@@ -1,0 +1,3 @@
+"""
+Veles Delivery Module
+"""

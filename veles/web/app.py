@@ -15,6 +15,7 @@ import socket
 from pathlib import Path
 from veles.modules.monitoring import monitoring
 from veles.modules.network.service import network
+from veles.modules.delivery.service import delivery
 
 BASE_DIR = os.path.abspath(
     os.path.join(
@@ -484,7 +485,6 @@ def verify_resource(resource_id):
         resource_id
     )
 
-
     if not resource:
 
         return redirect(
@@ -493,14 +493,12 @@ def verify_resource(resource_id):
             )
         )
 
-
     infrastructure.resource_registry.update_verification(
         resource_id,
         {
             "status": "checking"
         }
     )
-
 
     host = resource.get(
         "host"
@@ -510,7 +508,6 @@ def verify_resource(resource_id):
         "port",
         22
     )
-
 
     try:
 
@@ -522,14 +519,12 @@ def verify_resource(resource_id):
             timeout=3
         ).close()
 
-
         infrastructure.resource_registry.update_verification(
             resource_id,
             {
                 "status": "verified"
             }
         )
-
 
     except Exception as e:
 
@@ -538,14 +533,12 @@ def verify_resource(resource_id):
             e
         )
 
-
         infrastructure.resource_registry.update_verification(
             resource_id,
             {
                 "status": "failed"
             }
         )
-
 
     return redirect(
         url_for(
@@ -767,6 +760,21 @@ def network_view():
         data=data
     )
 
+
+# ==========================================
+# DELIVERY
+# ==========================================
+
+@app.route("/delivery")
+def delivery_view():
+
+    data = delivery.get_status()
+
+    return render_template(
+        "delivery.html",
+        data=data
+    )
+    
 
 # ==========================================
 # DASHBOARD

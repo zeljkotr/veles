@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}
+Veles Delivery
+{% endblock %}
+
+{% block content %}
+
+<div class="module-page">
+
+    <h1>📦 DELIVERY</h1>
+
+    <p>CI/CD and deployment</p>
+
+    <div class="module-status">
+
+        <h2>DELIVERY OVERVIEW</h2>
+
+        <div class="status-grid">
+
+            <div class="status-card">
+
+                <h3>STATUS</h3>
+
+                <strong>
+                    {{ data.status|upper }}
+                </strong>
+
+            </div>
+
+            <div class="status-card">
+
+                <h3>PIPELINES</h3>
+
+                <strong>
+                    {{ data.pipelines }}
+                </strong>
+
+            </div>
+
+            <div class="status-card">
+
+                <h3>DEPLOYMENTS</h3>
+
+                <strong>
+                    {{ data.deployments }}
+                </strong>
+
+            </div>
+
+            <div class="status-card">
+
+                <h3>REGISTERED TARGETS</h3>
+
+                <strong>
+                    {{ data.targets }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
