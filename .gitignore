@@ -122,3 +122,14 @@ dist/
 
 .DS_Store
 Thumbs.db
+
+# Distribution
+certs/
+venv/
+.venv/
+xtts-env/
+piper1-gpl/
+models/
+checkpoints/
+dataset/
+cv_sr_prepared/
