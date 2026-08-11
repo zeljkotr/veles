@@ -16,11 +16,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from .models import Server
 
 
-
 def get_hostname():
 
     return socket.gethostname()
-
 
 
 def get_ip():
@@ -42,11 +40,9 @@ def get_ip():
 
         return ip
 
-
     except Exception:
 
         return "unknown"
-
 
 
 def get_cpu():
@@ -57,11 +53,9 @@ def get_cpu():
 
             return f.read().split()[0]
 
-
     except Exception:
 
         return "unknown"
-
 
 
 def get_memory():
@@ -69,7 +63,6 @@ def get_memory():
     try:
 
         meminfo = {}
-
 
         with open("/proc/meminfo", "r") as f:
 
@@ -81,13 +74,11 @@ def get_memory():
                     value.strip().split()[0]
                 )
 
-
         total = meminfo["MemTotal"] / 1024 / 1024
 
         available = meminfo["MemAvailable"] / 1024 / 1024
 
         used = total - available
-
 
         return {
 
@@ -98,7 +89,6 @@ def get_memory():
             "free_gb": round(available, 2)
 
         }
-
 
     except Exception:
 
@@ -113,11 +103,9 @@ def get_memory():
         }
 
 
-
 def get_disk_usage():
 
     total, used, free = shutil.disk_usage("/")
-
 
     return {
 
@@ -139,7 +127,6 @@ def get_disk_usage():
     }
 
 
-
 def get_uptime():
 
     try:
@@ -150,21 +137,17 @@ def get_uptime():
                 f.read().split()[0]
             )
 
-
         days = int(seconds // 86400)
 
         hours = int(
             (seconds % 86400) // 3600
         )
 
-
         return f"{days}d {hours}h"
-
 
     except Exception:
 
         return "unknown"
-
 
 
 def discover_local_server():
@@ -181,7 +164,6 @@ def discover_local_server():
 
     )
 
-
     server.cpu = get_cpu()
 
     server.memory = get_memory()
@@ -190,18 +172,79 @@ def discover_local_server():
 
     server.uptime = get_uptime()
 
-
     server.touch()
-
 
     return server
 
 
+def _build_network_target(
+    interface,
+    address,
+    source="auto"
+):
 
-def discover_network_targets():
+    try:
+
+        ip_interface = ipaddress.ip_interface(
+            address
+        )
+
+    except ValueError:
+
+        return None
+
+    network = ip_interface.network
+
+    prefix = ip_interface.network.prefixlen
+
+    target = {
+
+        "interface": interface,
+
+        "address": str(ip_interface),
+
+        "network": str(network),
+
+        "prefix": prefix,
+
+        "source": source,
+
+        "scannable": True
+
+    }
+
+    """
+    A /32 IPv4 address identifies a single host,
+    not a usable multi-host network discovery scope.
+
+    Keep the interface visible, but do not automatically
+    turn the /32 into a network scan target.
+    """
+
+    if (
+        ip_interface.version == 4
+        and prefix == 32
+    ):
+
+        target["network"] = None
+
+        target["scannable"] = False
+
+    return target
+
+
+def discover_network_targets(
+    custom_networks=None
+):
 
     """
     Pronalazi mrežne targete.
+
+    AUTO:
+        Čita stvarne IPv4 adrese koje OS prijavi.
+
+    CUSTOM:
+        Dodaje CIDR mreže koje korisnik ručno unese.
 
     Ne skenira.
     Ne dodaje resurse.
@@ -209,6 +252,9 @@ def discover_network_targets():
 
     targets = []
 
+    seen = set()
+
+    custom_networks = custom_networks or []
 
     try:
 
@@ -222,7 +268,6 @@ def discover_network_targets():
             text=True
         )
 
-
     except Exception as e:
 
         print(
@@ -230,67 +275,95 @@ def discover_network_targets():
             e
         )
 
-        return targets
-
-
+        result = ""
 
     for line in result.splitlines():
 
         parts = line.split()
 
-
         if len(parts) < 4:
 
             continue
 
-
         interface = parts[1]
+
+        if interface == "lo":
+            continue
 
         address = parts[3]
 
+        target = _build_network_target(
+            interface=interface,
+            address=address,
+            source="auto"
+        )
 
-        if interface == "lo":
+        if not target:
 
             continue
 
+        identity = (
+            target["interface"],
+            target["address"]
+        )
 
-        if interface.startswith("docker"):
+        if identity in seen:
 
             continue
 
+        seen.add(identity)
+
+        targets.append(target)
+
+    for value in custom_networks:
+
+        if not value:
+
+            continue
+
+        value = value.strip()
 
         try:
 
-            ip_interface = ipaddress.ip_interface(
-                address
+            network = ipaddress.ip_network(
+                value,
+                strict=False
             )
-
-
-            targets.append(
-
-                {
-
-                    "interface": interface,
-
-                    "address": str(ip_interface),
-
-                    "network": str(
-                        ip_interface.network
-                    )
-
-                }
-
-            )
-
 
         except ValueError:
 
             continue
 
+        network_string = str(network)
 
+        identity = (
+            "custom",
+            network_string
+        )
+
+        if identity in seen:
+
+            continue
+
+        seen.add(identity)
+
+        targets.append({
+
+            "interface": "Custom Network",
+
+            "address": network_string,
+
+            "network": network_string,
+
+            "prefix": network.prefixlen,
+
+            "source": "custom",
+
+            "scannable": True
+
+        })
 
     return targets
-
 
 
 def check_port(host, port, timeout=0.2):
@@ -302,9 +375,7 @@ def check_port(host, port, timeout=0.2):
             socket.SOCK_STREAM
         )
 
-
         sock.settimeout(timeout)
-
 
         result = sock.connect_ex(
             (
@@ -313,17 +384,13 @@ def check_port(host, port, timeout=0.2):
             )
         )
 
-
         sock.close()
 
-
         return result == 0
-
 
     except Exception:
 
         return False
-
 
 
 def ping_host(ip, timeout=1):
@@ -354,14 +421,11 @@ def ping_host(ip, timeout=1):
 
         )
 
-
         return result.returncode == 0
-
 
     except Exception:
 
         return False
-
 
 
 def scan_host(ip, services):
@@ -370,12 +434,9 @@ def scan_host(ip, services):
 
     found_services = []
 
-
     if not ping_host(ip):
 
         return None
-
-
 
     for port, name in services.items():
 
@@ -395,8 +456,6 @@ def scan_host(ip, services):
                 }
 
             )
-
-
 
     return {
 
@@ -427,8 +486,10 @@ def scan_host(ip, services):
     }
 
 
-
-def discover_network_hosts(network, progress_callback=None):
+def discover_network_hosts(
+    network,
+    progress_callback=None
+):
 
     """
     Network discovery.
@@ -437,7 +498,6 @@ def discover_network_hosts(network, progress_callback=None):
     """
 
     hosts = []
-
 
     services = {
 
@@ -453,22 +513,18 @@ def discover_network_hosts(network, progress_callback=None):
 
     }
 
-
     net = ipaddress.ip_network(
         network,
         strict=False
     )
 
-
     addresses = list(
         net.hosts()
     )
 
-
     total = len(addresses)
 
     checked = 0
-
 
     if progress_callback:
 
@@ -486,7 +542,6 @@ def discover_network_hosts(network, progress_callback=None):
 
         })
 
-
     print(
         "Starting scan:",
         network,
@@ -494,15 +549,11 @@ def discover_network_hosts(network, progress_callback=None):
         total
     )
 
-
-
     with ThreadPoolExecutor(
         max_workers=50
     ) as executor:
 
-
         futures = []
-
 
         for ip in addresses:
 
@@ -520,20 +571,15 @@ def discover_network_hosts(network, progress_callback=None):
 
             )
 
-
-
         for future in as_completed(futures):
 
             result = future.result()
 
             checked += 1
 
-
             if result:
 
                 hosts.append(result)
-
-
 
             if progress_callback:
 
@@ -550,8 +596,6 @@ def discover_network_hosts(network, progress_callback=None):
                     "found": len(hosts)
 
                 })
-
-
 
     if progress_callback:
 
@@ -570,6 +614,5 @@ def discover_network_hosts(network, progress_callback=None):
             "results": hosts
 
         })
-
 
     return hosts

@@ -1,347 +1,371 @@
+```html
 {% extends "base.html" %}
 
 {% block title %}
 Veles Discovery Center
 {% endblock %}
 
-
 {% block extra_css %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/discovery.css') }}">
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/infrastructure.css') }}"
+>
 
 {% endblock %}
 
-
-
 {% block content %}
 
+<header class="infra-header">
 
-{% with messages = get_flashed_messages(with_categories=true) %}
+    <h1>
+        🔎 DISCOVERY CENTER
+    </h1>
 
-{% if messages %}
+    <p>
+        Network Resource Discovery
+    </p>
 
-<div class="discovery-notification">
+</header>
 
-{% for category, message in messages %}
 
-🟢 {{ message }}
+<!-- DISCOVERY TARGETS -->
 
-{% endfor %}
+<section class="inventory-panel">
 
-</div>
+    <h2>
+        🌐 DISCOVERY TARGETS
+    </h2>
 
-{% endif %}
 
-{% endwith %}
+    <div class="resource-list">
 
+        {% for target in targets %}
 
+            <div class="resource-item">
 
-<div class="discovery-container">
+                <div class="resource-icon">
+                    🌐
+                </div>
 
 
-<h1>
-    🔎 DISCOVERY CENTER
-</h1>
+                <div class="resource-info">
 
+                    <h2>
+                        {{ target.interface }}
+                    </h2>
 
-<p>
-    Network Resource Discovery
-</p>
 
+                    <div class="resource-meta">
 
+                        <div>
 
-<form action="/discovery/scan" method="POST">
+                            <label>
+                                NETWORK
+                            </label>
 
+                            <strong>
+                                {{ target.network or "Unavailable" }}
+                            </strong>
 
+                        </div>
 
-<div class="discovery-card">
+                    </div>
 
+                    {% if target.scannable and target.network %}
 
-<h2>
-    🌐 DISCOVERY TARGETS
-</h2>
+                        <input
+                            type="checkbox"
+                            name="network"
+                            value="{{ target.network }}"
+                            checked
+                            form="scan-form"
+                        >
 
+                    {% endif %}
 
+                </div>
 
-{% for target in targets %}
+            </div>
 
+        {% endfor %}
 
-<div class="target-item">
+    </div>
 
+</section>
 
-<input
 
-type="checkbox"
+<!-- CUSTOM NETWORK -->
 
-name="network"
+<section class="inventory-panel">
 
-value="{{ target.network }}"
+    <h2>
+        CUSTOM NETWORK
+    </h2>
 
-checked
 
->
+    <div class="resource-list">
 
+        <div class="resource-item">
 
-<span>
+            <div class="resource-icon">
+                🌐
+            </div>
 
-🌐 {{ target.interface }}
 
-</span>
+            <div class="resource-info">
 
+                <h2>
+                    ADD NETWORK
+                </h2>
 
-<br>
 
+                <div class="resource-meta">
 
-<span>
+                    <div>
 
-{{ target.network }}
+                        <label>
+                            CIDR NETWORK
+                        </label>
 
-</span>
+                        <form
+                            method="POST"
+                            action="{{ url_for('discovery_scan') }}"
+                        >
 
+                            <input
+                                type="text"
+                                name="custom_network"
+                                placeholder="192.168.50.0/24"
+                                autocomplete="off"
+                            >
 
-</div>
+                            <button
+                                class="add-button"
+                                type="submit"
+                                name="add_custom"
+                                value="1"
+                            >
+                                ➕ ADD
+                            </button>
 
+                        </form>
 
+                    </div>
 
-{% endfor %}
+                </div>
 
+            </div>
 
+        </div>
 
-<button
+    </div>
 
-class="scan-button"
+</section>
 
-type="submit">
 
+<!-- START SCAN -->
 
-🚀 START SCAN
+<section class="inventory-panel">
 
+    <form
+        id="scan-form"
+        method="POST"
+        action="{{ url_for('discovery_scan') }}"
+    >
 
-</button>
+        <button
+            class="scan-button"
+            type="submit"
+        >
+            🚀 START SCAN
+        </button>
 
+    </form>
 
-</div>
-
-
-</form>
-
-
-
+</section>
 
 
 {% if discovered %}
 
 
-<div class="discovery-card">
+<!-- DISCOVERED RESOURCES -->
 
+<section class="inventory-panel">
 
-<h2>
-    🖥 DISCOVERED RESOURCES
-</h2>
+    <h2>
+        🖥 DISCOVERED RESOURCES
+    </h2>
 
 
+    <div class="resource-list">
 
-{% for device in discovered %}
+        {% for device in discovered %}
 
+            <div class="resource-item">
 
+                <div class="resource-icon">
+                    🖥
+                </div>
 
-<div class="resource-card">
 
+                <div class="resource-info">
 
+                    <h2>
+                        {{ device.name }}
+                    </h2>
 
-<h3>
 
-🖥 {{ device.name }}
+                    <div class="resource-meta">
 
-</h3>
+                        <div>
 
+                            <label>
+                                STATUS
+                            </label>
 
+                            <strong>
+                                🟢 {{ device.status }}
+                            </strong>
 
-<p>
+                        </div>
 
-<strong>
-STATUS
-</strong>
 
-<br>
+                        <div>
 
-🟢 {{ device.status }}
+                            <label>
+                                TYPE
+                            </label>
 
-</p>
+                            <strong>
+                                {{ device.type }}
+                            </strong>
 
+                        </div>
 
 
-<p>
+                        <div>
 
-<strong>
-TYPE
-</strong>
+                            <label>
+                                HOST
+                            </label>
 
-<br>
+                            <strong>
+                                {{ device.host }}
+                            </strong>
 
-{{ device.type }}
+                        </div>
 
-</p>
 
+                        <div>
 
+                            <label>
+                                PORT
+                            </label>
 
-<p>
+                            <strong>
+                                {{ device.port or "-" }}
+                            </strong>
 
-<strong>
-HOST
-</strong>
+                        </div>
 
-<br>
+                    </div>
 
-{{ device.host }}
 
-</p>
+                    {% if device.services %}
 
+                        <div class="resource-meta">
 
+                            <div>
 
-<p>
+                                <label>
+                                    SERVICES
+                                </label>
 
-<strong>
-PORT
-</strong>
+                                {% for service in device.services %}
 
-<br>
+                                    <strong>
+                                        🟢 {{ service.service }} : {{ service.port }}
+                                    </strong>
 
-{{ device.port or "-" }}
+                                {% endfor %}
 
-</p>
+                            </div>
 
+                        </div>
 
+                    {% else %}
 
+                        <div class="resource-meta">
 
+                            <div>
 
-<p>
+                                <label>
+                                    SERVICES
+                                </label>
 
-<strong>
-SERVICES
-</strong>
+                                <strong>
+                                    ⚪ UNKNOWN
+                                </strong>
 
-</p>
+                            </div>
 
+                        </div>
 
+                    {% endif %}
 
-{% if device.services %}
 
+                    <form
+                        method="POST"
+                        action="{{ url_for('add_discovered_resource') }}"
+                    >
 
+                        <input
+                            type="hidden"
+                            name="resource"
+                            value='{{ device | tojson }}'
+                        >
 
-{% for service in device.services %}
+                        <button
+                            class="add-button"
+                            type="submit"
+                        >
+                            ➕ ADD RESOURCE
+                        </button>
 
+                    </form>
 
+                </div>
 
-<div>
+            </div>
 
-🟢 {{ service.service }} : {{ service.port }}
+        {% endfor %}
 
-</div>
+    </div>
 
-
-
-{% endfor %}
-
-
-
-{% else %}
-
-
-<div>
-
-⚪ UNKNOWN
-
-</div>
+</section>
 
 
 {% endif %}
-
-
-
-
-
-<form action="/discovery/add" method="POST">
-
-
-
-<input
-
-type="hidden"
-
-name="resource"
-
-value='{{ device | tojson }}'
-
->
-
-
-
-<button
-
-class="add-button"
-
-type="submit">
-
-
-➕ ADD RESOURCE
-
-
-</button>
-
-
-
-</form>
-
-
-
-</div>
-
-
-
-{% endfor %}
-
-
-
-</div>
-
-
-
-{% endif %}
-
-
-
-</div>
-
-
-
-<script>
-
-setTimeout(
-
-function(){
-
-let popup = document.querySelector(
-".discovery-notification"
-);
-
-
-if(popup){
-
-popup.remove();
-
-}
-
-
-},
-
-3000
-
-);
-
-
-</script>
-
 
 
 {% endblock %}
+```
+
+Ključna promena je:
+
+```html
+form="scan-form"
+```
+
+na checkboxovima i:
+
+```html
+id="scan-form"
+```
+
+na START SCAN formi.
+
+Hidden `network` inputi su uklonjeni.
+
+Sada checkbox određuje **šta se stvarno skenira**.

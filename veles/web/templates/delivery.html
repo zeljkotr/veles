@@ -4,64 +4,178 @@
 Veles Delivery
 {% endblock %}
 
+{% block extra_css %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
+{% endblock %}
+
 {% block content %}
 
-<div class="module-page">
+<header class="infra-header">
 
-    <h1>📦 DELIVERY</h1>
+```
+<h1>
+    📦 DELIVERY
+</h1>
 
-    <p>CI/CD and deployment</p>
+<p>
+    CI/CD and deployment
+</p>
+```
 
-    <div class="module-status">
+</header>
 
-        <h2>DELIVERY OVERVIEW</h2>
+<!-- DELIVERY OVERVIEW -->
 
-        <div class="status-grid">
+<section class="resource-overview">
 
-            <div class="status-card">
+```
+<h2>
+    DELIVERY OVERVIEW
+</h2>
 
-                <h3>STATUS</h3>
 
-                <strong>
-                    {{ data.status|upper }}
-                </strong>
+<div class="resource-grid">
 
-            </div>
+    <div class="resource-card">
 
-            <div class="status-card">
+        <h3>
+            STATUS
+        </h3>
 
-                <h3>PIPELINES</h3>
+        <div
+            class="resource-number"
+            style="font-size:20px;"
+        >
+            {{ data.status|upper }}
+        </div>
 
-                <strong>
-                    {{ data.pipelines }}
-                </strong>
+    </div>
 
-            </div>
 
-            <div class="status-card">
+    <div class="resource-card">
 
-                <h3>DEPLOYMENTS</h3>
+        <h3>
+            PIPELINES
+        </h3>
 
-                <strong>
-                    {{ data.deployments }}
-                </strong>
+        <div class="resource-number">
+            {{ data.pipelines }}
+        </div>
 
-            </div>
+    </div>
 
-            <div class="status-card">
 
-                <h3>REGISTERED TARGETS</h3>
+    <div class="resource-card">
 
-                <strong>
-                    {{ data.targets }}
-                </strong>
+        <h3>
+            DEPLOYMENTS
+        </h3>
 
-            </div>
+        <div class="resource-number">
+            {{ data.deployments }}
+        </div>
 
+    </div>
+
+
+    <div class="resource-card">
+
+        <h3>
+            REGISTERED TARGETS
+        </h3>
+
+        <div class="resource-number">
+            {{ data.targets }}
         </div>
 
     </div>
 
 </div>
+```
+
+</section>
+
+<!-- DEPLOYMENT TARGETS -->
+
+<section class="inventory-panel">
+
+```
+<h2>
+    DEPLOYMENT TARGETS
+</h2>
+
+
+<div class="resource-list">
+
+    {% for target in data.target_list %}
+
+        <div class="resource-item">
+
+            <div class="resource-icon">
+                🖥
+            </div>
+
+
+            <div class="resource-info">
+
+                <h2>
+                    {{ target.name }}
+                </h2>
+
+
+                <div class="resource-meta">
+
+                    <div>
+
+                        <label>
+                            HOST
+                        </label>
+
+                        <strong>
+                            {{ target.host }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            TYPE
+                        </label>
+
+                        <strong>
+                            {{ target.type|upper }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            STATUS
+                        </label>
+
+                        <strong>
+                            {{ target.status|upper }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+```
+
+</section>
 
 {% endblock %}

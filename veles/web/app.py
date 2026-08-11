@@ -16,6 +16,7 @@ from pathlib import Path
 from veles.modules.monitoring import monitoring
 from veles.modules.network.service import network
 from veles.modules.delivery.service import delivery
+import ipaddress
 
 BASE_DIR = os.path.abspath(
     os.path.join(
@@ -178,8 +179,14 @@ def infrastructure_page():
 @app.route("/discovery")
 def discovery_page():
 
-    targets = discover_network_targets()
+    custom_networks = session.get(
+        "discovery_custom_networks",
+        []
+    )
 
+    targets = discover_network_targets(
+        custom_networks=custom_networks
+    )
 
     return render_template(
         "discovery.html",
@@ -191,7 +198,6 @@ def discovery_page():
     )
 
 
-
 @app.route(
     "/discovery/scan",
     methods=["POST"]
@@ -199,19 +205,91 @@ def discovery_page():
 def discovery_scan():
 
     from veles.modules.infrastructure.discovery import (
-        discover_network_hosts
+        discover_network_hosts,
+        discover_network_targets
     )
 
+    custom_network = request.form.get(
+        "custom_network",
+        ""
+    ).strip()
+
+    custom_networks = session.get(
+        "discovery_custom_networks",
+        []
+    )
+
+    # ------------------------------------------
+    # ADD CUSTOM NETWORK
+    # ------------------------------------------
+
+    if request.form.get("add_custom"):
+
+        if custom_network:
+
+            try:
+
+                network = ipaddress.ip_network(
+                    custom_network,
+                    strict=False
+                )
+
+                network_string = str(network)
+
+                if network_string not in custom_networks:
+
+                    custom_networks.append(
+                        network_string
+                    )
+
+                    session[
+                        "discovery_custom_networks"
+                    ] = custom_networks
+
+                    flash(
+                        "NETWORK ADDED",
+                        "success"
+                    )
+
+            except ValueError:
+
+                flash(
+                    "INVALID NETWORK",
+                    "error"
+                )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    # ------------------------------------------
+    # START SCAN
+    # ------------------------------------------
 
     networks = request.form.getlist(
         "network"
     )
 
-
     discovered = []
 
-
     for network in networks:
+
+        if not network:
+
+            continue
+
+        try:
+
+            ipaddress.ip_network(
+                network,
+                strict=False
+            )
+
+        except ValueError:
+
+            continue
 
         result = discover_network_hosts(
             network
@@ -221,13 +299,15 @@ def discovery_scan():
             result
         )
 
-
-    session["discovery_results"] = discovered
-
+    session[
+        "discovery_results"
+    ] = discovered
 
     return render_template(
         "discovery.html",
-        targets=discover_network_targets(),
+        targets=discover_network_targets(
+            custom_networks=custom_networks
+        ),
         discovered=discovered
     )
 
