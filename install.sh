@@ -23,7 +23,7 @@ for command in python3 curl tar zstd sha256sum; do
     fi
 done
 
-echo "[1/5] Creating Python environment..."
+echo "[1/6] Creating Python environment..."
 
 if [[ ! -d "$VENV" ]]; then
     python3 -m venv "$VENV"
@@ -31,12 +31,12 @@ fi
 
 source "$VENV/bin/activate"
 
-echo "[2/5] Installing Python dependencies..."
+echo "[2/6] Installing Python dependencies..."
 
 python -m pip install --upgrade pip
 python -m pip install -r "$ROOT_DIR/requirements.txt"
 
-echo "[3/5] Configuring PostgreSQL..."
+echo "[3/6] Configuring PostgreSQL..."
 
 if [[ -z "${VELES_DATABASE_URL:-}" ]]; then
     read -rp "PostgreSQL URL [postgresql+psycopg2://veles_app@localhost:5432/veles]: " DB_URL
@@ -53,7 +53,7 @@ fi
 
 python -m veles.database.init_database
 
-echo "[4/5] Downloading VELES assets..."
+echo "[4/6] Downloading VELES assets..."
 
 ASSET_URL="$(python3 - "$MANIFEST" <<'PY'
 import json
@@ -119,9 +119,72 @@ fi
 
 echo "Asset SHA256 OK."
 
-echo "[5/5] Installing assets..."
+echo "[5/6] Installing assets..."
 
 tar -I zstd -xf "$BUNDLE" -C "$ROOT_DIR"
+
+echo "[6/6] Configuring AI stack..."
+
+OLLAMA_HOST="127.0.0.1"
+OLLAMA_PORT="11434"
+OLLAMA_API="http://${OLLAMA_HOST}:${OLLAMA_PORT}"
+OLLAMA_MODEL="qwen2.5:7b"
+
+if ! command -v ollama >/dev/null 2>&1; then
+    echo "Ollama not found. Installing Ollama..."
+    curl -fsSL https://ollama.com/install.sh | sh
+else
+    echo "Ollama already installed."
+fi
+
+if ! command -v ollama >/dev/null 2>&1; then
+    echo "ERROR: Ollama installation failed."
+    exit 1
+fi
+
+if ! command -v systemctl >/dev/null 2>&1; then
+    echo "ERROR: systemctl is required to manage Ollama."
+    exit 1
+fi
+
+echo "Starting Ollama service..."
+
+sudo systemctl enable --now ollama
+
+echo "Waiting for Ollama API..."
+
+OLLAMA_READY=0
+
+for _ in {1..60}; do
+    if curl -fsS "$OLLAMA_API/api/tags" >/dev/null 2>&1; then
+        OLLAMA_READY=1
+        break
+    fi
+
+    sleep 1
+done
+
+if [[ "$OLLAMA_READY" -ne 1 ]]; then
+    echo "ERROR: Ollama API did not become available."
+    exit 1
+fi
+
+echo "Ollama API OK."
+
+if ollama list | awk 'NR > 1 {print $1}' | grep -Fxq "$OLLAMA_MODEL"; then
+    echo "Model already installed: $OLLAMA_MODEL"
+else
+    echo "Pulling model: $OLLAMA_MODEL"
+    ollama pull "$OLLAMA_MODEL"
+fi
+
+if ! ollama list | awk 'NR > 1 {print $1}' | grep -Fxq "$OLLAMA_MODEL"; then
+    echo "ERROR: Ollama model verification failed."
+    echo "Expected model: $OLLAMA_MODEL"
+    exit 1
+fi
+
+echo "Ollama model OK: $OLLAMA_MODEL"
 
 echo
 echo "================================"
