@@ -46,6 +46,9 @@ if [[ -z "${VELES_DATABASE_URL:-}" ]]; then
     fi
 
     export VELES_DATABASE_URL="$DB_URL"
+    read -rsp "PostgreSQL password: " PGPASSWORD
+    echo
+    export PGPASSWORD
 fi
 
 python -m veles.database.init_database
