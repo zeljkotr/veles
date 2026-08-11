@@ -1,0 +1,33 @@
+{
+  "version": "1",
+  "release": "v1.0.0",
+  "bundle": {
+    "name": "veles-assets-v1.tar.zst",
+    "url": "https://github.com/zeljkotr/veles/releases/download/v1.0.0/veles-assets-v1.tar.zst",
+    "size": 925893532,
+    "sha256": "a7daa63a3d41906eab1f3cf336fe28f67f97796f5657fb9667d85ef4eb6d9aa7"
+  },
+  "assets": [
+    {
+      "name": "sr_RS-serbski_institut-medium.onnx",
+      "type": "runtime_model",
+      "destination": "models/sr_RS-serbski_institut-medium.onnx",
+      "size": 76733615,
+      "sha256": "d7003890cf596e653f660a4fd97fd17f57f1eceb6d9727abad9cd76d2fda0d80"
+    },
+    {
+      "name": "sr_RS-serbski_institut-medium.onnx.json",
+      "type": "runtime_model_metadata",
+      "destination": "models/sr_RS-serbski_institut-medium.onnx.json",
+      "size": 4999,
+      "sha256": "39ad6531b46ac629c0bed10aa9205dd2431e2dab3808b8535808711db87c2bc0"
+    },
+    {
+      "name": "epoch=1899-step=178600.ckpt",
+      "type": "training_checkpoint",
+      "destination": "checkpoints/epoch=1899-step=178600.ckpt",
+      "size": 924476488,
+      "sha256": "18e965af050eb23fe1d68e333ef3402fcb8565f9850e994deff60a3deee9c245"
+    }
+  ]
+}
