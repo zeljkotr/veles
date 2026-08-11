@@ -175,7 +175,6 @@ def infrastructure_page():
 # DISCOVERY CENTER
 # ==========================================
 
-
 @app.route("/discovery")
 def discovery_page():
 
@@ -214,10 +213,42 @@ def discovery_scan():
         ""
     ).strip()
 
+    remove_network = request.form.get(
+        "remove_network",
+        ""
+    ).strip()
+
     custom_networks = session.get(
         "discovery_custom_networks",
         []
     )
+
+    # ------------------------------------------
+    # REMOVE CUSTOM NETWORK
+    # ------------------------------------------
+
+    if remove_network:
+
+        custom_networks = [
+            network
+            for network in custom_networks
+            if network != remove_network
+        ]
+
+        session[
+            "discovery_custom_networks"
+        ] = custom_networks
+
+        flash(
+            "NETWORK REMOVED",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
 
     # ------------------------------------------
     # ADD CUSTOM NETWORK
@@ -277,7 +308,6 @@ def discovery_scan():
     for network in networks:
 
         if not network:
-
             continue
 
         try:
