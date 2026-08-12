@@ -18,7 +18,6 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-
 # --------------------------
 # Virtual environments
 # --------------------------
@@ -27,9 +26,8 @@ venv/
 .venv/
 env/
 ENV/
-
 xtts-env/
-
+tts-venv/
 
 # --------------------------
 # Secrets / Security
@@ -37,12 +35,10 @@ xtts-env/
 
 .env
 .env.*
-
 certs/
 *.key
 *.crt
 *.pem
-
 
 # --------------------------
 # Veles runtime
@@ -50,12 +46,10 @@ certs/
 
 veles/logs/
 veles/*.log
-
 veles/memory/*.db
-
 veles/web/static/audio/
 *.wav
-
+lightning_logs/
 
 # --------------------------
 # AI Models
@@ -64,13 +58,11 @@ veles/web/static/audio/
 models/
 *.onnx
 *.onnx.json
-
 *.pt
 *.pth
 *.ckpt
 *.bin
 *.safetensors
-
 
 # --------------------------
 # Training data
@@ -80,13 +72,11 @@ dataset/
 checkpoints/
 cv_sr_prepared/
 
-
 # --------------------------
 # External engines
 # --------------------------
 
 piper1-gpl/
-
 
 # --------------------------
 # Cache / temporary
@@ -99,14 +89,12 @@ temp/
 *.bak
 *.swp
 
-
 # --------------------------
 # Build
 # --------------------------
 
 build/
 dist/
-
 
 # --------------------------
 # IDE
@@ -115,7 +103,6 @@ dist/
 .vscode/
 .idea/
 
-
 # --------------------------
 # OS
 # --------------------------
@@ -123,14 +110,8 @@ dist/
 .DS_Store
 Thumbs.db
 
+# --------------------------
 # Distribution
-certs/
-venv/
-.venv/
-xtts-env/
-piper1-gpl/
-models/
-checkpoints/
-dataset/
-cv_sr_prepared/
+# --------------------------
+
 veles/database/resources.json

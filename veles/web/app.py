@@ -18,6 +18,7 @@ from veles.modules.network.service import network
 from veles.modules.delivery.service import delivery
 import ipaddress
 
+
 BASE_DIR = os.path.abspath(
     os.path.join(
         os.path.dirname(__file__),
@@ -25,6 +26,7 @@ BASE_DIR = os.path.abspath(
         ".."
     )
 )
+
 
 sys.path.insert(0, BASE_DIR)
 
@@ -39,9 +41,12 @@ from flask import (
     flash
 )
 
+
 from markdown_it import MarkdownIt
 
+
 from veles.core.brain import ask_veles
+
 
 from veles.memory.memory import (
     remember,
@@ -49,17 +54,24 @@ from veles.memory.memory import (
     delete_memory
 )
 
+
 from veles.tts.piper_tts import synthesize_to_file
+
 
 from veles.logs.logger import LOG_FILE
 
+
 from veles.system.system_info import get_system_info
+
 
 from veles.system.services import list_common_services
 
+
 from veles.modules.registry import get_modules
 
+
 from veles.modules.infrastructure.service import infrastructure
+
 
 from veles.modules.infrastructure.discovery import (
     discover_network_targets
@@ -68,14 +80,40 @@ from veles.modules.infrastructure.discovery import (
 
 app = Flask(__name__)
 
+
 app.secret_key = "veles-dev-secret-change-me"
 
 
-TAILSCALE_IP = "0.0.0.0"
+# ==========================================
+# RUNTIME WEB CONFIGURATION
+# ==========================================
 
-CERT_FILE = "certs/meshcorers.taild94372.ts.net.crt"
+VELES_HOST = os.getenv(
+    "VELES_HOST",
+    "0.0.0.0"
+)
 
-KEY_FILE = "certs/meshcorers.taild94372.ts.net.key"
+VELES_PORT = int(
+    os.getenv(
+        "VELES_PORT",
+        "5001"
+    )
+)
+
+VELES_TLS = os.getenv(
+    "VELES_TLS",
+    "false"
+).lower() == "true"
+
+VELES_CERT_FILE = os.getenv(
+    "VELES_CERT_FILE",
+    ""
+)
+
+VELES_KEY_FILE = os.getenv(
+    "VELES_KEY_FILE",
+    ""
+)
 
 
 AUDIO_DIR = (
@@ -83,6 +121,7 @@ AUDIO_DIR = (
     "static" /
     "audio"
 )
+
 
 AUDIO_DIR.mkdir(
     parents=True,
@@ -108,7 +147,6 @@ def markdown_filter(text):
     return markdown.render(text)
 
 
-
 def _generate_answer_audio(text: str):
 
     try:
@@ -131,7 +169,6 @@ def _generate_answer_audio(text: str):
             filename=f"audio/{filename}"
         )
 
-
     except Exception as e:
 
         print(
@@ -139,7 +176,6 @@ def _generate_answer_audio(text: str):
         )
 
         return None
-
 
 
 # ==========================================
@@ -162,7 +198,6 @@ def infrastructure_page():
     if servers:
         server = servers[0]
 
-
     return render_template(
         "infrastructure.html",
         data=data,
@@ -170,10 +205,10 @@ def infrastructure_page():
     )
 
 
-
 # ==========================================
 # DISCOVERY CENTER
 # ==========================================
+
 
 @app.route("/discovery")
 def discovery_page():
@@ -342,7 +377,6 @@ def discovery_scan():
     )
 
 
-
 @app.route("/discovery/status")
 def discovery_status():
 
@@ -351,12 +385,10 @@ def discovery_status():
     )
 
 
-
 @app.route("/infrastructure/discover")
 def discover_infrastructure():
 
     result = infrastructure.discover()
-
 
     return render_template(
         "infrastructure.html",
@@ -364,7 +396,6 @@ def discover_infrastructure():
         server=result.get("local"),
         discovered=result.get("discovered")
     )
-
 
 
 @app.route(
@@ -384,9 +415,7 @@ def add_discovered_resource():
             )
         )
 
-
     data = json.loads(item)
-
 
     resource = {
 
@@ -420,35 +449,31 @@ def add_discovered_resource():
 
     }
 
-
     infrastructure.add_resource(
         resource
     )
-
 
     results = session.get(
         "discovery_results",
         []
     )
 
-
     session["discovery_results"] = [
         item for item in results
         if item.get("host") != resource["host"]
     ]
-
 
     flash(
         "RESOURCE ADDED",
         "success"
     )
 
-
     return redirect(
         url_for(
             "discovery_page"
         )
     )
+
 
 @app.route(
     "/discovery/import",
@@ -462,11 +487,9 @@ def import_discovered_resources():
 
     added = 0
 
-
     for item in resources:
 
         data = json.loads(item)
-
 
         resource = {
 
@@ -501,26 +524,21 @@ def import_discovered_resources():
 
         }
 
-
         infrastructure.add_resource(
             resource
         )
 
-
         added += 1
-
 
     print(
         "DISCOVERY IMPORT:",
         added
     )
 
-
     flash(
         "RESOURCE ADDED",
         "success"
     )
-
 
     return render_template(
         "discovery.html",
@@ -530,7 +548,6 @@ def import_discovered_resources():
             []
         )
     )
-
 
 
 @app.route(
@@ -546,7 +563,6 @@ def resource_group(group):
         "cloud"
     ]
 
-
     if group not in allowed_groups:
 
         return redirect(
@@ -555,18 +571,15 @@ def resource_group(group):
             )
         )
 
-
     resources = infrastructure.get_resources(
         group
     )
-
 
     return render_template(
         "resources.html",
         title=group.capitalize(),
         resources=resources
     )
-
 
 
 @app.route(
@@ -578,12 +591,10 @@ def resource_detail(resource_id):
         resource_id
     )
 
-
     return render_template(
         "resource_detail.html",
         resource=resource
     )
-
 
 
 @app.route(
@@ -658,7 +669,6 @@ def verify_resource(resource_id):
     )
 
 
-
 @app.route(
     "/infrastructure/resource/<resource_id>/verify/<state>"
 )
@@ -674,14 +684,12 @@ def set_verify_state(
         }
     )
 
-
     return redirect(
         url_for(
             "resource_detail",
             resource_id=resource_id
         )
     )
-
 
 
 # ==========================================
@@ -698,7 +706,6 @@ def monitor_resource(resource_id):
         resource_id
     )
 
-
     if not resource:
 
         return redirect(
@@ -706,7 +713,6 @@ def monitor_resource(resource_id):
                 "infrastructure_page"
             )
         )
-
 
     # RUN CHECK ONLY FOR THIS RESOURCE
 
@@ -716,13 +722,11 @@ def monitor_resource(resource_id):
             resource
         )
 
-
     # GET CURRENT HEALTH
 
     health = monitoring.get_health(
         resource_id
     )
-
 
     # HANDLE ID TYPE DIFFERENCES
 
@@ -736,17 +740,11 @@ def monitor_resource(resource_id):
 
                 break
 
-
     return render_template(
         "resource_monitor.html",
         resource=resource,
         health=health
     )
-
-
-
-
-
 
 
 @app.route(
@@ -759,7 +757,6 @@ def delete_resource(resource_id):
         resource_id
     )
 
-
     if not resource:
 
         return redirect(
@@ -768,13 +765,11 @@ def delete_resource(resource_id):
             )
         )
 
-
     if request.method == "POST":
 
         infrastructure.resource_registry.delete_resource(
             resource_id
         )
-
 
         return redirect(
             url_for(
@@ -782,14 +777,10 @@ def delete_resource(resource_id):
             )
         )
 
-
     return render_template(
         "delete_resource.html",
         resource=resource
     )
-
-
-
 
 
 @app.route(
@@ -838,18 +829,15 @@ def add_resource():
 
         }
 
-
         infrastructure.add_resource(
             resource
         )
-
 
         return redirect(
             url_for(
                 "infrastructure_page"
             )
         )
-
 
     return render_template(
         "add_resource.html"
@@ -859,6 +847,7 @@ def add_resource():
 # ==========================================
 # NETWORK
 # ==========================================
+
 
 @app.route("/network")
 def network_view():
@@ -875,6 +864,7 @@ def network_view():
 # DELIVERY
 # ==========================================
 
+
 @app.route("/delivery")
 def delivery_view():
 
@@ -884,7 +874,7 @@ def delivery_view():
         "delivery.html",
         data=data
     )
-    
+
 
 # ==========================================
 # DASHBOARD
@@ -897,12 +887,10 @@ def dashboard_view():
 
     modules = get_modules()
 
-
     return render_template(
         "dashboard.html",
         modules=modules
     )
-
 
 
 # ==========================================
@@ -922,12 +910,10 @@ def chat():
 
         session["history"] = []
 
-
     history = session.get(
         "history",
         []
     )
-
 
     return render_template(
         "chat.html",
@@ -936,7 +922,6 @@ def chat():
         latest_answer=None,
         audio_url=None
     )
-
 
 
 @app.route(
@@ -950,7 +935,6 @@ def ask():
         ""
     ).strip()
 
-
     if not question:
 
         return redirect(
@@ -959,20 +943,16 @@ def ask():
             )
         )
 
-
     result = ask_veles(
         question
     )
 
-
     answer = result["answer"]
-
 
     history = session.get(
         "history",
         []
     )
-
 
     history.append(
         {
@@ -981,7 +961,6 @@ def ask():
         }
     )
 
-
     history.append(
         {
             "role": "assistant",
@@ -989,14 +968,11 @@ def ask():
         }
     )
 
-
     session["history"] = history
-
 
     audio_url = _generate_answer_audio(
         answer
     )
-
 
     return render_template(
         "chat.html",
@@ -1009,7 +985,6 @@ def ask():
     )
 
 
-
 @app.route(
     "/new_chat",
     methods=["POST"]
@@ -1018,13 +993,11 @@ def new_chat():
 
     session["history"] = []
 
-
     return redirect(
         url_for(
             "chat"
         )
     )
-
 
 
 @app.route(
@@ -1038,12 +1011,10 @@ def confirm_memory():
         ""
     ).strip()
 
-
     value = request.form.get(
         "value",
         ""
     ).strip()
-
 
     if key and value:
 
@@ -1052,13 +1023,11 @@ def confirm_memory():
             value
         )
 
-
     return redirect(
         url_for(
             "chat"
         )
     )
-
 
 
 # ==========================================
@@ -1071,12 +1040,10 @@ def memory_view():
 
     memories = recall_with_ids()
 
-
     return render_template(
         "memory.html",
         memories=memories
     )
-
 
 
 @app.route(
@@ -1089,7 +1056,6 @@ def memory_delete(memory_id):
         memory_id
     )
 
-
     return redirect(
         url_for(
             "memory_view"
@@ -1097,10 +1063,10 @@ def memory_delete(memory_id):
     )
 
 
-
 # ==========================================
 # LOGS
 # ==========================================
+
 
 @app.route("/logs")
 def logs_view():
@@ -1117,7 +1083,6 @@ def logs_view():
 
             lines = file.readlines()[-100:]
 
-
         for line in reversed(lines):
 
             try:
@@ -1130,12 +1095,10 @@ def logs_view():
 
                 pass
 
-
     return render_template(
         "logs.html",
         entries=entries
     )
-
 
 
 # ==========================================
@@ -1174,18 +1137,15 @@ def monitoring_check():
     )
 
 
-
-
-
 # ==========================================
 # SYSTEM
 # ==========================================
+
 
 @app.route("/system")
 def system_view():
 
     system = get_system_info()
-
 
     return render_template(
         "system.html",
@@ -1197,17 +1157,16 @@ def system_view():
 # SERVICES
 # ==========================================
 
+
 @app.route("/services")
 def services_view():
 
     services = list_common_services()
 
-
     return render_template(
         "services.html",
         services=services
     )
-
 
 
 # ==========================================
@@ -1217,12 +1176,28 @@ def services_view():
 
 if __name__ == "__main__":
 
-    app.run(
-        host=TAILSCALE_IP,
-        port=5001,
-        debug=False,
-        ssl_context=(
-            CERT_FILE,
-            KEY_FILE
+    if VELES_TLS:
+
+        if not VELES_CERT_FILE or not VELES_KEY_FILE:
+
+            raise RuntimeError(
+                "VELES_TLS=true requires "
+                "VELES_CERT_FILE and VELES_KEY_FILE"
+            )
+
+        ssl_context = (
+            VELES_CERT_FILE,
+            VELES_KEY_FILE
         )
-    )    
+
+    else:
+
+        ssl_context = None
+
+    app.run(
+        host=VELES_HOST,
+        port=VELES_PORT,
+        debug=False,
+        ssl_context=ssl_context
+    )
+
