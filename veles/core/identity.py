@@ -28,12 +28,11 @@ class IdentityService:
         )
 
         identity.setdefault(
-            "tailscale_ip",
+            "ipv4",
             resource.get("host")
         )
 
         identity.setdefault("fqdn", None)
-        identity.setdefault("ipv4", None)
         identity.setdefault("ipv6", None)
         identity.setdefault("agent_id", None)
         identity.setdefault("certificate", None)

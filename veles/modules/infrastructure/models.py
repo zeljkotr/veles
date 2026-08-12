@@ -2,18 +2,15 @@
 Veles Infrastructure Models
 
 Osnovni objekti infrastrukture:
+
 - Server
 - Device
 - Agent
 """
 
-
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
-
-
-
 
 
 @dataclass
@@ -27,27 +24,17 @@ class Server:
 
     os: str
 
-
     status: str = "unknown"
-
 
     last_seen: Optional[str] = None
 
-
-
     cpu: str = "unknown"
-
 
     memory: dict = None
 
-
     disk: dict = None
 
-
     uptime: str = "unknown"
-
-
-
 
 
     def touch(self):
@@ -55,12 +42,6 @@ class Server:
         self.last_seen = datetime.now().isoformat()
 
         self.status = "online"
-
-
-
-
-
-
 
 
 @dataclass
@@ -75,12 +56,6 @@ class Device:
     status: str = "unknown"
 
 
-
-
-
-
-
-
 @dataclass
 class Agent:
 
@@ -91,25 +66,3 @@ class Agent:
     version: str
 
     status: str = "offline"
-
-
-
-
-
-
-
-
-# testni objekat za razvoj
-
-
-LOCAL_SERVER = Server(
-
-    name="Veles Core",
-
-    hostname="meshcorers",
-
-    ip="127.0.0.1",
-
-    os="Linux"
-
-)

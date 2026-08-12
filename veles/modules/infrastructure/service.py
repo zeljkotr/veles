@@ -11,7 +11,6 @@ Povezuje:
 - inventory
 """
 
-
 from .inventory import inventory
 
 from .discovery import (
@@ -21,12 +20,10 @@ from .discovery import (
 
 from .resource_registry import ResourceRegistry
 
-from .models import Server, LOCAL_SERVER
-
+from .models import Server
 
 
 class InfrastructureService:
-
 
     def __init__(self):
 
@@ -37,21 +34,17 @@ class InfrastructureService:
         self.loaded = False
 
 
-
     def _add_if_missing(self, server):
 
         """
         Sprečava duplikate u inventaru.
         """
 
-
         for item in self.inventory.get_servers():
-
 
             if item.ip == server.ip:
 
                 return
-
 
             if (
                 item.name == server.name
@@ -60,9 +53,7 @@ class InfrastructureService:
 
                 return
 
-
         self.inventory.add_server(server)
-
 
 
     def discover(self):
@@ -75,17 +66,13 @@ class InfrastructureService:
         Ne registruje automatski.
         """
 
-
         server = discover_local_server()
-
 
         self._add_if_missing(
             server
         )
 
-
         hosts = discover_network_hosts()
-
 
         return {
 
@@ -96,26 +83,23 @@ class InfrastructureService:
         }
 
 
-
     def initialize(self):
 
         """
         Učitavanje početnog stanja.
         """
 
-
         if self.loaded:
 
             return
 
+        local_server = discover_local_server()
 
         self._add_if_missing(
-            LOCAL_SERVER
+            local_server
         )
 
-
         self.loaded = True
-
 
 
     def add_resource(self, resource):
@@ -129,22 +113,17 @@ class InfrastructureService:
         )
 
 
-
     def get_registered_server(self, server_id):
 
         resources = self.resource_registry.get_resources()
 
-
         for resource in resources:
-
 
             if str(resource["id"]) == str(server_id):
 
                 return resource
 
-
         return None
-
 
 
     def get_resources(self, group=None):
@@ -152,7 +131,6 @@ class InfrastructureService:
         return self.resource_registry.get_resources(
             group
         )
-
 
 
     def get_status(self):
@@ -164,24 +142,17 @@ class InfrastructureService:
         iz inventory-ja.
         """
 
-
         self.initialize()
 
-
         local_server = discover_local_server()
-
 
         self._add_if_missing(
             local_server
         )
 
-
         resources = self.resource_registry.get_resources()
 
-
-
         grouped_resources = {
-
 
             "servers": [],
 
@@ -195,10 +166,7 @@ class InfrastructureService:
 
         }
 
-
-
         mapping = {
-
 
             "server": "servers",
 
@@ -212,10 +180,7 @@ class InfrastructureService:
 
         }
 
-
-
         for resource in resources:
-
 
             group = mapping.get(
 
@@ -225,32 +190,23 @@ class InfrastructureService:
 
             )
 
-
             grouped_resources[group].append(
                 resource
             )
 
-
-
         return {
-
 
             "inventory": self.inventory.summary(),
 
-
             "servers": self.inventory.get_servers(),
-
 
             "devices": self.inventory.get_devices(),
 
-
             "agents": self.inventory.get_agents(),
-
 
             "resources": grouped_resources
 
         }
-
 
 
 # Globalni servis

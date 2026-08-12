@@ -1,45 +1,344 @@
 {% extends "base.html" %}
 
-
 {% block title %}
-
 Discovery Scan
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/infrastructure.css') }}"
+>
 
 {% endblock %}
 
-
-
 {% block content %}
 
+<header class="infra-header">
 
-<div class="discovery-card">
+    <h1>
+        🔎 DISCOVERY SCAN
+    </h1>
 
+    <p id="scan-message">
+        Network discovery running...
+    </p>
 
-<h1>
-🔎 SCANNING
-</h1>
-
-
-<h2>
-Network discovery running...
-</h2>
-
-
-<div>
-
-🟡 Status: ACTIVE
-
-</div>
+</header>
 
 
-<div>
+<section class="inventory-panel">
 
-Please wait...
+    <h2 id="scan-status">
+        🟡 STATUS: ACTIVE
+    </h2>
 
-</div>
+    <div id="scanner">
+
+        <div class="orb"></div>
+
+    </div>
+
+    <div id="scan-progress">
+        Starting scan...
+    </div>
+
+    <div id="scan-found">
+        Found: 0
+    </div>
+
+</section>
 
 
-</div>
+<section
+    id="results-panel"
+    class="inventory-panel"
+    style="display:none;"
+>
 
+    <h2>
+        🖥 DISCOVERED RESOURCES
+    </h2>
+
+    <div
+        id="results-list"
+        class="resource-list"
+    ></div>
+
+</section>
+
+
+<script>
+
+const scanId = "{{ scan_id }}";
+
+const statusUrl =
+    "{{ url_for('discovery_status_data') }}";
+
+let statusTimer;
+
+
+function renderResults(results) {
+
+    const panel =
+        document.getElementById(
+            "results-panel"
+        );
+
+    const list =
+        document.getElementById(
+            "results-list"
+        );
+
+    list.innerHTML = "";
+
+    if (!results || results.length === 0) {
+
+        panel.style.display = "block";
+
+        list.innerHTML =
+            "<div class=\"resource-item\">" +
+            "<div class=\"resource-info\">" +
+            "<h2>NO RESOURCES FOUND</h2>" +
+            "</div>" +
+            "</div>";
+
+        return;
+    }
+
+
+    panel.style.display = "block";
+
+
+    results.forEach(function(device) {
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "resource-item";
+
+
+        const services =
+            device.services || [];
+
+
+        let servicesHtml =
+            "<div class=\"resource-meta\">" +
+            "<div>" +
+            "<label>SERVICES</label>";
+
+
+        if (services.length) {
+
+            services.forEach(function(service) {
+
+                servicesHtml +=
+                    "<strong>🟢 " +
+                    service.service +
+                    " : " +
+                    service.port +
+                    "</strong>";
+
+            });
+
+        } else {
+
+            servicesHtml +=
+                "<strong>⚪ UNKNOWN</strong>";
+
+        }
+
+
+        servicesHtml +=
+            "</div></div>";
+
+
+        item.innerHTML =
+
+            "<div class=\"resource-icon\">🖥</div>" +
+
+            "<div class=\"resource-info\">" +
+
+            "<h2>" +
+            (device.name || "Discovered Resource") +
+            "</h2>" +
+
+            "<div class=\"resource-meta\">" +
+
+            "<div>" +
+            "<label>STATUS</label>" +
+            "<strong>🟢 " +
+            (device.status || "alive") +
+            "</strong>" +
+            "</div>" +
+
+            "<div>" +
+            "<label>TYPE</label>" +
+            "<strong>" +
+            (device.type || "server") +
+            "</strong>" +
+            "</div>" +
+
+            "<div>" +
+            "<label>HOST</label>" +
+            "<strong>" +
+            (device.host || "-") +
+            "</strong>" +
+            "</div>" +
+
+            "<div>" +
+            "<label>PORT</label>" +
+            "<strong>" +
+            (device.port || "-") +
+            "</strong>" +
+            "</div>" +
+
+            "</div>" +
+
+            servicesHtml +
+
+            "<form method=\"POST\" action=\"{{ url_for('add_discovered_resource') }}\">" +
+
+            "<input type=\"hidden\" name=\"resource\" value='" +
+            JSON.stringify(device).replace(/'/g, "&#39;") +
+            "'>" +
+
+            "<button class=\"add-button\" type=\"submit\">" +
+            "➕ ADD RESOURCE" +
+            "</button>" +
+
+            "</form>" +
+
+            "</div>";
+
+
+        list.appendChild(item);
+
+    });
+
+}
+
+
+function updateScanStatus() {
+
+    fetch(
+        statusUrl +
+        "?scan_id=" +
+        encodeURIComponent(scanId),
+        {
+            cache: "no-store"
+        }
+    )
+
+    .then(
+        response => response.json()
+    )
+
+    .then(
+        data => {
+
+            const progress =
+                document.getElementById(
+                    "scan-progress"
+                );
+
+            const found =
+                document.getElementById(
+                    "scan-found"
+                );
+
+            const status =
+                document.getElementById(
+                    "scan-status"
+                );
+
+            const message =
+                document.getElementById(
+                    "scan-message"
+                );
+
+
+            if (data.error) {
+
+                clearInterval(statusTimer);
+
+                status.textContent =
+                    "🔴 STATUS: ERROR";
+
+                message.textContent =
+                    "Network discovery failed.";
+
+                progress.textContent =
+                    data.error;
+
+                return;
+            }
+
+
+            progress.textContent =
+                "Checked: " +
+                (data.checked || 0) +
+                " / " +
+                (data.total || 0);
+
+
+            found.textContent =
+                "Found: " +
+                (data.found || 0);
+
+
+            if (data.running) {
+
+                status.textContent =
+                    "🟡 STATUS: ACTIVE";
+
+                return;
+            }
+
+
+            clearInterval(statusTimer);
+
+
+            status.textContent =
+                "🟢 STATUS: COMPLETE";
+
+
+            message.textContent =
+                "Network discovery completed.";
+
+
+            renderResults(
+                data.results || []
+            );
+
+        }
+    )
+
+    .catch(
+        error => {
+
+            console.error(
+                "Discovery status error:",
+                error
+            );
+
+        }
+    );
+
+}
+
+
+updateScanStatus();
+
+
+statusTimer =
+    setInterval(
+        updateScanStatus,
+        500
+    );
+
+</script>
 
 {% endblock %}

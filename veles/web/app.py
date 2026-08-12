@@ -12,11 +12,15 @@ import json
 import shutil
 import uuid
 import socket
+import ipaddress
+import threading
+
 from pathlib import Path
+
+
 from veles.modules.monitoring import monitoring
 from veles.modules.network.service import network
 from veles.modules.delivery.service import delivery
-import ipaddress
 
 
 BASE_DIR = os.path.abspath(
@@ -81,7 +85,23 @@ from veles.modules.infrastructure.discovery import (
 app = Flask(__name__)
 
 
-app.secret_key = "veles-dev-secret-change-me"
+# ==========================================
+# DISCOVERY RUNTIME STATE
+# ==========================================
+
+discovery_jobs = {}
+
+# Latest completed discovery results are kept
+# server-side instead of inside Flask's cookie session.
+discovery_results = []
+
+discovery_results_lock = threading.Lock()
+
+
+app.secret_key = os.getenv(
+    "VELES_SECRET_KEY",
+    "veles-dev-secret-change-me"
+)
 
 
 # ==========================================
@@ -93,6 +113,7 @@ VELES_HOST = os.getenv(
     "0.0.0.0"
 )
 
+
 VELES_PORT = int(
     os.getenv(
         "VELES_PORT",
@@ -100,15 +121,18 @@ VELES_PORT = int(
     )
 )
 
+
 VELES_TLS = os.getenv(
     "VELES_TLS",
     "false"
 ).lower() == "true"
 
+
 VELES_CERT_FILE = os.getenv(
     "VELES_CERT_FILE",
     ""
 )
+
 
 VELES_KEY_FILE = os.getenv(
     "VELES_KEY_FILE",
@@ -182,7 +206,6 @@ def _generate_answer_audio(text: str):
 # INFRASTRUCTURE
 # ==========================================
 
-
 @app.route("/infrastructure")
 def infrastructure_page():
 
@@ -196,6 +219,7 @@ def infrastructure_page():
     server = None
 
     if servers:
+
         server = servers[0]
 
     return render_template(
@@ -209,7 +233,6 @@ def infrastructure_page():
 # DISCOVERY CENTER
 # ==========================================
 
-
 @app.route("/discovery")
 def discovery_page():
 
@@ -222,13 +245,16 @@ def discovery_page():
         custom_networks=custom_networks
     )
 
+    with discovery_results_lock:
+
+        current_results = list(
+            discovery_results
+        )
+
     return render_template(
         "discovery.html",
         targets=targets,
-        discovered=session.get(
-            "discovery_results",
-            []
-        )
+        discovered=current_results
     )
 
 
@@ -239,8 +265,7 @@ def discovery_page():
 def discovery_scan():
 
     from veles.modules.infrastructure.discovery import (
-        discover_network_hosts,
-        discover_network_targets
+        discover_network_hosts
     )
 
     custom_network = request.form.get(
@@ -258,9 +283,9 @@ def discovery_scan():
         []
     )
 
-    # ------------------------------------------
+    # ======================================
     # REMOVE CUSTOM NETWORK
-    # ------------------------------------------
+    # ======================================
 
     if remove_network:
 
@@ -285,9 +310,9 @@ def discovery_scan():
             )
         )
 
-    # ------------------------------------------
+    # ======================================
     # ADD CUSTOM NETWORK
-    # ------------------------------------------
+    # ======================================
 
     if request.form.get("add_custom"):
 
@@ -330,24 +355,28 @@ def discovery_scan():
             )
         )
 
-    # ------------------------------------------
+    # ======================================
     # START SCAN
-    # ------------------------------------------
+    # ======================================
 
     networks = request.form.getlist(
         "network"
     )
 
-    discovered = []
+    valid_networks = []
+
+    seen_networks = set()
 
     for network in networks:
+
+        network = network.strip()
 
         if not network:
             continue
 
         try:
 
-            ipaddress.ip_network(
+            parsed = ipaddress.ip_network(
                 network,
                 strict=False
             )
@@ -356,36 +385,404 @@ def discovery_scan():
 
             continue
 
-        result = discover_network_hosts(
-            network
+        network_string = str(parsed)
+
+        if network_string in seen_networks:
+            continue
+
+        seen_networks.add(
+            network_string
         )
 
-        discovered.extend(
-            result
+        valid_networks.append(
+            network_string
         )
 
-    session[
-        "discovery_results"
-    ] = discovered
+    print(
+        "DISCOVERY SELECTED NETWORKS:",
+        valid_networks
+    )
 
-    return render_template(
-        "discovery.html",
-        targets=discover_network_targets(
-            custom_networks=custom_networks
+    if not valid_networks:
+
+        flash(
+            "NO NETWORK SELECTED",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    scan_id = uuid.uuid4().hex
+
+    discovery_jobs[scan_id] = {
+
+        "running": True,
+
+        "network": valid_networks[0],
+
+        "networks": valid_networks,
+
+        "current_network": valid_networks[0],
+
+        "network_index": 0,
+
+        "network_count": len(
+            valid_networks
         ),
-        discovered=discovered
+
+        "total": 0,
+
+        "checked": 0,
+
+        "found": 0,
+
+        "results": [],
+
+    }
+
+    def run_scan():
+
+        discovered = []
+
+        discovered_hosts = set()
+
+        try:
+
+            total_all = 0
+            checked_all = 0
+
+            # ----------------------------------
+            # CALCULATE TOTAL FOR ALL NETWORKS
+            # ----------------------------------
+
+            for network in valid_networks:
+
+                parsed = ipaddress.ip_network(
+                    network,
+                    strict=False
+                )
+
+                total_all += len(
+                    list(parsed.hosts())
+                )
+
+            discovery_jobs[scan_id].update({
+
+                "total": total_all,
+
+                "checked": 0,
+
+                "found": 0,
+
+                "current_network": valid_networks[0],
+
+                "network_index": 0
+
+            })
+
+            # ----------------------------------
+            # SCAN EACH SELECTED NETWORK
+            # ----------------------------------
+
+            for index, network in enumerate(
+                valid_networks
+            ):
+
+                discovery_jobs[scan_id].update({
+
+                    "running": True,
+
+                    "network": network,
+
+                    "current_network": network,
+
+                    "network_index": index
+
+                })
+
+                network_checked_start = checked_all
+
+                def progress_callback(
+                    progress,
+                    network=network,
+                    network_checked_start=network_checked_start
+                ):
+
+                    local_checked = progress.get(
+                        "checked",
+                        0
+                    )
+
+                    local_total = progress.get(
+                        "total",
+                        0
+                    )
+
+                    local_found = progress.get(
+                        "found",
+                        0
+                    )
+
+                    current_checked = (
+                        network_checked_start +
+                        local_checked
+                    )
+
+                    discovery_jobs[scan_id].update({
+
+                        "running": True,
+
+                        "network": network,
+
+                        "current_network": network,
+
+                        "network_index": index,
+
+                        "network_total": local_total,
+
+                        "network_checked": local_checked,
+
+                        "checked": current_checked,
+
+                        "total": total_all,
+
+                        "found": (
+                            len(discovered) +
+                            local_found
+                        )
+
+                    })
+
+                print(
+                    "DISCOVERY START:",
+                    network
+                )
+
+                result = discover_network_hosts(
+                    network,
+                    progress_callback=progress_callback
+                )
+
+                print(
+                    "DISCOVERY RESULT:",
+                    network,
+                    len(result)
+                )
+
+                # ----------------------------------
+                # MERGE RESULTS
+                # ----------------------------------
+
+                for item in result:
+
+                    host = item.get(
+                        "host"
+                    )
+
+                    if not host:
+                        continue
+
+                    if host in discovered_hosts:
+                        continue
+
+                    discovered_hosts.add(
+                        host
+                    )
+
+                    discovered.append(
+                        item
+                    )
+
+                parsed = ipaddress.ip_network(
+                    network,
+                    strict=False
+                )
+
+                network_total = len(
+                    list(parsed.hosts())
+                )
+
+                checked_all += network_total
+
+                discovery_jobs[scan_id].update({
+
+                    "checked": checked_all,
+
+                    "total": total_all,
+
+                    "found": len(discovered),
+
+                    "results": list(discovered),
+
+                    "network_index": index
+
+                })
+
+            # ----------------------------------
+            # COMPLETE
+            # ----------------------------------
+
+            discovery_jobs[scan_id].update({
+
+                "running": False,
+
+                "network": valid_networks[-1],
+
+                "current_network": None,
+
+                "network_index": len(
+                    valid_networks
+                ),
+
+                "checked": total_all,
+
+                "total": total_all,
+
+                "found": len(discovered),
+
+                "results": list(discovered)
+
+            })
+
+            # ----------------------------------
+            # SAVE RESULTS SERVER-SIDE
+            # ----------------------------------
+
+            with discovery_results_lock:
+
+                discovery_results.clear()
+
+                discovery_results.extend(
+                    discovered
+                )
+
+            print(
+                "DISCOVERY COMPLETE:",
+                "networks=",
+                valid_networks,
+                "found=",
+                len(discovered)
+            )
+
+        except Exception as e:
+
+            print(
+                "DISCOVERY SCAN ERROR:",
+                e
+            )
+
+            discovery_jobs[scan_id].update({
+
+                "running": False,
+
+                "error": str(e),
+
+                "results": list(discovered),
+
+                "found": len(discovered)
+
+            })
+
+            with discovery_results_lock:
+
+                discovery_results.clear()
+
+                discovery_results.extend(
+                    discovered
+                )
+
+    thread = threading.Thread(
+        target=run_scan,
+        daemon=True
+    )
+
+    thread.start()
+
+    return redirect(
+        url_for(
+            "discovery_status",
+            scan_id=scan_id
+        )
     )
 
 
-@app.route("/discovery/status")
+@app.route(
+    "/discovery/status"
+)
 def discovery_status():
 
+    scan_id = request.args.get(
+        "scan_id"
+    )
+
+    job = discovery_jobs.get(
+        scan_id
+    )
+
+    if not job:
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    if not job.get("running"):
+
+        with discovery_results_lock:
+
+            discovery_results.clear()
+
+            discovery_results.extend(
+                job.get(
+                    "results",
+                    []
+                )
+            )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
     return render_template(
-        "discovery_status.html"
+        "discovery_status.html",
+        scan_id=scan_id,
+        scan=job
     )
 
 
-@app.route("/infrastructure/discover")
+@app.route(
+    "/discovery/status/data"
+)
+def discovery_status_data():
+
+    scan_id = request.args.get(
+        "scan_id"
+    )
+
+    job = discovery_jobs.get(
+        scan_id
+    )
+
+    if not job:
+
+        return {
+            "running": False,
+            "error": "SCAN NOT FOUND"
+        }, 404
+
+    return job
+
+
+@app.route(
+    "/infrastructure/discover"
+)
 def discover_infrastructure():
 
     result = infrastructure.discover()
@@ -398,6 +795,10 @@ def discover_infrastructure():
     )
 
 
+# ==========================================
+# ADD DISCOVERED RESOURCE
+# ==========================================
+
 @app.route(
     "/discovery/add",
     methods=["POST"]
@@ -409,13 +810,29 @@ def add_discovered_resource():
     )
 
     if not item:
+
         return redirect(
             url_for(
                 "discovery_page"
             )
         )
 
-    data = json.loads(item)
+    try:
+
+        data = json.loads(item)
+
+    except (TypeError, json.JSONDecodeError):
+
+        flash(
+            "INVALID RESOURCE",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
 
     resource = {
 
@@ -453,15 +870,33 @@ def add_discovered_resource():
         resource
     )
 
-    results = session.get(
-        "discovery_results",
-        []
+    # --------------------------------------
+    # REMOVE ONLY THE ADDED HOST
+    # FROM THE SERVER-SIDE DISCOVERY LIST
+    # --------------------------------------
+
+    resource_host = resource.get(
+        "host"
     )
 
-    session["discovery_results"] = [
-        item for item in results
-        if item.get("host") != resource["host"]
-    ]
+    with discovery_results_lock:
+
+        remaining_results = [
+
+            discovered
+
+            for discovered in discovery_results
+
+            if discovered.get("host")
+            != resource_host
+
+        ]
+
+        discovery_results.clear()
+
+        discovery_results.extend(
+            remaining_results
+        )
 
     flash(
         "RESOURCE ADDED",
@@ -475,6 +910,10 @@ def add_discovered_resource():
     )
 
 
+# ==========================================
+# IMPORT DISCOVERED RESOURCES
+# ==========================================
+
 @app.route(
     "/discovery/import",
     methods=["POST"]
@@ -487,9 +926,17 @@ def import_discovered_resources():
 
     added = 0
 
+    added_hosts = set()
+
     for item in resources:
 
-        data = json.loads(item)
+        try:
+
+            data = json.loads(item)
+
+        except (TypeError, json.JSONDecodeError):
+
+            continue
 
         resource = {
 
@@ -528,6 +975,12 @@ def import_discovered_resources():
             resource
         )
 
+        if resource.get("host"):
+
+            added_hosts.add(
+                resource.get("host")
+            )
+
         added += 1
 
     print(
@@ -535,20 +988,44 @@ def import_discovered_resources():
         added
     )
 
+    # --------------------------------------
+    # REMOVE ONLY IMPORTED RESOURCES
+    # --------------------------------------
+
+    with discovery_results_lock:
+
+        remaining_results = [
+
+            discovered
+
+            for discovered in discovery_results
+
+            if discovered.get("host")
+            not in added_hosts
+
+        ]
+
+        discovery_results.clear()
+
+        discovery_results.extend(
+            remaining_results
+        )
+
     flash(
         "RESOURCE ADDED",
         "success"
     )
 
-    return render_template(
-        "discovery.html",
-        targets=discover_network_targets(),
-        discovered=session.get(
-            "discovery_results",
-            []
+    return redirect(
+        url_for(
+            "discovery_page"
         )
     )
 
+
+# ==========================================
+# INFRASTRUCTURE GROUP
+# ==========================================
 
 @app.route(
     "/infrastructure/<group>"
@@ -696,7 +1173,6 @@ def set_verify_state(
 # MONITOR
 # ==========================================
 
-
 @app.route(
     "/infrastructure/resource/<resource_id>/monitor"
 )
@@ -714,21 +1190,15 @@ def monitor_resource(resource_id):
             )
         )
 
-    # RUN CHECK ONLY FOR THIS RESOURCE
-
     if request.args.get("check") == "1":
 
         monitoring.check_resource(
             resource
         )
 
-    # GET CURRENT HEALTH
-
     health = monitoring.get_health(
         resource_id
     )
-
-    # HANDLE ID TYPE DIFFERENCES
 
     if health is None:
 
@@ -848,7 +1318,6 @@ def add_resource():
 # NETWORK
 # ==========================================
 
-
 @app.route("/network")
 def network_view():
 
@@ -863,7 +1332,6 @@ def network_view():
 # ==========================================
 # DELIVERY
 # ==========================================
-
 
 @app.route("/delivery")
 def delivery_view():
@@ -880,7 +1348,6 @@ def delivery_view():
 # DASHBOARD
 # ==========================================
 
-
 @app.route("/")
 @app.route("/dashboard")
 def dashboard_view():
@@ -896,7 +1363,6 @@ def dashboard_view():
 # ==========================================
 # CHAT
 # ==========================================
-
 
 @app.route(
     "/chat",
@@ -1034,7 +1500,6 @@ def confirm_memory():
 # MEMORY
 # ==========================================
 
-
 @app.route("/memory")
 def memory_view():
 
@@ -1066,7 +1531,6 @@ def memory_delete(memory_id):
 # ==========================================
 # LOGS
 # ==========================================
-
 
 @app.route("/logs")
 def logs_view():
@@ -1105,7 +1569,6 @@ def logs_view():
 # MONITORING
 # ==========================================
 
-
 @app.route("/monitoring")
 def monitoring_view():
 
@@ -1141,7 +1604,6 @@ def monitoring_check():
 # SYSTEM
 # ==========================================
 
-
 @app.route("/system")
 def system_view():
 
@@ -1157,7 +1619,6 @@ def system_view():
 # SERVICES
 # ==========================================
 
-
 @app.route("/services")
 def services_view():
 
@@ -1172,7 +1633,6 @@ def services_view():
 # ==========================================
 # START
 # ==========================================
-
 
 if __name__ == "__main__":
 
@@ -1200,4 +1660,3 @@ if __name__ == "__main__":
         debug=False,
         ssl_context=ssl_context
     )
-
