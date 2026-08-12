@@ -1,27 +1,19 @@
 # ==================================
-# Veles AI Project .gitignore
+# VELES AI Project
 # ==================================
 
-# --------------------------
 # Python
-# --------------------------
-
 __pycache__/
 *.py[cod]
 *$py.class
-
 *.so
 *.egg
 *.egg-info/
-
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 
-# --------------------------
 # Virtual environments
-# --------------------------
-
 venv/
 .venv/
 env/
@@ -29,10 +21,7 @@ ENV/
 xtts-env/
 tts-venv/
 
-# --------------------------
-# Secrets / Security
-# --------------------------
-
+# Secrets / certificates
 .env
 .env.*
 certs/
@@ -40,10 +29,7 @@ certs/
 *.crt
 *.pem
 
-# --------------------------
-# Veles runtime
-# --------------------------
-
+# VELES runtime data
 veles/logs/
 veles/*.log
 veles/memory/*.db
@@ -51,11 +37,9 @@ veles/web/static/audio/
 *.wav
 lightning_logs/
 
-# --------------------------
-# AI Models
-# --------------------------
-
+# AI models / weights
 models/
+checkpoints/
 *.onnx
 *.onnx.json
 *.pt
@@ -64,54 +48,37 @@ models/
 *.bin
 *.safetensors
 
-# --------------------------
 # Training data
-# --------------------------
-
 dataset/
-checkpoints/
 cv_sr_prepared/
 
-# --------------------------
 # External engines
-# --------------------------
-
 piper1-gpl/
 
-# --------------------------
 # Cache / temporary
-# --------------------------
-
 tmp/
 temp/
-
 *.tmp
 *.bak
 *.swp
 
-# --------------------------
-# Build
-# --------------------------
+# Backup files
+*.backup
+*.save
+*.before-clean
+*.before_*
 
+# Build
 build/
 dist/
 
-# --------------------------
 # IDE
-# --------------------------
-
 .vscode/
 .idea/
 
-# --------------------------
 # OS
-# --------------------------
-
 .DS_Store
 Thumbs.db
 
-# --------------------------
-# Distribution
-# --------------------------
-
+# Legacy local distribution data
 veles/database/resources.json
