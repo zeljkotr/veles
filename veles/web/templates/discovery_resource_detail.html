@@ -39,8 +39,16 @@ Veles Discovery Resource
         {% if resource %}
 
 
+            <!-- ==========================================
+                 RESOURCE CARD
+                 ========================================== -->
+
             <div class="server-card">
 
+
+                <!-- ==========================================
+                     RESOURCE HEADER
+                     ========================================== -->
 
                 <div class="server-title">
 
@@ -48,6 +56,24 @@ Veles Discovery Resource
 
                         {% if resource.type == "server" %}
                             🖥
+                        {% elif resource.type == "computer" %}
+                            🖥
+                        {% elif resource.type == "laptop" %}
+                            💻
+                        {% elif resource.type == "phone" %}
+                            📱
+                        {% elif resource.type == "tv" %}
+                            📺
+                        {% elif resource.type == "camera" %}
+                            📷
+                        {% elif resource.type == "printer" %}
+                            🖨️
+                        {% elif resource.type == "router" %}
+                            📡
+                        {% elif resource.type == "network_device" %}
+                            🌐
+                        {% elif resource.type == "iot" %}
+                            💡
                         {% elif resource.type == "container" %}
                             🐳
                         {% elif resource.type == "agent" %}
@@ -58,17 +84,132 @@ Veles Discovery Resource
                             ☁
                         {% endif %}
 
-                        {{ resource.name }}
+                        {{ resource.name or resource.host or "Unknown Resource" }}
 
                     </h3>
 
 
                     <span>
-                        🟢 {{ resource.status }}
+
+                        {% if resource.status == "alive" %}
+
+                            🟢 ALIVE
+
+                        {% elif resource.status %}
+
+                            ⚪ {{ resource.status }}
+
+                        {% else %}
+
+                            ⚪ UNKNOWN
+
+                        {% endif %}
+
                     </span>
 
                 </div>
 
+
+                <!-- ==========================================
+                     ACTIONS
+                     ========================================== -->
+
+                <section class="infra-actions">
+
+
+                    <h4>
+                        ACTIONS
+                    </h4>
+
+
+                    <div class="action-row">
+
+
+                        <!-- BACK -->
+
+                        <a
+                            href="{{ url_for('discovery_page') }}"
+                            class="infra-button"
+                        >
+                            ⬅ BACK TO DISCOVERY
+                        </a>
+
+
+                        <!-- DEEP SCAN -->
+
+                        {% if resource.deep_scan_status == "completed" %}
+
+                            <span class="infra-button">
+
+                                🔬 DEEP SCAN COMPLETE
+
+                            </span>
+
+                        {% elif resource.deep_scan_status == "scanning" %}
+
+                            <span class="infra-button">
+
+                                🔬 DEEP SCAN RUNNING...
+
+                            </span>
+
+                        {% else %}
+
+                            <form
+                                method="POST"
+                                action="{{ url_for('discovery_resource_deep_scan') }}"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="host"
+                                    value="{{ resource.host }}"
+                                >
+
+                                <button
+                                    class="infra-button"
+                                    type="submit"
+                                >
+                                    🔬 DEEP SCAN
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+
+                        <!-- ADD RESOURCE -->
+
+                        <form
+                            method="POST"
+                            action="{{ url_for('import_discovered_resources') }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="resource"
+                                value='{{ resource | tojson }}'
+                            >
+
+                            <button
+                                class="infra-button"
+                                type="submit"
+                            >
+                                ➕ ADD RESOURCE
+                            </button>
+
+                        </form>
+
+
+                    </div>
+
+
+                </section>
+
+
+                <!-- ==========================================
+                     BASIC DISCOVERY DATA
+                     ========================================== -->
 
                 <div class="server-grid">
 
@@ -80,7 +221,7 @@ Veles Discovery Resource
                         </label>
 
                         <strong>
-                            {{ resource.type or "-" }}
+                            {{ resource.type or "unknown" }}
                         </strong>
 
                     </div>
@@ -115,11 +256,25 @@ Veles Discovery Resource
                     <div>
 
                         <label>
-                            OPERATING SYSTEM
+                            DISCOVERY
                         </label>
 
                         <strong>
-                            {{ resource.os or "unknown" }}
+
+                            {% if resource.deep_scan_status == "completed" %}
+
+                                🔬 DEEP SCANNED
+
+                            {% elif resource.deep_scan_status == "scanning" %}
+
+                                🔬 DEEP SCANNING
+
+                            {% else %}
+
+                                ⚡ FAST SCAN
+
+                            {% endif %}
+
                         </strong>
 
                     </div>
@@ -127,6 +282,10 @@ Veles Discovery Resource
 
                 </div>
 
+
+                <!-- ==========================================
+                     STATUS / HOST / OS
+                     ========================================== -->
 
                 <div class="server-grid">
 
@@ -140,9 +299,13 @@ Veles Discovery Resource
                         <strong>
 
                             {% if resource.status == "alive" %}
+
                                 🟢 ALIVE
+
                             {% else %}
+
                                 ⚪ {{ resource.status or "UNKNOWN" }}
+
                             {% endif %}
 
                         </strong>
@@ -179,11 +342,29 @@ Veles Discovery Resource
                     <div>
 
                         <label>
-                            OS DETECTION
+                            OPERATING SYSTEM
                         </label>
 
                         <strong>
-                            {{ resource.os or "Not detected" }}
+
+                            {% if resource.os and resource.os != "unknown" %}
+
+                                🖥 {{ resource.os }}
+
+                            {% elif resource.os_name and resource.os_name != "unknown" %}
+
+                                🖥 {{ resource.os_name }}
+
+                            {% elif resource.os_family and resource.os_family != "unknown" %}
+
+                                🖥 {{ resource.os_family }}
+
+                            {% else %}
+
+                                ⚪ Not detected
+
+                            {% endif %}
+
                         </strong>
 
                     </div>
@@ -192,101 +373,250 @@ Veles Discovery Resource
                 </div>
 
 
-                {% if resource.services %}
+                <!-- ==========================================
+                     HOST IDENTITY
+                     ========================================== -->
 
+                {% if resource.hostname or resource.mac or resource.vendor %}
 
                     <div class="server-grid">
 
-                        <div>
 
-                            <label>
-                                DETECTED SERVICES
-                            </label>
+                        {% if resource.hostname %}
 
+                            <div>
 
-                            {% for service in resource.services %}
+                                <label>
+                                    HOSTNAME
+                                </label>
 
                                 <strong>
-                                    🟢 {{ service.service }} : {{ service.port }}
+                                    {{ resource.hostname }}
                                 </strong>
 
-                            {% endfor %}
+                            </div>
 
-                        </div>
+                        {% endif %}
+
+
+                        {% if resource.mac %}
+
+                            <div>
+
+                                <label>
+                                    MAC ADDRESS
+                                </label>
+
+                                <strong>
+                                    {{ resource.mac }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if resource.vendor %}
+
+                            <div>
+
+                                <label>
+                                    VENDOR
+                                </label>
+
+                                <strong>
+                                    {{ resource.vendor }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
 
                     </div>
 
+                {% endif %}
 
-                {% else %}
 
+                <!-- ==========================================
+                     DEVICE TYPE
+                     ========================================== -->
+
+                {% if resource.device_type %}
 
                     <div class="server-grid">
 
                         <div>
 
                             <label>
-                                DETECTED SERVICES
+                                DEVICE TYPE
                             </label>
 
                             <strong>
-                                ⚪ NO KNOWN SERVICES DETECTED
+                                {{ resource.device_type }}
                             </strong>
 
                         </div>
 
                     </div>
 
+                {% endif %}
+
+
+                <!-- ==========================================
+                     OPEN PORTS
+                     ========================================== -->
+
+                {% if resource.ports %}
+
+                    <div class="server-grid">
+
+                        <div>
+
+                            <label>
+                                OPEN PORTS
+                            </label>
+
+
+                            {% for port in resource.ports %}
+
+                                <strong>
+                                    🟢 {{ port }}
+                                </strong>
+
+                            {% endfor %}
+
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                <!-- ==========================================
+                     SERVICES
+                     ========================================== -->
+
+                <div class="server-grid">
+
+                    <div>
+
+                        <label>
+                            DETECTED SERVICES
+                        </label>
+
+
+                        {% if resource.services %}
+
+
+                            {% for service in resource.services %}
+
+                                <strong>
+
+                                    🟢
+
+                                    {% if service.service %}
+                                        {{ service.service }}
+                                    {% else %}
+                                        Unknown Service
+                                    {% endif %}
+
+                                    {% if service.port %}
+                                        : {{ service.port }}
+                                    {% endif %}
+
+                                    {% if service.version %}
+                                        — {{ service.version }}
+                                    {% endif %}
+
+                                </strong>
+
+                            {% endfor %}
+
+
+                        {% else %}
+
+
+                            <strong>
+                                ⚪ NO KNOWN SERVICES DETECTED
+                            </strong>
+
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==========================================
+                     DEEP SCAN STATUS
+                     ========================================== -->
+
+                {% if resource.deep_scan_status %}
+
+                    <div class="server-grid">
+
+                        <div>
+
+                            <label>
+                                DEEP SCAN STATUS
+                            </label>
+
+                            <strong>
+
+                                {% if resource.deep_scan_status == "completed" %}
+
+                                    🟢 COMPLETE
+
+                                {% elif resource.deep_scan_status == "scanning" %}
+
+                                    🔬 SCANNING
+
+                                {% elif resource.deep_scan_status == "timeout" %}
+
+                                    🟠 TIMEOUT
+
+                                {% elif resource.deep_scan_status == "failed" %}
+
+                                    🔴 FAILED
+
+                                {% else %}
+
+                                    ⚪ {{ resource.deep_scan_status }}
+
+                                {% endif %}
+
+                            </strong>
+
+                        </div>
+
+
+                        {% if resource.deep_scan_error %}
+
+                            <div>
+
+                                <label>
+                                    ERROR
+                                </label>
+
+                                <strong>
+                                    {{ resource.deep_scan_error }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+
+                    </div>
 
                 {% endif %}
 
 
             </div>
-
-
-            <section class="infra-actions">
-
-
-                <h4>
-                    ACTIONS
-                </h4>
-
-
-                <div class="action-row">
-
-
-                    <a
-                        href="{{ url_for('discovery_page') }}"
-                        class="infra-button"
-                    >
-                        ⬅ BACK TO DISCOVERY
-                    </a>
-
-
-                    <form
-                        method="POST"
-                        action="{{ url_for('add_discovered_resource') }}"
-                    >
-
-                        <input
-                            type="hidden"
-                            name="resource"
-                            value='{{ resource | tojson }}'
-                        >
-
-                        <button
-                            class="infra-button"
-                            type="submit"
-                        >
-                            ➕ ADD RESOURCE
-                        </button>
-
-                    </form>
-
-
-                </div>
-
-
-            </section>
 
 
         {% else %}

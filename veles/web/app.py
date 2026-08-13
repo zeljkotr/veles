@@ -144,6 +144,69 @@ discovery_results = []
 discovery_results_lock = threading.Lock()
 
 
+# ==========================================
+# DISCOVERY RESULT SORTING
+# ==========================================
+
+def _sort_discovery_results(results):
+
+    """
+    Sort discovered resources numerically by IP address.
+
+    Example:
+
+        192.168.2.1
+        192.168.2.11
+        192.168.2.12
+        192.168.2.20
+        192.168.2.100
+
+    This only sorts already discovered results.
+    It does not affect network scan speed.
+    """
+
+    def sort_key(item):
+
+        host = str(
+            item.get(
+                "host",
+                ""
+            )
+        ).strip()
+
+        try:
+
+            return (
+                0,
+                int(
+                    ipaddress.ip_address(
+                        host
+                    )
+                )
+            )
+
+        except ValueError:
+
+            return (
+                1,
+                host.lower()
+            )
+
+    return sorted(
+        results,
+        key=sort_key
+    )
+
+
+# ==========================================
+# DISCOVERY DEEP SCAN RUNTIME STATE
+# ==========================================
+
+deep_scan_jobs = {}
+
+deep_scan_jobs_lock = threading.Lock()
+
+
 app.secret_key = os.getenv(
     "VELES_SECRET_KEY",
     "veles-dev-secret-change-me"
@@ -294,9 +357,12 @@ def discovery_page():
     # DISCOVERY RESULT LIFECYCLE
     #
     # Results are shown only when the current request
-    # follows a completed/cancelled scan or an import.
+    # follows a completed/cancelled scan, import, or
+    # return from a discovery resource detail page.
     #
-    # A normal new visit to /discovery starts clean.
+    # This is intentionally NOT a persistent automatic
+    # scan cache. A normal new visit to /discovery starts
+    # clean.
     # --------------------------------------------------
 
     show_results = session.pop(
@@ -308,8 +374,10 @@ def discovery_page():
 
         if show_results:
 
-            current_results = list(
-                discovery_results
+            current_results = _sort_discovery_results(
+                list(
+                    discovery_results
+                )
             )
 
         else:
@@ -431,7 +499,7 @@ def discovery_scan():
         )
 
     # ======================================
-    # START SCAN
+    # START FAST DISCOVERY SCAN
     # ======================================
 
     networks = request.form.getlist(
@@ -491,8 +559,12 @@ def discovery_scan():
             )
         )
 
+    # --------------------------------------
     # New scan always starts clean.
+    # --------------------------------------
+
     with discovery_results_lock:
+
         discovery_results.clear()
 
     session[
@@ -595,6 +667,10 @@ def discovery_scan():
 
             # ----------------------------------
             # SCAN EACH SELECTED NETWORK
+            #
+            # FAST discovery only.
+            #
+            # No comprehensive Nmap scan.
             # ----------------------------------
 
             for index, network in enumerate(
@@ -756,7 +832,9 @@ def discovery_scan():
 
                         "found": len(discovered),
 
-                        "results": list(discovered)
+                        "results": _sort_discovery_results(
+                            discovered
+                        )
 
                     })
 
@@ -772,7 +850,9 @@ def discovery_scan():
 
                     "found": len(discovered),
 
-                    "results": list(discovered),
+                    "results": _sort_discovery_results(
+                        discovered
+                    ),
 
                     "network_index": index
 
@@ -806,7 +886,9 @@ def discovery_scan():
 
                     "found": len(discovered),
 
-                    "results": list(discovered)
+                    "results": _sort_discovery_results(
+                        discovered
+                    )
 
                 })
 
@@ -815,7 +897,9 @@ def discovery_scan():
                     discovery_results.clear()
 
                     discovery_results.extend(
-                        discovered
+                        _sort_discovery_results(
+                            discovered
+                        )
                     )
 
                 print(
@@ -859,7 +943,9 @@ def discovery_scan():
 
                 "found": len(discovered),
 
-                "results": list(discovered)
+                "results": _sort_discovery_results(
+                    discovered
+                )
 
             })
 
@@ -872,7 +958,9 @@ def discovery_scan():
                 discovery_results.clear()
 
                 discovery_results.extend(
-                    discovered
+                    _sort_discovery_results(
+                        discovered
+                    )
                 )
 
             print(
@@ -900,7 +988,9 @@ def discovery_scan():
 
                     "cancel_requested": True,
 
-                    "results": list(discovered),
+                    "results": _sort_discovery_results(
+                        discovered
+                    ),
 
                     "found": len(discovered)
 
@@ -916,7 +1006,9 @@ def discovery_scan():
 
                     "error": str(e),
 
-                    "results": list(discovered),
+                    "results": _sort_discovery_results(
+                        discovered
+                    ),
 
                     "found": len(discovered)
 
@@ -927,7 +1019,9 @@ def discovery_scan():
                 discovery_results.clear()
 
                 discovery_results.extend(
-                    discovered
+                    _sort_discovery_results(
+                        discovered
+                    )
                 )
 
     thread = threading.Thread(
@@ -1050,6 +1144,10 @@ def discovery_cancel():
     )
 
 
+# ==========================================
+# DISCOVERY STATUS
+# ==========================================
+
 @app.route(
     "/discovery/status"
 )
@@ -1078,14 +1176,14 @@ def discovery_status():
             discovery_results.clear()
 
             discovery_results.extend(
-                job.get(
-                    "results",
-                    []
+                _sort_discovery_results(
+                    job.get(
+                        "results",
+                        []
+                    )
                 )
             )
 
-        # Tell the next /discovery request that these
-        # are the results belonging to this scan.
         session[
             "discovery_show_results"
         ] = True
@@ -1147,8 +1245,20 @@ def discovery_status_data():
 
     }
 
+    # Keep status polling results numerically sorted too.
+    public_job["results"] = _sort_discovery_results(
+        public_job.get(
+            "results",
+            []
+        )
+    )
+
     return public_job
 
+
+# ==========================================
+# INFRASTRUCTURE DISCOVERY
+# ==========================================
 
 @app.route(
     "/infrastructure/discover"
@@ -1169,16 +1279,142 @@ def discover_infrastructure():
 # DISCOVERY RESOURCE DETAIL
 # ==========================================
 
-@app.route("/discovery/resource")
+@app.route(
+    "/discovery/resource"
+)
 def discovery_resource_detail():
 
-    host = request.args.get("host")
+    host = request.args.get(
+        "host"
+    )
 
     if not host:
 
         return redirect(
-            url_for("discovery_page")
+            url_for(
+                "discovery_page"
+            )
         )
+
+    with discovery_results_lock:
+
+        resource = next(
+            (
+                item
+                for item in discovery_results
+                if item.get("host") == host
+            ),
+            None
+        )
+
+        if resource:
+
+            # Private copy for template.
+            resource = dict(
+                resource
+            )
+
+    if not resource:
+
+        flash(
+            "DISCOVERED RESOURCE NOT FOUND",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    # --------------------------------------------------
+    # Add current deep scan runtime status.
+    # --------------------------------------------------
+
+    with deep_scan_jobs_lock:
+
+        deep_job = deep_scan_jobs.get(
+            host
+        )
+
+        if deep_job:
+
+            resource[
+                "deep_scan_status"
+            ] = deep_job.get(
+                "status",
+                "unknown"
+            )
+
+            resource[
+                "deep_scan_error"
+            ] = deep_job.get(
+                "error"
+            )
+
+            resource[
+                "deep_scan_started_at"
+            ] = deep_job.get(
+                "started_at"
+            )
+
+            resource[
+                "deep_scan_finished_at"
+            ] = deep_job.get(
+                "finished_at"
+            )
+
+    # --------------------------------------------------
+    # Keep current discovery results alive.
+    #
+    # DETAILS -> BACK must return to the existing
+    # discovery results.
+    # --------------------------------------------------
+
+    session[
+        "discovery_show_results"
+    ] = True
+
+    return render_template(
+        "discovery_resource_detail.html",
+        resource=resource
+    )
+
+
+# ==========================================
+# DISCOVERY DEEP SCAN
+# ==========================================
+
+@app.route(
+    "/discovery/resource/deep-scan",
+    methods=["POST"]
+)
+def discovery_resource_deep_scan():
+
+    host = request.form.get(
+        "host",
+        ""
+    ).strip()
+
+    if not host:
+
+        flash(
+            "HOST NOT SPECIFIED",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    # --------------------------------------------------
+    # Locate already discovered host.
+    #
+    # IMPORTANT:
+    # We do NOT scan the network again.
+    # --------------------------------------------------
 
     with discovery_results_lock:
 
@@ -1199,13 +1435,449 @@ def discovery_resource_detail():
         )
 
         return redirect(
-            url_for("discovery_page")
+            url_for(
+                "discovery_page"
+            )
         )
 
-    return render_template(
-        "discovery_resource_detail.html",
-        resource=resource
+    # --------------------------------------------------
+    # Do not start another Deep Scan if one is already
+    # running for this host.
+    # --------------------------------------------------
+
+    with deep_scan_jobs_lock:
+
+        existing_job = deep_scan_jobs.get(
+            host
+        )
+
+        if (
+            existing_job
+            and existing_job.get("status") == "scanning"
+        ):
+
+            print(
+                "DISCOVERY DEEP SCAN ALREADY RUNNING:",
+                host
+            )
+
+            session[
+                "discovery_show_results"
+            ] = True
+
+            return redirect(
+                url_for(
+                    "discovery_resource_detail",
+                    host=host
+                )
+            )
+
+        # --------------------------------------------------
+        # Create runtime Deep Scan state.
+        # --------------------------------------------------
+
+        deep_scan_jobs[host] = {
+
+            "status": "scanning",
+
+            "started_at": str(
+                __import__("datetime").datetime.now()
+            ),
+
+            "finished_at": None,
+
+            "error": None
+
+        }
+
+    # --------------------------------------------------
+    # Mark resource as SCANNING immediately.
+    # --------------------------------------------------
+
+    with discovery_results_lock:
+
+        target = next(
+            (
+                item
+                for item in discovery_results
+                if item.get("host") == host
+            ),
+            None
+        )
+
+        if target is not None:
+
+            target[
+                "deep_scan"
+            ] = True
+
+            target[
+                "deep_scan_status"
+            ] = "scanning"
+
+            target.pop(
+                "deep_scan_error",
+                None
+            )
+
+    print(
+        "DISCOVERY DEEP SCAN START:",
+        host
     )
+
+    # --------------------------------------------------
+    # BACKGROUND WORKER
+    #
+    # Flask request NEVER waits for Nmap.
+    # --------------------------------------------------
+
+    def run_deep_scan():
+
+        try:
+
+            from veles.modules.infrastructure.discovery import (
+                nmap_scan
+            )
+
+            # --------------------------------------------------
+            # NMAP DEEP SCAN
+            #
+            # Only ONE already discovered host.
+            #
+            # timeout is deliberately bounded.
+            # --------------------------------------------------
+
+            deep_result = nmap_scan(
+                host,
+                timeout=60
+            )
+
+            if deep_result is None:
+
+                deep_result = {}
+
+            if not isinstance(
+                deep_result,
+                dict
+            ):
+
+                deep_result = {
+                    "scan_result": deep_result
+                }
+
+            # --------------------------------------------------
+            # Update existing discovery resource.
+            # --------------------------------------------------
+
+            with discovery_results_lock:
+
+                target = next(
+                    (
+                        item
+                        for item in discovery_results
+                        if item.get("host") == host
+                    ),
+                    None
+                )
+
+                if target is not None:
+
+                    for key, value in deep_result.items():
+
+                        if value is not None:
+
+                            target[key] = value
+
+                    target[
+                        "deep_scan"
+                    ] = True
+
+                    target[
+                        "deep_scan_status"
+                    ] = "completed"
+
+                    target[
+                        "deep_scan_error"
+                    ] = None
+
+                    # --------------------------------------------------
+                    # Keep the same result synchronized in Fast
+                    # Discovery job data.
+                    # --------------------------------------------------
+
+                    for job in discovery_jobs.values():
+
+                        results = job.get(
+                            "results",
+                            []
+                        )
+
+                        for job_item in results:
+
+                            if (
+                                job_item.get("host")
+                                == host
+                            ):
+
+                                for key, value in deep_result.items():
+
+                                    if value is not None:
+
+                                        job_item[key] = value
+
+                                job_item[
+                                    "deep_scan"
+                                ] = True
+
+                                job_item[
+                                    "deep_scan_status"
+                                ] = "completed"
+
+                                job_item[
+                                    "deep_scan_error"
+                                ] = None
+
+            # --------------------------------------------------
+            # Runtime status.
+            # --------------------------------------------------
+
+            with deep_scan_jobs_lock:
+
+                job = deep_scan_jobs.get(
+                    host
+                )
+
+                if job is not None:
+
+                    job.update({
+
+                        "status": "completed",
+
+                        "finished_at": str(
+                            __import__("datetime").datetime.now()
+                        ),
+
+                        "error": None
+
+                    })
+
+            print(
+                "DISCOVERY DEEP SCAN COMPLETE:",
+                host
+            )
+
+            print(
+                "DISCOVERY DEEP SCAN RESULT:",
+                deep_result
+            )
+
+        except Exception as e:
+
+            error_text = str(
+                e
+            )
+
+            # --------------------------------------------------
+            # Explicit timeout state.
+            # --------------------------------------------------
+
+            if (
+                "timeout" in
+                error_text.lower()
+            ):
+
+                status = "timeout"
+
+            else:
+
+                status = "failed"
+
+            print(
+                "DISCOVERY DEEP SCAN ERROR:",
+                host,
+                error_text
+            )
+
+            # --------------------------------------------------
+            # Update existing discovery resource.
+            # --------------------------------------------------
+
+            with discovery_results_lock:
+
+                target = next(
+                    (
+                        item
+                        for item in discovery_results
+                        if item.get("host") == host
+                    ),
+                    None
+                )
+
+                if target is not None:
+
+                    target[
+                        "deep_scan"
+                    ] = False
+
+                    target[
+                        "deep_scan_status"
+                    ] = status
+
+                    target[
+                        "deep_scan_error"
+                    ] = error_text
+
+                    # --------------------------------------------------
+                    # Synchronize job result.
+                    # --------------------------------------------------
+
+                    for job in discovery_jobs.values():
+
+                        results = job.get(
+                            "results",
+                            []
+                        )
+
+                        for job_item in results:
+
+                            if (
+                                job_item.get("host")
+                                == host
+                            ):
+
+                                job_item[
+                                    "deep_scan"
+                                ] = False
+
+                                job_item[
+                                    "deep_scan_status"
+                                ] = status
+
+                                job_item[
+                                    "deep_scan_error"
+                                ] = error_text
+
+            # --------------------------------------------------
+            # Runtime status.
+            # --------------------------------------------------
+
+            with deep_scan_jobs_lock:
+
+                job = deep_scan_jobs.get(
+                    host
+                )
+
+                if job is not None:
+
+                    job.update({
+
+                        "status": status,
+
+                        "finished_at": str(
+                            __import__("datetime").datetime.now()
+                        ),
+
+                        "error": error_text
+
+                    })
+
+    thread = threading.Thread(
+        target=run_deep_scan,
+        daemon=True
+    )
+
+    thread.start()
+
+    # --------------------------------------------------
+    # IMPORTANT:
+    #
+    # Return immediately.
+    #
+    # Browser goes straight back to Details.
+    # Nmap continues in background.
+    # --------------------------------------------------
+
+    session[
+        "discovery_show_results"
+    ] = True
+
+    return redirect(
+        url_for(
+            "discovery_resource_detail",
+            host=host
+        )
+    )
+
+
+# ==========================================
+# DISCOVERY DEEP SCAN STATUS
+# ==========================================
+
+@app.route(
+    "/discovery/resource/deep-scan/status"
+)
+def discovery_resource_deep_scan_status():
+
+    host = request.args.get(
+        "host",
+        ""
+    ).strip()
+
+    if not host:
+
+        return {
+            "status": "failed",
+            "error": "HOST NOT SPECIFIED"
+        }, 400
+
+    with deep_scan_jobs_lock:
+
+        job = deep_scan_jobs.get(
+            host
+        )
+
+        if not job:
+
+            status = "not_started"
+
+            error = None
+
+            started_at = None
+
+            finished_at = None
+
+        else:
+
+            status = job.get(
+                "status",
+                "unknown"
+            )
+
+            error = job.get(
+                "error"
+            )
+
+            started_at = job.get(
+                "started_at"
+            )
+
+            finished_at = job.get(
+                "finished_at"
+            )
+
+    return {
+
+        "host": host,
+
+        "status": status,
+
+        "error": error,
+
+        "started_at": started_at,
+
+        "finished_at": finished_at
+
+    }
 
 
 # ==========================================
@@ -1232,7 +1904,10 @@ def import_discovered_resources():
 
             data = json.loads(item)
 
-        except (TypeError, json.JSONDecodeError):
+        except (
+            TypeError,
+            json.JSONDecodeError
+        ):
 
             continue
 
@@ -1302,14 +1977,16 @@ def import_discovered_resources():
         discovery_results.clear()
 
         discovery_results.extend(
-            remaining_results
+            _sort_discovery_results(
+                remaining_results
+            )
         )
 
-    # Keep remaining discovered resources visible
-    # after importing one or more resources.
     session[
         "discovery_show_results"
-    ] = bool(remaining_results)
+    ] = bool(
+        remaining_results
+    )
 
     flash(
         "RESOURCE ADDED",
