@@ -1,167 +1,155 @@
 {% extends "base.html" %}
 
+
 {% block title %}
-Veles Delivery
+Veles Discovery Center
 {% endblock %}
+
 
 {% block extra_css %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/infrastructure.css',
+        v='20260813'
+    ) }}"
+>
 
 {% endblock %}
+
 
 {% block content %}
 
 <header class="infra-header">
 
-```
-<h1>
-    📦 DELIVERY
-</h1>
+    <h1>
+        🔎 DISCOVERY CENTER
+    </h1>
 
-<p>
-    CI/CD and deployment
-</p>
-```
+    <p>
+        Network Resource Discovery
+    </p>
 
 </header>
 
-<!-- DELIVERY OVERVIEW -->
 
-<section class="resource-overview">
-
-```
-<h2>
-    DELIVERY OVERVIEW
-</h2>
-
-
-<div class="resource-grid">
-
-    <div class="resource-card">
-
-        <h3>
-            STATUS
-        </h3>
-
-        <div
-            class="resource-number"
-            style="font-size:20px;"
-        >
-            {{ data.status|upper }}
-        </div>
-
-    </div>
-
-
-    <div class="resource-card">
-
-        <h3>
-            PIPELINES
-        </h3>
-
-        <div class="resource-number">
-            {{ data.pipelines }}
-        </div>
-
-    </div>
-
-
-    <div class="resource-card">
-
-        <h3>
-            DEPLOYMENTS
-        </h3>
-
-        <div class="resource-number">
-            {{ data.deployments }}
-        </div>
-
-    </div>
-
-
-    <div class="resource-card">
-
-        <h3>
-            REGISTERED TARGETS
-        </h3>
-
-        <div class="resource-number">
-            {{ data.targets }}
-        </div>
-
-    </div>
-
-</div>
-```
-
-</section>
-
-<!-- DEPLOYMENT TARGETS -->
+<!-- DISCOVERY TARGETS -->
 
 <section class="inventory-panel">
 
-```
-<h2>
-    DEPLOYMENT TARGETS
-</h2>
+    <h2>
+        🌐 DISCOVERY TARGETS
+    </h2>
+
+    <div class="resource-list">
+
+        {% for target in targets %}
+
+            <div class="resource-item">
+
+                <div class="resource-icon">
+                    🌐
+                </div>
+
+                <div class="resource-info">
+
+                    <h2>
+                        {{ target.interface }}
+                    </h2>
+
+                    <div class="resource-meta">
+
+                        <div>
+
+                            <label>
+                                NETWORK
+                            </label>
+
+                            <strong>
+                                {{ target.network or "Unavailable" }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    {% if target.scannable and target.network %}
+
+                        <input
+                            type="checkbox"
+                            name="network"
+                            value="{{ target.network }}"
+                            checked
+                            form="scan-form"
+                        >
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
 
 
-<div class="resource-list">
+<!-- CUSTOM NETWORK -->
 
-    {% for target in data.target_list %}
+<section class="inventory-panel">
+
+    <h2>
+        CUSTOM NETWORK
+    </h2>
+
+    <div class="resource-list">
 
         <div class="resource-item">
 
             <div class="resource-icon">
-                🖥
+                🌐
             </div>
-
 
             <div class="resource-info">
 
                 <h2>
-                    {{ target.name }}
+                    ADD NETWORK
                 </h2>
-
 
                 <div class="resource-meta">
 
                     <div>
 
                         <label>
-                            HOST
+                            CIDR NETWORK
                         </label>
 
-                        <strong>
-                            {{ target.host }}
-                        </strong>
+                        <form
+                            method="POST"
+                            action="{{ url_for('discovery_scan') }}"
+                        >
 
-                    </div>
+                            <input
+                                type="text"
+                                name="custom_network"
+                                placeholder="192.168.50.0/24"
+                                autocomplete="off"
+                            >
 
+                            <button
+                                class="add-button"
+                                type="submit"
+                                name="add_custom"
+                                value="1"
+                            >
+                                ➕ ADD
+                            </button>
 
-                    <div>
-
-                        <label>
-                            TYPE
-                        </label>
-
-                        <strong>
-                            {{ target.type|upper }}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <label>
-                            STATUS
-                        </label>
-
-                        <strong>
-                            {{ target.status|upper }}
-                        </strong>
+                        </form>
 
                     </div>
 
@@ -171,11 +159,205 @@ Veles Delivery
 
         </div>
 
-    {% endfor %}
-
-</div>
-```
+    </div>
 
 </section>
+
+
+<!-- START SCAN -->
+
+<section class="inventory-panel">
+
+    <form
+        id="scan-form"
+        method="POST"
+        action="{{ url_for('discovery_scan') }}"
+    >
+
+        <button
+            class="scan-button"
+            type="submit"
+        >
+            🚀 START SCAN
+        </button>
+
+    </form>
+
+</section>
+
+
+{% if discovered %}
+
+<!-- DISCOVERED RESOURCES -->
+
+<section class="inventory-panel">
+
+    <h2>
+        🖥 DISCOVERED RESOURCES
+    </h2>
+
+    <div class="resource-list">
+
+        {% for device in discovered %}
+
+            <div class="resource-item">
+
+                <div class="resource-icon">
+                    🖥
+                </div>
+
+                <div class="resource-info">
+
+                    <h2>
+                        {{ device.name }}
+                    </h2>
+
+                    <div class="resource-meta">
+
+                        <div>
+
+                            <label>
+                                STATUS
+                            </label>
+
+                            <strong>
+                                🟢 {{ device.status }}
+                            </strong>
+
+                        </div>
+
+                        <div>
+
+                            <label>
+                                TYPE
+                            </label>
+
+                            <strong>
+                                {{ device.type }}
+                            </strong>
+
+                        </div>
+
+                        <div>
+
+                            <label>
+                                HOST
+                            </label>
+
+                            <strong>
+                                {{ device.host }}
+                            </strong>
+
+                        </div>
+
+                        <div>
+
+                            <label>
+                                PORT
+                            </label>
+
+                            <strong>
+                                {{ device.port or "-" }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    {% if device.services %}
+
+                        <div class="resource-meta">
+
+                            <div>
+
+                                <label>
+                                    SERVICES
+                                </label>
+
+                                {% for service in device.services %}
+
+                                    <strong>
+                                        🟢 {{ service.service }} : {{ service.port }}
+                                    </strong>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="resource-meta">
+
+                            <div>
+
+                                <label>
+                                    SERVICES
+                                </label>
+
+                                <strong>
+                                    ⚪ UNKNOWN
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="action-row">
+
+                        <a
+                            class="infra-button"
+                            href="{{ url_for(
+                                'discovery_resource_detail',
+                                host=device.host
+                            ) }}"
+                        >
+                            🔎 DETAILS
+                        </a>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'import_discovered_resources'
+                            ) }}"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="resource"
+                                value='{{ device | tojson }}'
+                            >
+
+                            <button
+                                class="infra-button"
+                                type="submit"
+                            >
+                                ➕ ADD RESOURCE
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endif %}
+
 
 {% endblock %}

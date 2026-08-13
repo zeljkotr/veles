@@ -1,0 +1,671 @@
+[1mdiff --git a/veles/web/app.py b/veles/web/app.py[m
+[1mindex a10aa5f2..658cfc68 100644[m
+[1m--- a/veles/web/app.py[m
+[1m+++ b/veles/web/app.py[m
+[36m@@ -17,7 +17,6 @@[m [mimport threading[m
+ [m
+ from pathlib import Path[m
+ [m
+[31m-[m
+ from veles.modules.monitoring import monitoring[m
+ from veles.modules.network.service import network[m
+ from veles.modules.delivery.service import delivery[m
+[36m@@ -85,16 +84,36 @@[m [mfrom veles.modules.infrastructure.discovery import ([m
+ app = Flask(__name__)[m
+ [m
+ [m
+[32m+[m[32m# ==========================================[m
+[32m+[m[32m# DISABLE DISCOVERY HTTP CACHE[m
+[32m+[m[32m# ==========================================[m
+[32m+[m
+[32m+[m[32m@app.after_request[m
+[32m+[m[32mdef disable_discovery_cache(response):[m
+[32m+[m
+[32m+[m[32m    if request.path.startswith("/discovery"):[m
+[32m+[m
+[32m+[m[32m        response.headers["Cache-Control"] = ([m
+[32m+[m[32m            "no-store, no-cache, must-revalidate, max-age=0"[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        response.headers["Pragma"] = "no-cache"[m
+[32m+[m
+[32m+[m[32m        response.headers["Expires"] = "0"[m
+[32m+[m
+[32m+[m[32m    return response[m
+[32m+[m
+[32m+[m
+ # ==========================================[m
+ # DISCOVERY RUNTIME STATE[m
+ # ==========================================[m
+ [m
+ discovery_jobs = {}[m
+ [m
+[31m-# Latest completed discovery results are kept[m
+[31m-# server-side instead of inside Flask's cookie session.[m
+[32m+[m
+ discovery_results = [][m
+ [m
+[32m+[m
+ discovery_results_lock = threading.Lock()[m
+ [m
+ [m
+[36m@@ -219,7 +238,6 @@[m [mdef infrastructure_page():[m
+     server = None[m
+ [m
+     if servers:[m
+[31m-[m
+         server = servers[0][m
+ [m
+     return render_template([m
+[36m@@ -251,6 +269,14 @@[m [mdef discovery_page():[m
+             discovery_results[m
+         )[m
+ [m
+[32m+[m[32m    print([m
+[32m+[m[32m        "DISCOVERY PAGE RESULTS:",[m
+[32m+[m[32m        [[m
+[32m+[m[32m            item.get("host")[m
+[32m+[m[32m            for item in current_results[m
+[32m+[m[32m        ][m
+[32m+[m[32m    )[m
+[32m+[m
+     return render_template([m
+         "discovery.html",[m
+         targets=targets,[m
+[36m@@ -418,10 +444,16 @@[m [mdef discovery_scan():[m
+ [m
+     scan_id = uuid.uuid4().hex[m
+ [m
+[32m+[m[32m    cancel_event = threading.Event()[m
+[32m+[m
+     discovery_jobs[scan_id] = {[m
+ [m
+         "running": True,[m
+ [m
+[32m+[m[32m        "cancelled": False,[m
+[32m+[m
+[32m+[m[32m        "cancel_requested": False,[m
+[32m+[m
+         "network": valid_networks[0],[m
+ [m
+         "networks": valid_networks,[m
+[36m@@ -442,6 +474,8 @@[m [mdef discovery_scan():[m
+ [m
+         "results": [],[m
+ [m
+[32m+[m[32m        "_cancel_event": cancel_event[m
+[32m+[m
+     }[m
+ [m
+     def run_scan():[m
+[36m@@ -470,6 +504,24 @@[m [mdef discovery_scan():[m
+                     list(parsed.hosts())[m
+                 )[m
+ [m
+[32m+[m[32m            if cancel_event.is_set():[m
+[32m+[m
+[32m+[m[32m                discovery_jobs[scan_id].update({[m
+[32m+[m
+[32m+[m[32m                    "running": False,[m
+[32m+[m
+[32m+[m[32m                    "cancelled": True,[m
+[32m+[m
+[32m+[m[32m                    "cancel_requested": True,[m
+[32m+[m
+[32m+[m[32m                    "current_network": None,[m
+[32m+[m
+[32m+[m[32m                    "results": [][m
+[32m+[m
+[32m+[m[32m                })[m
+[32m+[m
+[32m+[m[32m                return[m
+[32m+[m
+             discovery_jobs[scan_id].update({[m
+ [m
+                 "total": total_all,[m
+[36m@@ -492,10 +544,16 @@[m [mdef discovery_scan():[m
+                 valid_networks[m
+             ):[m
+ [m
+[32m+[m[32m                if cancel_event.is_set():[m
+[32m+[m
+[32m+[m[32m                    break[m
+[32m+[m
+                 discovery_jobs[scan_id].update({[m
+ [m
+                     "running": True,[m
+ [m
+[32m+[m[32m                    "cancelled": False,[m
+[32m+[m
+                     "network": network,[m
+ [m
+                     "current_network": network,[m
+[36m@@ -512,6 +570,18 @@[m [mdef discovery_scan():[m
+                     network_checked_start=network_checked_start[m
+                 ):[m
+ [m
+[32m+[m[32m                    if cancel_event.is_set():[m
+[32m+[m
+[32m+[m[32m                        discovery_jobs[scan_id].update({[m
+[32m+[m
+[32m+[m[32m                            "cancel_requested": True,[m
+[32m+[m
+[32m+[m[32m                            "cancelled": False[m
+[32m+[m
+[32m+[m[32m                        })[m
+[32m+[m
+[32m+[m[32m                        return[m
+[32m+[m
+                     local_checked = progress.get([m
+                         "checked",[m
+                         0[m
+[36m@@ -536,6 +606,8 @@[m [mdef discovery_scan():[m
+ [m
+                         "running": True,[m
+ [m
+[32m+[m[32m                        "cancelled": False,[m
+[32m+[m
+                         "network": network,[m
+ [m
+                         "current_network": network,[m
+[36m@@ -564,7 +636,8 @@[m [mdef discovery_scan():[m
+ [m
+                 result = discover_network_hosts([m
+                     network,[m
+[31m-                    progress_callback=progress_callback[m
+[32m+[m[32m                    progress_callback=progress_callback,[m
+[32m+[m[32m                    cancel_event=cancel_event[m
+                 )[m
+ [m
+                 print([m
+[36m@@ -606,6 +679,33 @@[m [mdef discovery_scan():[m
+                     list(parsed.hosts())[m
+                 )[m
+ [m
+[32m+[m[32m                if cancel_event.is_set():[m
+[32m+[m
+[32m+[m[32m                    checked_all += ([m
+[32m+[m[32m                        discovery_jobs[scan_id].get([m
+[32m+[m[32m                            "network_checked",[m
+[32m+[m[32m                            0[m
+[32m+[m[32m                        )[m
+[32m+[m[32m                        - network_checked_start[m
+[32m+[m[32m                    )[m
+[32m+[m
+[32m+[m[32m                    discovery_jobs[scan_id].update({[m
+[32m+[m
+[32m+[m[32m                        "checked": min([m
+[32m+[m[32m                            checked_all,[m
+[32m+[m[32m                            total_all[m
+[32m+[m[32m                        ),[m
+[32m+[m
+[32m+[m[32m                        "total": total_all,[m
+[32m+[m
+[32m+[m[32m                        "found": len(discovered),[m
+[32m+[m
+[32m+[m[32m                        "results": list(discovered)[m
+[32m+[m
+[32m+[m[32m                    })[m
+[32m+[m
+[32m+[m[32m                    break[m
+[32m+[m
+                 checked_all += network_total[m
+ [m
+                 discovery_jobs[scan_id].update({[m
+[36m@@ -622,6 +722,61 @@[m [mdef discovery_scan():[m
+ [m
+                 })[m
+ [m
+[32m+[m[32m            # ----------------------------------[m
+[32m+[m[32m            # CANCELLED[m
+[32m+[m[32m            # ----------------------------------[m
+[32m+[m
+[32m+[m[32m            if cancel_event.is_set():[m
+[32m+[m
+[32m+[m[32m                discovery_jobs[scan_id].update({[m
+[32m+[m
+[32m+[m[32m                    "running": False,[m
+[32m+[m
+[32m+[m[32m                    "cancelled": True,[m
+[32m+[m
+[32m+[m[32m                    "cancel_requested": True,[m
+[32m+[m
+[32m+[m[32m                    "current_network": None,[m
+[32m+[m
+[32m+[m[32m                    "checked": min([m
+[32m+[m[32m                        discovery_jobs[scan_id].get([m
+[32m+[m[32m                            "checked",[m
+[32m+[m[32m                            checked_all[m
+[32m+[m[32m                        ),[m
+[32m+[m[32m                        total_all[m
+[32m+[m[32m                    ),[m
+[32m+[m
+[32m+[m[32m                    "total": total_all,[m
+[32m+[m
+[32m+[m[32m                    "found": len(discovered),[m
+[32m+[m
+[32m+[m[32m                    "results": list(discovered)[m
+[32m+[m
+[32m+[m[32m                })[m
+[32m+[m
+[32m+[m[32m                with discovery_results_lock:[m
+[32m+[m
+[32m+[m[32m                    discovery_results.clear()[m
+[32m+[m
+[32m+[m[32m                    discovery_results.extend([m
+[32m+[m[32m                        discovered[m
+[32m+[m[32m                    )[m
+[32m+[m
+[32m+[m[32m                print([m
+[32m+[m[32m                    "DISCOVERY CANCELLED:",[m
+[32m+[m[32m                    "networks=",[m
+[32m+[m[32m                    valid_networks,[m
+[32m+[m[32m                    "checked=",[m
+[32m+[m[32m                    discovery_jobs[scan_id].get([m
+[32m+[m[32m                        "checked",[m
+[32m+[m[32m                        checked_all[m
+[32m+[m[32m                    ),[m
+[32m+[m[32m                    "found=",[m
+[32m+[m[32m                    len(discovered)[m
+[32m+[m[32m                )[m
+[32m+[m
+[32m+[m[32m                return[m
+[32m+[m
+             # ----------------------------------[m
+             # COMPLETE[m
+             # ----------------------------------[m
+[36m@@ -630,6 +785,10 @@[m [mdef discovery_scan():[m
+ [m
+                 "running": False,[m
+ [m
+[32m+[m[32m                "cancelled": False,[m
+[32m+[m
+[32m+[m[32m                "cancel_requested": False,[m
+[32m+[m
+                 "network": valid_networks[-1],[m
+ [m
+                 "current_network": None,[m
+[36m@@ -675,17 +834,37 @@[m [mdef discovery_scan():[m
+                 e[m
+             )[m
+ [m
+[31m-            discovery_jobs[scan_id].update({[m
+[32m+[m[32m            if cancel_event.is_set():[m
+ [m
+[31m-                "running": False,[m
+[32m+[m[32m                discovery_jobs[scan_id].update({[m
+ [m
+[31m-                "error": str(e),[m
+[32m+[m[32m                    "running": False,[m
+ [m
+[31m-                "results": list(discovered),[m
+[32m+[m[32m                    "cancelled": True,[m
+ [m
+[31m-                "found": len(discovered)[m
+[32m+[m[32m                    "cancel_requested": True,[m
+ [m
+[31m-            })[m
+[32m+[m[32m                    "results": list(discovered),[m
+[32m+[m
+[32m+[m[32m                    "found": len(discovered)[m
+[32m+[m
+[32m+[m[32m                })[m
+[32m+[m
+[32m+[m[32m            else:[m
+[32m+[m
+[32m+[m[32m                discovery_jobs[scan_id].update({[m
+[32m+[m
+[32m+[m[32m                    "running": False,[m
+[32m+[m
+[32m+[m[32m                    "cancelled": False,[m
+[32m+[m
+[32m+[m[32m                    "error": str(e),[m
+[32m+[m
+[32m+[m[32m                    "results": list(discovered),[m
+[32m+[m
+[32m+[m[32m                    "found": len(discovered)[m
+[32m+[m
+[32m+[m[32m                })[m
+ [m
+             with discovery_results_lock:[m
+ [m
+[36m@@ -710,6 +889,111 @@[m [mdef discovery_scan():[m
+     )[m
+ [m
+ [m
+[32m+[m[32m# ==========================================[m
+[32m+[m[32m# DISCOVERY CANCEL[m
+[32m+[m[32m# ==========================================[m
+[32m+[m
+[32m+[m[32m@app.route([m
+[32m+[m[32m    "/discovery/cancel",[m
+[32m+[m[32m    methods=["POST"][m
+[32m+[m[32m)[m
+[32m+[m[32mdef discovery_cancel():[m
+[32m+[m
+[32m+[m[32m    scan_id = request.form.get([m
+[32m+[m[32m        "scan_id",[m
+[32m+[m[32m        ""[m
+[32m+[m[32m    ).strip()[m
+[32m+[m
+[32m+[m[32m    if not scan_id:[m
+[32m+[m
+[32m+[m[32m        flash([m
+[32m+[m[32m            "SCAN NOT FOUND",[m
+[32m+[m[32m            "error"[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        return redirect([m
+[32m+[m[32m            url_for([m
+[32m+[m[32m                "discovery_page"[m
+[32m+[m[32m            )[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m    job = discovery_jobs.get([m
+[32m+[m[32m        scan_id[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    if not job:[m
+[32m+[m
+[32m+[m[32m        flash([m
+[32m+[m[32m            "SCAN NOT FOUND",[m
+[32m+[m[32m            "error"[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        return redirect([m
+[32m+[m[32m            url_for([m
+[32m+[m[32m                "discovery_page"[m
+[32m+[m[32m            )[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m    cancel_event = job.get([m
+[32m+[m[32m        "_cancel_event"[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    if not cancel_event:[m
+[32m+[m
+[32m+[m[32m        flash([m
+[32m+[m[32m            "SCAN CANNOT BE CANCELLED",[m
+[32m+[m[32m            "error"[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m        return redirect([m
+[32m+[m[32m            url_for([m
+[32m+[m[32m                "discovery_page"[m
+[32m+[m[32m            )[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m    if not job.get("running"):[m
+[32m+[m
+[32m+[m[32m        if job.get("cancelled"):[m
+[32m+[m
+[32m+[m[32m            flash([m
+[32m+[m[32m                "SCAN CANCELLED",[m
+[32m+[m[32m                "success"[m
+[32m+[m[32m            )[m
+[32m+[m
+[32m+[m[32m        else:[m
+[32m+[m
+[32m+[m[32m            flash([m
+[32m+[m[32m                "SCAN ALREADY COMPLETE",[m
+[32m+[m[32m                "success"[m
+[32m+[m[32m            )[m
+[32m+[m
+[32m+[m[32m        return redirect([m
+[32m+[m[32m            url_for([m
+[32m+[m[32m                "discovery_page"[m
+[32m+[m[32m            )[m
+[32m+[m[32m        )[m
+[32m+[m
+[32m+[m[32m    cancel_event.set()[m
+[32m+[m
+[32m+[m[32m    job.update({[m
+[32m+[m
+[32m+[m[32m        "cancel_requested": True[m
+[32m+[m
+[32m+[m[32m    })[m
+[32m+[m
+[32m+[m[32m    print([m
+[32m+[m[32m        "DISCOVERY CANCEL REQUESTED:",[m
+[32m+[m[32m        scan_id[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m[32m    return redirect([m
+[32m+[m[32m        url_for([m
+[32m+[m[32m            "discovery_status",[m
+[32m+[m[32m            scan_id=scan_id[m
+[32m+[m[32m        )[m
+[32m+[m[32m    )[m
+[32m+[m
+[32m+[m
+ @app.route([m
+     "/discovery/status"[m
+ )[m
+[36m@@ -744,6 +1028,20 @@[m [mdef discovery_status():[m
+                 )[m
+             )[m
+ [m
+[32m+[m[32m        if job.get("cancelled"):[m
+[32m+[m
+[32m+[m[32m            flash([m
+[32m+[m[32m                "SCAN CANCELLED",[m
+[32m+[m[32m                "success"[m
+[32m+[m[32m            )[m
+[32m+[m
+[32m+[m[32m        elif job.get("error"):[m
+[32m+[m
+[32m+[m[32m            flash([m
+[32m+[m[32m                "SCAN ERROR",[m
+[32m+[m[32m                "error"[m
+[32m+[m[32m            )[m
+[32m+[m
+         return redirect([m
+             url_for([m
+                 "discovery_page"[m
+[36m@@ -777,7 +1075,17 @@[m [mdef discovery_status_data():[m
+             "error": "SCAN NOT FOUND"[m
+         }, 404[m
+ [m
+[31m-    return job[m
+[32m+[m[32m    public_job = {[m
+[32m+[m
+[32m+[m[32m        key: value[m
+[32m+[m
+[32m+[m[32m        for key, value in job.items()[m
+[32m+[m
+[32m+[m[32m        if not key.startswith("_")[m
+[32m+[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    return public_job[m
+ [m
+ [m
+ @app.route([m
+[36m@@ -796,117 +1104,102 @@[m [mdef discover_infrastructure():[m
+ [m
+ [m
+ # ==========================================[m
+[31m-# ADD DISCOVERED RESOURCE[m
+[32m+[m[32m# DISCOVERY RESOURCE DETAIL[m
+ # ==========================================[m
+ [m
+[31m-@app.route([m
+[31m-    "/discovery/add",[m
+[31m-    methods=["POST"][m
+[31m-)[m
+[31m-def add_discovered_resource():[m
+[32m+[m[32m@app.route("/discovery/resource")[m
+[32m+[m[32mdef discovery_resource_detail():[m
+ [m
+[31m-    item = request.form.get([m
+[31m-        "resource"[m
+[31m-    )[m
+ [m
+[31m-    if not item:[m
+[32m+[m[32m    host = request.args.get("host")[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    if not host:[m
+[32m+[m
+ [m
+         return redirect([m
+[31m-            url_for([m
+[31m-                "discovery_page"[m
+[31m-            )[m
+[32m+[m[32m            url_for("discovery_page")[m
+         )[m
+ [m
+[31m-    try:[m
+ [m
+[31m-        data = json.loads(item)[m
+[32m+[m[32m    resource = None[m
+ [m
+[31m-    except (TypeError, json.JSONDecodeError):[m
+ [m
+[31m-        flash([m
+[31m-            "INVALID RESOURCE",[m
+[31m-            "error"[m
+[31m-        )[m
+[32m+[m[32m    # ======================================[m
+[32m+[m[32m    # FIND RESOURCE IN CURRENT RESULTS[m
+[32m+[m[32m    # ======================================[m
+ [m
+[31m-        return redirect([m
+[31m-            url_for([m
+[31m-                "discovery_page"[m
+[31m-            )[m
+[31m-        )[m
+ [m
+[31m-    resource = {[m
+[32m+[m[32m    with discovery_results_lock:[m
+ [m
+[31m-        "id": f"res-{uuid.uuid4().hex[:6]}",[m
+ [m
+[31m-        "type": data.get([m
+[31m-            "type",[m
+[31m-            "server"[m
+[31m-        ),[m
+[32m+[m[32m        resource = next([m
+[32m+[m[32m            ([m
+[32m+[m[32m                item[m
+[32m+[m[32m                for item in discovery_results[m
+[32m+[m[32m                if item.get("host") == host[m
+[32m+[m[32m            ),[m
+[32m+[m[32m            None[m
+[32m+[m[32m        )[m
+ [m
+[31m-        "name": data.get([m
+[31m-            "name"[m
+[31m-        ),[m
+ [m
+[31m-        "host": data.get([m
+[31m-            "host"[m
+[31m-        ),[m
+[32m+[m[32m    # ======================================[m
+[32m+[m[32m    # FALLBACK TO DISCOVERY JOB RESULTS[m
+[32m+[m[32m    # ======================================[m
+ [m
+[31m-        "port": data.get([m
+[31m-            "port"[m
+[31m-        ),[m
+ [m
+[31m-        "services": data.get([m
+[31m-            "services",[m
+[31m-            [][m
+[31m-        ),[m
+[32m+[m[32m    if not resource:[m
+ [m
+[31m-        "group": "network",[m
+ [m
+[31m-        "status": "registered"[m
+[32m+[m[32m        for job in reversed([m
+[32m+[m[32m            list(discovery_jobs.values())[m
+[32m+[m[32m        ):[m
+ [m
+[31m-    }[m
+ [m
+[31m-    infrastructure.add_resource([m
+[31m-        resource[m
+[31m-    )[m
+[32m+[m[32m            job_results = job.get([m
+[32m+[m[32m                "results",[m
+[32m+[m[32m                [][m
+[32m+[m[32m            )[m
+ [m
+[31m-    # --------------------------------------[m
+[31m-    # REMOVE ONLY THE ADDED HOST[m
+[31m-    # FROM THE SERVER-SIDE DISCOVERY LIST[m
+[31m-    # --------------------------------------[m
+ [m
+[31m-    resource_host = resource.get([m
+[31m-        "host"[m
+[31m-    )[m
+[32m+[m[32m            resource = next([m
+[32m+[m[32m                ([m
+[32m+[m[32m                    item[m
+[32m+[m[32m                    for item in job_results[m
+[32m+[m[32m                    if item.get("host") == host[m
+[32m+[m[32m                ),[m
+[32m+[m[32m                None[m
+[32m+[m[32m            )[m
+ [m
+[31m-    with discovery_results_lock:[m
+ [m
+[31m-        remaining_results = [[m
+[32m+[m[32m            if resource:[m
+ [m
+[31m-            discovered[m
+ [m
+[31m-            for discovered in discovery_results[m
+[32m+[m[32m                break[m
+ [m
+[31m-            if discovered.get("host")[m
+[31m-            != resource_host[m
+ [m
+[31m-        ][m
+[32m+[m[32m    # ======================================[m
+[32m+[m[32m    # RESOURCE NOT FOUND[m
+[32m+[m[32m    # ======================================[m
+ [m
+[31m-        discovery_results.clear()[m
+ [m
+[31m-        discovery_results.extend([m
+[31m-            remaining_results[m
+[32m+[m[32m    if not resource:[m
+[32m+[m
+[32m+[m
+[32m+[m[32m        flash([m
+[32m+[m[32m            "DISCOVERED RESOURCE NOT FOUND",[m
+[32m+[m[32m            "error"[m
+         )[m
+ [m
+[31m-    flash([m
+[31m-        "RESOURCE ADDED",[m
+[31m-        "success"[m
+[31m-    )[m
+ [m
+[31m-    return redirect([m
+[31m-        url_for([m
+[31m-            "discovery_page"[m
+[32m+[m[32m        return redirect([m
+[32m+[m[32m            url_for("discovery_page")[m
+         )[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    return render_template([m
+[32m+[m[32m        "discovery_resource_detail.html",[m
+[32m+[m[32m        resource=resource[m
+     )[m
+ [m
+ [m
+[36m@@ -988,10 +1281,6 @@[m [mdef import_discovered_resources():[m
+         added[m
+     )[m
+ [m
+[31m-    # --------------------------------------[m
+[31m-    # REMOVE ONLY IMPORTED RESOURCES[m
+[31m-    # --------------------------------------[m
+[31m-[m
+     with discovery_results_lock:[m
+ [m
+         remaining_results = [[m

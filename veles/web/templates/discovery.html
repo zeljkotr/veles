@@ -1,18 +1,20 @@
-```html
 {% extends "base.html" %}
+
 
 {% block title %}
 Veles Discovery Center
 {% endblock %}
 
+
 {% block extra_css %}
 
 <link
     rel="stylesheet"
-    href="{{ url_for('static', filename='css/infrastructure.css') }}"
+    href="{{ url_for('static', filename='css/infrastructure.css', v='3') }}"
 >
 
 {% endblock %}
+
 
 {% block content %}
 
@@ -29,14 +31,15 @@ Veles Discovery Center
 </header>
 
 
+<!-- ========================================== -->
 <!-- DISCOVERY TARGETS -->
+<!-- ========================================== -->
 
 <section class="inventory-panel">
 
     <h2>
         🌐 DISCOVERY TARGETS
     </h2>
-
 
     <div class="resource-list">
 
@@ -48,13 +51,11 @@ Veles Discovery Center
                     🌐
                 </div>
 
-
                 <div class="resource-info">
 
                     <h2>
                         {{ target.interface }}
                     </h2>
-
 
                     <div class="resource-meta">
 
@@ -95,14 +96,15 @@ Veles Discovery Center
 </section>
 
 
+<!-- ========================================== -->
 <!-- CUSTOM NETWORK -->
+<!-- ========================================== -->
 
 <section class="inventory-panel">
 
     <h2>
         CUSTOM NETWORK
     </h2>
-
 
     <div class="resource-list">
 
@@ -112,13 +114,11 @@ Veles Discovery Center
                 🌐
             </div>
 
-
             <div class="resource-info">
 
                 <h2>
                     ADD NETWORK
                 </h2>
-
 
                 <div class="resource-meta">
 
@@ -164,7 +164,9 @@ Veles Discovery Center
 </section>
 
 
+<!-- ========================================== -->
 <!-- START SCAN -->
+<!-- ========================================== -->
 
 <section class="inventory-panel">
 
@@ -186,17 +188,17 @@ Veles Discovery Center
 </section>
 
 
-{% if discovered %}
-
-
+<!-- ========================================== -->
 <!-- DISCOVERED RESOURCES -->
+<!-- ========================================== -->
+
+{% if discovered %}
 
 <section class="inventory-panel">
 
     <h2>
         🖥 DISCOVERED RESOURCES
     </h2>
-
 
     <div class="resource-list">
 
@@ -208,13 +210,14 @@ Veles Discovery Center
                     🖥
                 </div>
 
-
                 <div class="resource-info">
 
                     <h2>
                         {{ device.name }}
                     </h2>
 
+
+                    <!-- RESOURCE INFORMATION -->
 
                     <div class="resource-meta">
 
@@ -272,6 +275,8 @@ Veles Discovery Center
                     </div>
 
 
+                    <!-- SERVICES -->
+
                     {% if device.services %}
 
                         <div class="resource-meta">
@@ -285,7 +290,10 @@ Veles Discovery Center
                                 {% for service in device.services %}
 
                                     <strong>
-                                        🟢 {{ service.service }} : {{ service.port }}
+                                        🟢
+                                        {{ service.service }}
+                                        :
+                                        {{ service.port }}
                                     </strong>
 
                                 {% endfor %}
@@ -315,25 +323,46 @@ Veles Discovery Center
                     {% endif %}
 
 
-                    <form
-                        method="POST"
-                        action="{{ url_for('add_discovered_resource') }}"
-                    >
+                    <!-- ====================================== -->
+                    <!-- DISCOVERY ACTIONS -->
+                    <!-- ====================================== -->
 
-                        <input
-                            type="hidden"
-                            name="resource"
-                            value='{{ device | tojson }}'
+                    <div class="action-row">
+
+                        <a
+                            class="infra-button"
+                            href="{{ url_for(
+                                'discovery_resource_detail',
+                                host=device.host
+                            ) }}"
+                        >
+                            🔎 DETAILS
+                        </a>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'import_discovered_resources'
+                            ) }}"
                         >
 
-                        <button
-                            class="add-button"
-                            type="submit"
-                        >
-                            ➕ ADD RESOURCE
-                        </button>
+                            <input
+                                type="hidden"
+                                name="resource"
+                                value='{{ device | tojson }}'
+                            >
 
-                    </form>
+                            <button
+                                class="infra-button"
+                                type="submit"
+                            >
+                                ➕ ADD RESOURCE
+                            </button>
+
+                        </form>
+
+                    </div>
 
                 </div>
 
@@ -345,27 +374,7 @@ Veles Discovery Center
 
 </section>
 
-
 {% endif %}
 
 
 {% endblock %}
-```
-
-Ključna promena je:
-
-```html
-form="scan-form"
-```
-
-na checkboxovima i:
-
-```html
-id="scan-form"
-```
-
-na START SCAN formi.
-
-Hidden `network` inputi su uklonjeni.
-
-Sada checkbox određuje **šta se stvarno skenira**.

@@ -17,7 +17,6 @@ import threading
 
 from pathlib import Path
 
-
 from veles.modules.monitoring import monitoring
 from veles.modules.network.service import network
 from veles.modules.delivery.service import delivery
@@ -86,13 +85,60 @@ app = Flask(__name__)
 
 
 # ==========================================
+# STATIC FILE VERSIONING
+# ==========================================
+
+@app.context_processor
+def inject_static_version():
+
+    def static_version(filename):
+
+        static_file = (
+            Path(app.static_folder) /
+            filename
+        )
+
+        try:
+
+            return int(
+                static_file.stat().st_mtime
+            )
+
+        except OSError:
+
+            return 0
+
+    return {
+        "static_version": static_version
+    }
+
+
+# ==========================================
+# DISABLE DISCOVERY HTTP CACHE
+# ==========================================
+
+@app.after_request
+def disable_discovery_cache(response):
+
+    if request.path.startswith("/discovery"):
+
+        response.headers["Cache-Control"] = (
+            "no-store, no-cache, must-revalidate, max-age=0"
+        )
+
+        response.headers["Pragma"] = "no-cache"
+
+        response.headers["Expires"] = "0"
+
+    return response
+
+
+# ==========================================
 # DISCOVERY RUNTIME STATE
 # ==========================================
 
 discovery_jobs = {}
 
-# Latest completed discovery results are kept
-# server-side instead of inside Flask's cookie session.
 discovery_results = []
 
 discovery_results_lock = threading.Lock()
@@ -219,7 +265,6 @@ def infrastructure_page():
     server = None
 
     if servers:
-
         server = servers[0]
 
     return render_template(
@@ -245,11 +290,41 @@ def discovery_page():
         custom_networks=custom_networks
     )
 
+    # --------------------------------------------------
+    # DISCOVERY RESULT LIFECYCLE
+    #
+    # Results are shown only when the current request
+    # follows a completed/cancelled scan or an import.
+    #
+    # A normal new visit to /discovery starts clean.
+    # --------------------------------------------------
+
+    show_results = session.pop(
+        "discovery_show_results",
+        False
+    )
+
     with discovery_results_lock:
 
-        current_results = list(
-            discovery_results
-        )
+        if show_results:
+
+            current_results = list(
+                discovery_results
+            )
+
+        else:
+
+            discovery_results.clear()
+
+            current_results = []
+
+    print(
+        "DISCOVERY PAGE RESULTS:",
+        [
+            item.get("host")
+            for item in current_results
+        ]
+    )
 
     return render_template(
         "discovery.html",
@@ -416,11 +491,25 @@ def discovery_scan():
             )
         )
 
+    # New scan always starts clean.
+    with discovery_results_lock:
+        discovery_results.clear()
+
+    session[
+        "discovery_show_results"
+    ] = False
+
     scan_id = uuid.uuid4().hex
+
+    cancel_event = threading.Event()
 
     discovery_jobs[scan_id] = {
 
         "running": True,
+
+        "cancelled": False,
+
+        "cancel_requested": False,
 
         "network": valid_networks[0],
 
@@ -441,6 +530,8 @@ def discovery_scan():
         "found": 0,
 
         "results": [],
+
+        "_cancel_event": cancel_event
 
     }
 
@@ -470,6 +561,24 @@ def discovery_scan():
                     list(parsed.hosts())
                 )
 
+            if cancel_event.is_set():
+
+                discovery_jobs[scan_id].update({
+
+                    "running": False,
+
+                    "cancelled": True,
+
+                    "cancel_requested": True,
+
+                    "current_network": None,
+
+                    "results": []
+
+                })
+
+                return
+
             discovery_jobs[scan_id].update({
 
                 "total": total_all,
@@ -492,9 +601,14 @@ def discovery_scan():
                 valid_networks
             ):
 
+                if cancel_event.is_set():
+                    break
+
                 discovery_jobs[scan_id].update({
 
                     "running": True,
+
+                    "cancelled": False,
 
                     "network": network,
 
@@ -511,6 +625,18 @@ def discovery_scan():
                     network=network,
                     network_checked_start=network_checked_start
                 ):
+
+                    if cancel_event.is_set():
+
+                        discovery_jobs[scan_id].update({
+
+                            "cancel_requested": True,
+
+                            "cancelled": False
+
+                        })
+
+                        return
 
                     local_checked = progress.get(
                         "checked",
@@ -535,6 +661,8 @@ def discovery_scan():
                     discovery_jobs[scan_id].update({
 
                         "running": True,
+
+                        "cancelled": False,
 
                         "network": network,
 
@@ -564,7 +692,8 @@ def discovery_scan():
 
                 result = discover_network_hosts(
                     network,
-                    progress_callback=progress_callback
+                    progress_callback=progress_callback,
+                    cancel_event=cancel_event
                 )
 
                 print(
@@ -606,6 +735,33 @@ def discovery_scan():
                     list(parsed.hosts())
                 )
 
+                if cancel_event.is_set():
+
+                    checked_all += (
+                        discovery_jobs[scan_id].get(
+                            "network_checked",
+                            0
+                        )
+                        - network_checked_start
+                    )
+
+                    discovery_jobs[scan_id].update({
+
+                        "checked": min(
+                            checked_all,
+                            total_all
+                        ),
+
+                        "total": total_all,
+
+                        "found": len(discovered),
+
+                        "results": list(discovered)
+
+                    })
+
+                    break
+
                 checked_all += network_total
 
                 discovery_jobs[scan_id].update({
@@ -623,12 +779,71 @@ def discovery_scan():
                 })
 
             # ----------------------------------
+            # CANCELLED
+            # ----------------------------------
+
+            if cancel_event.is_set():
+
+                discovery_jobs[scan_id].update({
+
+                    "running": False,
+
+                    "cancelled": True,
+
+                    "cancel_requested": True,
+
+                    "current_network": None,
+
+                    "checked": min(
+                        discovery_jobs[scan_id].get(
+                            "checked",
+                            checked_all
+                        ),
+                        total_all
+                    ),
+
+                    "total": total_all,
+
+                    "found": len(discovered),
+
+                    "results": list(discovered)
+
+                })
+
+                with discovery_results_lock:
+
+                    discovery_results.clear()
+
+                    discovery_results.extend(
+                        discovered
+                    )
+
+                print(
+                    "DISCOVERY CANCELLED:",
+                    "networks=",
+                    valid_networks,
+                    "checked=",
+                    discovery_jobs[scan_id].get(
+                        "checked",
+                        checked_all
+                    ),
+                    "found=",
+                    len(discovered)
+                )
+
+                return
+
+            # ----------------------------------
             # COMPLETE
             # ----------------------------------
 
             discovery_jobs[scan_id].update({
 
                 "running": False,
+
+                "cancelled": False,
+
+                "cancel_requested": False,
 
                 "network": valid_networks[-1],
 
@@ -675,17 +890,37 @@ def discovery_scan():
                 e
             )
 
-            discovery_jobs[scan_id].update({
+            if cancel_event.is_set():
 
-                "running": False,
+                discovery_jobs[scan_id].update({
 
-                "error": str(e),
+                    "running": False,
 
-                "results": list(discovered),
+                    "cancelled": True,
 
-                "found": len(discovered)
+                    "cancel_requested": True,
 
-            })
+                    "results": list(discovered),
+
+                    "found": len(discovered)
+
+                })
+
+            else:
+
+                discovery_jobs[scan_id].update({
+
+                    "running": False,
+
+                    "cancelled": False,
+
+                    "error": str(e),
+
+                    "results": list(discovered),
+
+                    "found": len(discovered)
+
+                })
 
             with discovery_results_lock:
 
@@ -701,6 +936,111 @@ def discovery_scan():
     )
 
     thread.start()
+
+    return redirect(
+        url_for(
+            "discovery_status",
+            scan_id=scan_id
+        )
+    )
+
+
+# ==========================================
+# DISCOVERY CANCEL
+# ==========================================
+
+@app.route(
+    "/discovery/cancel",
+    methods=["POST"]
+)
+def discovery_cancel():
+
+    scan_id = request.form.get(
+        "scan_id",
+        ""
+    ).strip()
+
+    if not scan_id:
+
+        flash(
+            "SCAN NOT FOUND",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    job = discovery_jobs.get(
+        scan_id
+    )
+
+    if not job:
+
+        flash(
+            "SCAN NOT FOUND",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    cancel_event = job.get(
+        "_cancel_event"
+    )
+
+    if not cancel_event:
+
+        flash(
+            "SCAN CANNOT BE CANCELLED",
+            "error"
+        )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    if not job.get("running"):
+
+        if job.get("cancelled"):
+
+            flash(
+                "SCAN CANCELLED",
+                "success"
+            )
+
+        else:
+
+            flash(
+                "SCAN ALREADY COMPLETE",
+                "success"
+            )
+
+        return redirect(
+            url_for(
+                "discovery_page"
+            )
+        )
+
+    cancel_event.set()
+
+    job.update({
+
+        "cancel_requested": True
+
+    })
+
+    print(
+        "DISCOVERY CANCEL REQUESTED:",
+        scan_id
+    )
 
     return redirect(
         url_for(
@@ -744,6 +1084,26 @@ def discovery_status():
                 )
             )
 
+        # Tell the next /discovery request that these
+        # are the results belonging to this scan.
+        session[
+            "discovery_show_results"
+        ] = True
+
+        if job.get("cancelled"):
+
+            flash(
+                "SCAN CANCELLED",
+                "success"
+            )
+
+        elif job.get("error"):
+
+            flash(
+                "SCAN ERROR",
+                "error"
+            )
+
         return redirect(
             url_for(
                 "discovery_page"
@@ -777,7 +1137,17 @@ def discovery_status_data():
             "error": "SCAN NOT FOUND"
         }, 404
 
-    return job
+    public_job = {
+
+        key: value
+
+        for key, value in job.items()
+
+        if not key.startswith("_")
+
+    }
+
+    return public_job
 
 
 @app.route(
@@ -796,117 +1166,45 @@ def discover_infrastructure():
 
 
 # ==========================================
-# ADD DISCOVERED RESOURCE
+# DISCOVERY RESOURCE DETAIL
 # ==========================================
 
-@app.route(
-    "/discovery/add",
-    methods=["POST"]
-)
-def add_discovered_resource():
+@app.route("/discovery/resource")
+def discovery_resource_detail():
 
-    item = request.form.get(
-        "resource"
-    )
+    host = request.args.get("host")
 
-    if not item:
+    if not host:
 
         return redirect(
-            url_for(
-                "discovery_page"
-            )
+            url_for("discovery_page")
         )
 
-    try:
+    with discovery_results_lock:
 
-        data = json.loads(item)
+        resource = next(
+            (
+                item
+                for item in discovery_results
+                if item.get("host") == host
+            ),
+            None
+        )
 
-    except (TypeError, json.JSONDecodeError):
+    if not resource:
 
         flash(
-            "INVALID RESOURCE",
+            "DISCOVERED RESOURCE NOT FOUND",
             "error"
         )
 
         return redirect(
-            url_for(
-                "discovery_page"
-            )
+            url_for("discovery_page")
         )
 
-    resource = {
-
-        "id": f"res-{uuid.uuid4().hex[:6]}",
-
-        "type": data.get(
-            "type",
-            "server"
-        ),
-
-        "name": data.get(
-            "name"
-        ),
-
-        "host": data.get(
-            "host"
-        ),
-
-        "port": data.get(
-            "port"
-        ),
-
-        "services": data.get(
-            "services",
-            []
-        ),
-
-        "group": "network",
-
-        "status": "registered"
-
-    }
-
-    infrastructure.add_resource(
-        resource
-    )
-
-    # --------------------------------------
-    # REMOVE ONLY THE ADDED HOST
-    # FROM THE SERVER-SIDE DISCOVERY LIST
-    # --------------------------------------
-
-    resource_host = resource.get(
-        "host"
-    )
-
-    with discovery_results_lock:
-
-        remaining_results = [
-
-            discovered
-
-            for discovered in discovery_results
-
-            if discovered.get("host")
-            != resource_host
-
-        ]
-
-        discovery_results.clear()
-
-        discovery_results.extend(
-            remaining_results
-        )
-
-    flash(
-        "RESOURCE ADDED",
-        "success"
-    )
-
-    return redirect(
-        url_for(
-            "discovery_page"
-        )
+    return render_template(
+        "discovery_resource_detail.html",
+        resource=resource
     )
 
 
@@ -988,10 +1286,6 @@ def import_discovered_resources():
         added
     )
 
-    # --------------------------------------
-    # REMOVE ONLY IMPORTED RESOURCES
-    # --------------------------------------
-
     with discovery_results_lock:
 
         remaining_results = [
@@ -1010,6 +1304,12 @@ def import_discovered_resources():
         discovery_results.extend(
             remaining_results
         )
+
+    # Keep remaining discovered resources visible
+    # after importing one or more resources.
+    session[
+        "discovery_show_results"
+    ] = bool(remaining_results)
 
     flash(
         "RESOURCE ADDED",
@@ -1642,7 +1942,8 @@ if __name__ == "__main__":
 
             raise RuntimeError(
                 "VELES_TLS=true requires "
-                "VELES_CERT_FILE and VELES_KEY_FILE"
+                "VELES_CERT_FILE and "
+                "VELES_KEY_FILE"
             )
 
         ssl_context = (

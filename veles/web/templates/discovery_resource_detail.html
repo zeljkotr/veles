@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Veles Discovery Resource
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/infrastructure.css') }}"
+>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="infra-page">
+
+
+    <header class="infra-header">
+
+        <h1>
+            🔎 DISCOVERY RESOURCE
+        </h1>
+
+        <p>
+            Discovered Network Resource
+        </p>
+
+    </header>
+
+
+    <section class="inventory-panel">
+
+        {% if resource %}
+
+
+            <div class="server-card">
+
+
+                <div class="server-title">
+
+                    <h3>
+
+                        {% if resource.type == "server" %}
+                            🖥
+                        {% elif resource.type == "container" %}
+                            🐳
+                        {% elif resource.type == "agent" %}
+                            🤖
+                        {% elif resource.type == "device" %}
+                            📡
+                        {% else %}
+                            ☁
+                        {% endif %}
+
+                        {{ resource.name }}
+
+                    </h3>
+
+
+                    <span>
+                        🟢 {{ resource.status }}
+                    </span>
+
+                </div>
+
+
+                <div class="server-grid">
+
+
+                    <div>
+
+                        <label>
+                            TYPE
+                        </label>
+
+                        <strong>
+                            {{ resource.type or "-" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            HOST
+                        </label>
+
+                        <strong>
+                            {{ resource.host or "-" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            PORT
+                        </label>
+
+                        <strong>
+                            {{ resource.port or "-" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            OPERATING SYSTEM
+                        </label>
+
+                        <strong>
+                            {{ resource.os or "unknown" }}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="server-grid">
+
+
+                    <div>
+
+                        <label>
+                            DISCOVERY STATUS
+                        </label>
+
+                        <strong>
+
+                            {% if resource.status == "alive" %}
+                                🟢 ALIVE
+                            {% else %}
+                                ⚪ {{ resource.status or "UNKNOWN" }}
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            HOST ADDRESS
+                        </label>
+
+                        <strong>
+                            {{ resource.host or "Unavailable" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            DETECTED PORT
+                        </label>
+
+                        <strong>
+                            {{ resource.port or "None" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <label>
+                            OS DETECTION
+                        </label>
+
+                        <strong>
+                            {{ resource.os or "Not detected" }}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                {% if resource.services %}
+
+
+                    <div class="server-grid">
+
+                        <div>
+
+                            <label>
+                                DETECTED SERVICES
+                            </label>
+
+
+                            {% for service in resource.services %}
+
+                                <strong>
+                                    🟢 {{ service.service }} : {{ service.port }}
+                                </strong>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+
+                {% else %}
+
+
+                    <div class="server-grid">
+
+                        <div>
+
+                            <label>
+                                DETECTED SERVICES
+                            </label>
+
+                            <strong>
+                                ⚪ NO KNOWN SERVICES DETECTED
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                {% endif %}
+
+
+            </div>
+
+
+            <section class="infra-actions">
+
+
+                <h4>
+                    ACTIONS
+                </h4>
+
+
+                <div class="action-row">
+
+
+                    <a
+                        href="{{ url_for('discovery_page') }}"
+                        class="infra-button"
+                    >
+                        ⬅ BACK TO DISCOVERY
+                    </a>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('add_discovered_resource') }}"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="resource"
+                            value='{{ resource | tojson }}'
+                        >
+
+                        <button
+                            class="infra-button"
+                            type="submit"
+                        >
+                            ➕ ADD RESOURCE
+                        </button>
+
+                    </form>
+
+
+                </div>
+
+
+            </section>
+
+
+        {% else %}
+
+
+            <div class="empty-state">
+
+                ⚠ DISCOVERED RESOURCE NOT FOUND.
+
+            </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+
+</div>
+
+{% endblock %}

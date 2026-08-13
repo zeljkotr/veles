@@ -1,17 +1,20 @@
 {% extends "base.html" %}
 
+
 {% block title %}
 Discovery Scan
 {% endblock %}
+
 
 {% block extra_css %}
 
 <link
     rel="stylesheet"
-    href="{{ url_for('static', filename='css/infrastructure.css') }}"
+    href="{{ url_for('static', filename='css/infrastructure.css', v='4') }}"
 >
 
 {% endblock %}
+
 
 {% block content %}
 
@@ -76,6 +79,12 @@ const scanId = "{{ scan_id }}";
 const statusUrl =
     "{{ url_for('discovery_status_data') }}";
 
+const detailsUrl =
+    "{{ url_for('discovery_resource_detail') }}";
+
+const importUrl =
+    "{{ url_for('import_discovered_resources') }}";
+
 let statusTimer;
 
 
@@ -93,15 +102,20 @@ function renderResults(results) {
 
     list.innerHTML = "";
 
+
     if (!results || results.length === 0) {
 
         panel.style.display = "block";
 
         list.innerHTML =
             "<div class=\"resource-item\">" +
+
             "<div class=\"resource-info\">" +
+
             "<h2>NO RESOURCES FOUND</h2>" +
+
             "</div>" +
+
             "</div>";
 
         return;
@@ -126,7 +140,9 @@ function renderResults(results) {
 
         let servicesHtml =
             "<div class=\"resource-meta\">" +
+
             "<div>" +
+
             "<label>SERVICES</label>";
 
 
@@ -152,69 +168,208 @@ function renderResults(results) {
 
 
         servicesHtml +=
-            "</div></div>";
+            "</div>" +
 
+            "</div>";
+
+
+        /*
+         * DETAILS URL
+         */
+
+        const host =
+            device.host || "";
+
+
+        const detailsHref =
+            detailsUrl +
+            "?host=" +
+            encodeURIComponent(host);
+
+
+        /*
+         * RESOURCE JSON
+         */
+
+        const resourceJson =
+            JSON.stringify(device)
+                .replace(/'/g, "&#39;");
+
+
+        /*
+         * RESOURCE CARD
+         */
 
         item.innerHTML =
 
             "<div class=\"resource-icon\">🖥</div>" +
 
+
             "<div class=\"resource-info\">" +
 
+
             "<h2>" +
-            (device.name || "Discovered Resource") +
+
+            (
+                device.name ||
+                "Discovered Resource"
+            ) +
+
             "</h2>" +
+
+
+            /*
+             * RESOURCE META
+             */
 
             "<div class=\"resource-meta\">" +
 
+
             "<div>" +
+
             "<label>STATUS</label>" +
+
             "<strong>🟢 " +
-            (device.status || "alive") +
+
+            (
+                device.status ||
+                "alive"
+            ) +
+
             "</strong>" +
+
             "</div>" +
 
+
             "<div>" +
+
             "<label>TYPE</label>" +
+
             "<strong>" +
-            (device.type || "server") +
+
+            (
+                device.type ||
+                "server"
+            ) +
+
             "</strong>" +
+
             "</div>" +
 
+
             "<div>" +
+
             "<label>HOST</label>" +
+
             "<strong>" +
-            (device.host || "-") +
+
+            (
+                device.host ||
+                "-"
+            ) +
+
             "</strong>" +
+
             "</div>" +
+
 
             "<div>" +
+
             "<label>PORT</label>" +
+
             "<strong>" +
-            (device.port || "-") +
+
+            (
+                device.port ||
+                "-"
+            ) +
+
             "</strong>" +
-            "</div>" +
 
             "</div>" +
+
+
+            "</div>" +
+
+
+            /*
+             * SERVICES
+             */
 
             servicesHtml +
 
-            "<form method=\"POST\" action=\"{{ url_for('add_discovered_resource') }}\">" +
 
-            "<input type=\"hidden\" name=\"resource\" value='" +
-            JSON.stringify(device).replace(/'/g, "&#39;") +
-            "'>" +
+            /*
+             * ACTIONS
+             */
 
-            "<button class=\"add-button\" type=\"submit\">" +
+            "<div class=\"action-row\">" +
+
+
+            "<a " +
+
+            "class=\"infra-button\" " +
+
+            "href=\"" +
+            detailsHref +
+            "\"" +
+
+            ">" +
+
+            "🔎 DETAILS" +
+
+            "</a>" +
+
+
+            "<form " +
+
+            "method=\"POST\" " +
+
+            "action=\"" +
+            importUrl +
+            "\"" +
+
+            ">" +
+
+
+            "<input " +
+
+            "type=\"hidden\" " +
+
+            "name=\"resource\" " +
+
+            "value='" +
+            resourceJson +
+            "'" +
+
+            ">" +
+
+
+            "<button " +
+
+            "class=\"infra-button\" " +
+
+            "type=\"submit\"" +
+
+            ">" +
+
             "➕ ADD RESOURCE" +
+
             "</button>" +
 
+
             "</form>" +
+
+
+            "</div>" +
+
 
             "</div>";
 
 
-        list.appendChild(item);
+        list.appendChild(
+            item
+        );
 
     });
 
@@ -226,14 +381,17 @@ function updateScanStatus() {
     fetch(
         statusUrl +
         "?scan_id=" +
-        encodeURIComponent(scanId),
+        encodeURIComponent(scanId) +
+        "&_=" +
+        Date.now(),
         {
             cache: "no-store"
         }
     )
 
     .then(
-        response => response.json()
+        response =>
+            response.json()
     )
 
     .then(
@@ -262,16 +420,22 @@ function updateScanStatus() {
 
             if (data.error) {
 
-                clearInterval(statusTimer);
+                clearInterval(
+                    statusTimer
+                );
+
 
                 status.textContent =
                     "🔴 STATUS: ERROR";
 
+
                 message.textContent =
                     "Network discovery failed.";
 
+
                 progress.textContent =
                     data.error;
+
 
                 return;
             }
@@ -298,7 +462,9 @@ function updateScanStatus() {
             }
 
 
-            clearInterval(statusTimer);
+            clearInterval(
+                statusTimer
+            );
 
 
             status.textContent =
@@ -340,5 +506,6 @@ statusTimer =
     );
 
 </script>
+
 
 {% endblock %}

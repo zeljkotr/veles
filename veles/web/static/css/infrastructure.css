@@ -1,19 +1,13 @@
-```css
 /*
 VELES INFRASTRUCTURE CENTER
 AI Operations Center UI
 */
 
 .infra-page {
-
-    width:100%;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:25px;
-
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
 }
 
 
@@ -22,25 +16,17 @@ HEADER
 */
 
 .infra-header {
-
-    text-align:center;
-
+    text-align: center;
 }
 
 .infra-header h1 {
-
-    color:var(--gold);
-
-    letter-spacing:4px;
-
-    font-size:34px;
-
+    color: var(--gold);
+    letter-spacing: 4px;
+    font-size: 34px;
 }
 
 .infra-header p {
-
-    color:var(--muted);
-
+    color: var(--muted);
 }
 
 
@@ -49,41 +35,26 @@ STATUS
 */
 
 .infra-status {
-
-    display:flex;
-
-    justify-content:center;
-
-    flex-wrap:wrap;
-
-    gap:15px;
-
-    margin-top:20px;
-
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-
 .infra-status span {
-
-    background:var(--panel);
-
-    border:1px solid var(--border);
-
-    padding:10px 20px;
-
-    border-radius:25px;
-
-    color:var(--text);
-
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 25px;
+    color: var(--text);
     box-shadow:
-
         0 0 15px rgba(
             217,
             164,
             65,
             .2
         );
-
 }
 
 
@@ -92,28 +63,20 @@ TOP CARDS
 */
 
 .infra-cards {
-
-    display:grid;
-
+    display: grid;
     grid-template-columns:
         repeat(
             3,
             1fr
         );
-
-    gap:20px;
-
+    gap: 20px;
 }
 
-
 .infra-card {
-
-    position:relative;
-
-    overflow:hidden;
+    position: relative;
+    overflow: hidden;
 
     background:
-
         linear-gradient(
             145deg,
             var(--panel2),
@@ -123,114 +86,81 @@ TOP CARDS
     border:
         1px solid var(--border);
 
-    border-radius:18px;
+    border-radius: 18px;
 
-    padding:25px;
+    padding: 25px;
 
-    text-align:center;
+    text-align: center;
 
-    transition:.3s;
-
+    transition: .3s;
 }
 
-
 .infra-card:hover {
-
     transform:
-
         translateY(-8px);
 
-    border-color:var(--gold);
+    border-color: var(--gold);
 
     box-shadow:
-
         0 0 35px rgba(
             217,
             164,
             65,
             .35
         );
-
 }
-
 
 .infra-card::after {
+    content: "";
 
-    content:"";
+    position: absolute;
 
-    position:absolute;
+    left: 0;
+    bottom: 0;
 
-    left:0;
+    width: 100%;
+    height: 3px;
 
-    bottom:0;
-
-    width:100%;
-
-    height:3px;
-
-    background:var(--gold);
+    background: var(--gold);
 
     animation:
-
         scan 4s linear infinite;
-
 }
-
 
 @keyframes scan {
 
     from {
-
         transform:
-
             translateX(-100%);
-
     }
 
     to {
-
         transform:
-
             translateX(100%);
-
     }
-
 }
-
 
 .infra-icon {
-
-    font-size:42px;
-
+    font-size: 42px;
 }
-
 
 .infra-card h3 {
-
-    color:var(--muted);
-
-    letter-spacing:2px;
-
+    color: var(--muted);
+    letter-spacing: 2px;
 }
-
 
 .infra-value {
+    color: var(--gold);
 
-    color:var(--gold);
+    font-size: 28px;
 
-    font-size:28px;
+    font-weight: bold;
 
-    font-weight:bold;
-
-    margin:15px 0;
-
+    margin: 15px 0;
 }
 
-
 .infra-card p {
-
-    color:var(--muted);
-
+    color: var(--muted);
 }
 
 
@@ -239,73 +169,54 @@ SYSTEM OVERVIEW
 */
 
 .infra-monitor {
-
-    background:var(--panel);
+    background: var(--panel);
 
     border:
-
         1px solid var(--border);
 
-    border-radius:18px;
+    border-radius: 18px;
 
-    padding:25px;
-
+    padding: 25px;
 }
-
 
 .infra-monitor h2 {
-
-    color:var(--gold);
-
+    color: var(--gold);
 }
 
-
 .monitor-grid {
-
-    display:grid;
+    display: grid;
 
     grid-template-columns:
-
         repeat(
             4,
             1fr
         );
 
-    gap:15px;
+    gap: 15px;
 
-    margin-top:20px;
-
+    margin-top: 20px;
 }
-
 
 .monitor-item {
+    background: #0b0f14;
 
-    background:#0b0f14;
+    border-radius: 12px;
 
-    border-radius:12px;
-
-    padding:18px;
-
+    padding: 18px;
 }
-
 
 .monitor-item label {
+    display: block;
 
-    display:block;
+    color: var(--muted);
 
-    color:var(--muted);
+    font-size: 12px;
 
-    font-size:12px;
-
-    margin-bottom:8px;
-
+    margin-bottom: 8px;
 }
 
-
 .monitor-item strong {
-
-    color:var(--text);
-
+    color: var(--text);
 }
 
 
@@ -314,32 +225,24 @@ INVENTORY
 */
 
 .inventory-panel {
-
-    background:var(--panel);
+    background: var(--panel);
 
     border:
-
         1px solid var(--border);
 
-    border-radius:18px;
+    border-radius: 18px;
 
-    padding:25px;
-
+    padding: 25px;
 }
-
 
 .inventory-panel h2 {
-
-    color:var(--gold);
-
+    color: var(--gold);
 }
 
-
 .server-card {
+    margin-top: 20px;
 
-    margin-top:20px;
-
-    padding:30px;
+    padding: 30px;
 
     background:
         linear-gradient(
@@ -348,137 +251,109 @@ INVENTORY
             #10161d
         );
 
-    border:1px solid var(--border);
+    border:
+        1px solid var(--border);
 
-    border-radius:18px;
+    border-radius: 18px;
 
-    transition:.3s;
-
+    transition: .3s;
 }
 
-
 .server-card:hover {
-
-    border-color:var(--gold);
+    border-color: var(--gold);
 
     box-shadow:
-
         0 0 25px rgba(
             217,
             164,
             65,
             .3
         );
-
 }
-
 
 .server-title {
+    display: flex;
 
-    display:flex;
+    justify-content: space-between;
 
-    justify-content:space-between;
+    align-items: center;
 
-    align-items:center;
-
-    margin-bottom:30px;
-
+    margin-bottom: 30px;
 }
-
 
 .server-title h3 {
+    color: var(--gold2);
 
-    color:var(--gold2);
+    font-size: 26px;
 
-    font-size:26px;
-
-    margin:0;
-
+    margin: 0;
 }
-
 
 .server-title span {
+    color: var(--green);
 
-    color:var(--green);
+    text-transform: uppercase;
 
-    text-transform:uppercase;
+    padding: 8px 16px;
 
-    padding:8px 16px;
+    border:
+        1px solid var(--green);
 
-    border:1px solid var(--green);
+    border-radius: 20px;
 
-    border-radius:20px;
+    background: #0b0f14;
 
-    background:#0b0f14;
-
-    font-size:13px;
-
+    font-size: 13px;
 }
 
-
 .server-grid {
-
-    display:grid;
+    display: grid;
 
     grid-template-columns:
-
         repeat(
             3,
             1fr
         );
 
-    gap:20px;
+    gap: 20px;
 
-    margin-top:20px;
-
+    margin-top: 20px;
 }
-
 
 .server-grid div {
+    background: #0b0f14;
 
-    background:#0b0f14;
+    padding: 18px;
 
-    padding:18px;
-
-    border-radius:12px;
-
+    border-radius: 12px;
 }
-
 
 .server-grid label {
+    display: block;
 
-    display:block;
+    color: var(--muted);
 
-    color:var(--muted);
+    font-size: 12px;
 
-    font-size:12px;
+    letter-spacing: 1px;
 
-    letter-spacing:1px;
-
-    margin-bottom:8px;
-
+    margin-bottom: 8px;
 }
-
 
 .server-grid strong {
+    color: var(--text);
 
-    color:var(--text);
+    font-size: 15px;
 
-    font-size:15px;
-
-    word-break:break-word;
-
+    word-break: break-word;
 }
 
-
 .empty-state {
+    text-align: center;
 
-    text-align:center;
+    padding: 40px;
 
-    padding:40px;
-
-    color:var(--muted);
-
+    color: var(--muted);
 }
 
 
@@ -486,62 +361,28 @@ INVENTORY
 RESPONSIVE
 */
 
-@media(max-width:1100px){
+@media(max-width:1100px) {
 
     .infra-cards {
-
         grid-template-columns:
-
             1fr;
-
     }
 
-
     .monitor-grid {
-
         grid-template-columns:
-
             repeat(
                 2,
                 1fr
             );
-
     }
 
-
     .server-grid {
-
         grid-template-columns:
-
             repeat(
                 2,
                 1fr
             );
-
     }
-
-}
-
-
-@media(max-width:600px){
-
-    .monitor-grid {
-
-        grid-template-columns:
-
-            1fr;
-
-    }
-
-
-    .server-grid {
-
-        grid-template-columns:
-
-            1fr;
-
-    }
-
 }
 
 
@@ -550,26 +391,51 @@ MONITORING / INFRASTRUCTURE ACTIONS
 */
 
 .infra-actions {
+    margin-top: 30px;
 
-    margin-top:30px;
+    display: flex;
 
-    display:flex;
+    flex-direction: column;
 
-    flex-direction:column;
-
-    gap:12px;
-
+    gap: 12px;
 }
 
 
+/*
+DISCOVERY ACTION ROW
+
+DETAILS + ADD RESOURCE
+stay side-by-side on desktop.
+*/
+
 .action-row {
+    display: flex;
 
-    display:flex;
+    flex-direction: row;
 
-    gap:12px;
+    align-items: stretch;
 
-    flex-wrap:wrap;
+    justify-content: flex-start;
 
+    gap: 12px;
+
+    flex-wrap: nowrap;
+
+    width: 100%;
+
+    margin-top: 20px;
+}
+
+.action-row form {
+    margin: 0;
+
+    padding: 0;
+
+    display: flex;
+
+    flex: 0 0 auto;
+
+    align-items: stretch;
 }
 
 
@@ -578,106 +444,101 @@ PRIMARY ACTION BUTTON
 */
 
 .infra-button {
+    display: inline-flex;
 
-    display:inline-flex;
+    align-items: center;
 
-    align-items:center;
+    justify-content: center;
 
-    justify-content:center;
+    width: 240px;
 
-    width:240px;
+    min-height: 58px;
 
-    min-height:58px;
+    height: 58px;
 
-    padding:0 28px;
+    padding: 0 28px;
 
-    box-sizing:border-box;
+    box-sizing: border-box;
 
     background:
-
         linear-gradient(
             145deg,
             #1a2330,
             #10161d
         );
 
-    border:2px solid var(--gold);
+    border:
+        2px solid var(--gold);
 
-    border-radius:12px;
+    border-radius: 12px;
 
-    color:var(--gold2);
+    color: var(--gold2);
 
-    text-decoration:none;
+    text-decoration: none;
 
-    font-weight:700;
+    font-weight: 700;
 
-    font-size:16px;
+    font-size: 16px;
 
-    letter-spacing:1.5px;
+    letter-spacing: 1.5px;
 
-    cursor:pointer;
+    cursor: pointer;
 
     transition:
-
         .25s ease;
 
     box-shadow:
-
         0 0 18px rgba(
             217,
             164,
             65,
             .18
         );
-
 }
 
+.action-row .infra-button {
+    width: 240px;
+
+    min-height: 58px;
+
+    height: 58px;
+}
 
 .infra-button:hover {
-
     background:
-
         linear-gradient(
             145deg,
             #202c3a,
             #141b23
         );
 
-    border-color:var(--gold2);
+    border-color: var(--gold2);
 
-    color:var(--gold2);
+    color: var(--gold2);
 
     transform:
-
         translateY(-3px);
 
     box-shadow:
-
         0 0 30px rgba(
             217,
             164,
             65,
             .35
         );
-
 }
 
-
 .infra-button:active {
-
     transform:
-
         translateY(0);
 
     box-shadow:
-
         0 0 15px rgba(
             217,
             164,
             65,
             .2
         );
-
 }
 
 
@@ -686,27 +547,19 @@ RESOURCE REGISTRY
 */
 
 .resource-overview {
-
-    margin-top:30px;
-
+    margin-top: 30px;
 }
-
 
 .resource-overview h2 {
+    margin-bottom: 20px;
 
-    margin-bottom:20px;
-
-    color:var(--gold2);
-
+    color: var(--gold2);
 }
 
-
 .resource-grid {
-
-    display:grid;
+    display: grid;
 
     grid-template-columns:
-
         repeat(
             auto-fit,
             minmax(
@@ -715,103 +568,77 @@ RESOURCE REGISTRY
             )
         );
 
-    gap:18px;
-
+    gap: 18px;
 }
 
-
 .resource-card {
-
-    background:var(--panel);
+    background: var(--panel);
 
     border:
         1px solid var(--border);
 
-    border-radius:12px;
+    border-radius: 12px;
 
-    padding:20px;
+    padding: 20px;
 
-    text-align:center;
+    text-align: center;
 
-    transition:.2s ease;
-
+    transition: .2s ease;
 }
-
 
 .resource-card:hover {
-
-    border-color:var(--gold);
+    border-color: var(--gold);
 
     transform:
-
         translateY(-3px);
-
 }
-
 
 .resource-card h3 {
+    margin: 0;
 
-    margin:0;
+    font-size: 15px;
 
-    font-size:15px;
-
-    color:var(--muted);
-
+    color: var(--muted);
 }
-
 
 .resource-number {
+    margin-top: 12px;
 
-    margin-top:12px;
+    font-size: 42px;
 
-    font-size:42px;
+    font-weight: 700;
 
-    font-weight:700;
-
-    color:var(--gold);
-
+    color: var(--gold);
 }
-
 
 .resource-card::after {
+    content: "REGISTERED";
 
-    content:"REGISTERED";
+    display: block;
 
-    display:block;
+    margin-top: 8px;
 
-    margin-top:8px;
+    font-size: 11px;
 
-    font-size:11px;
+    color: var(--green);
 
-    color:var(--green);
-
-    letter-spacing:1px;
-
+    letter-spacing: 1px;
 }
-
 
 .resource-grid a {
+    text-decoration: none;
 
-    text-decoration:none;
+    color: inherit;
 
-    color:inherit;
-
-    display:block;
-
+    display: block;
 }
-
 
 .resource-grid a:hover {
-
-    text-decoration:none;
-
+    text-decoration: none;
 }
 
-
 .resource-card {
-
-    cursor:pointer;
-
+    cursor: pointer;
 }
 
 
@@ -820,71 +647,60 @@ RESOURCE REGISTRY LIST
 */
 
 .resource-list {
-
-    display:grid;
+    display: grid;
 
     grid-template-columns:
-
         repeat(
             3,
             1fr
         );
 
-    gap:20px;
-
+    gap: 20px;
 }
 
-
 .resource-item {
+    display: flex;
 
-    display:flex;
+    flex-direction: column;
 
-    flex-direction:column;
+    min-height: 220px;
 
-    min-height:220px;
+    padding: 22px;
 
-    padding:22px;
-
-    box-sizing:border-box;
+    box-sizing: border-box;
 
     background:
-
         linear-gradient(
             145deg,
             #1a2330,
             #10161d
         );
 
-    border:1px solid var(--border);
+    border:
+        1px solid var(--border);
 
-    border-radius:16px;
+    border-radius: 16px;
 
-    color:var(--text);
+    color: var(--text);
 
-    text-decoration:none;
+    text-decoration: none;
 
-    transition:.25s ease;
-
+    transition: .25s ease;
 }
 
-
 .resource-item:hover {
-
     transform:
-
         translateY(-4px);
 
-    border-color:var(--gold);
+    border-color: var(--gold);
 
     box-shadow:
-
         0 0 25px rgba(
             217,
             164,
             65,
             .25
         );
-
 }
 
 
@@ -893,25 +709,23 @@ ICON
 */
 
 .resource-icon {
+    width: 70px;
 
-    width:70px;
+    height: 70px;
 
-    height:70px;
+    display: flex;
 
-    display:flex;
+    align-items: center;
 
-    align-items:center;
+    justify-content: center;
 
-    justify-content:center;
+    font-size: 42px;
 
-    font-size:42px;
+    background: #0b0f14;
 
-    background:#0b0f14;
+    border-radius: 14px;
 
-    border-radius:14px;
-
-    margin-bottom:15px;
-
+    margin-bottom: 15px;
 }
 
 
@@ -920,20 +734,18 @@ INFO
 */
 
 .resource-info {
+    flex: 1;
 
-    flex:1;
-
+    min-width: 0;
 }
 
-
 .resource-info h2 {
+    margin:
+        0 0 15px 0;
 
-    margin:0 0 15px 0;
+    color: var(--gold2);
 
-    color:var(--gold2);
-
-    font-size:20px;
-
+    font-size: 20px;
 }
 
 
@@ -942,62 +754,49 @@ META
 */
 
 .resource-meta {
-
-    display:grid;
+    display: grid;
 
     grid-template-columns:
-
         repeat(
             2,
             1fr
         );
 
-    gap:10px;
-
+    gap: 10px;
 }
-
 
 .resource-meta div {
+    background: #0b0f14;
 
-    background:#0b0f14;
+    padding: 10px;
 
-    padding:10px;
-
-    border-radius:10px;
-
+    border-radius: 10px;
 }
-
 
 .resource-meta label {
+    display: block;
 
-    display:block;
+    color: var(--muted);
 
-    color:var(--muted);
+    font-size: 11px;
 
-    font-size:11px;
+    letter-spacing: 1px;
 
-    letter-spacing:1px;
-
-    margin-bottom:5px;
-
+    margin-bottom: 5px;
 }
-
 
 .resource-meta strong {
+    color: var(--text);
 
-    color:var(--text);
+    font-size: 14px;
 
-    font-size:14px;
-
+    word-break: break-word;
 }
 
-
 .status-online {
+    color: var(--green);
 
-    color:var(--green);
-
-    text-transform:uppercase;
-
+    text-transform: uppercase;
 }
 
 
@@ -1006,15 +805,36 @@ ARROW
 */
 
 .resource-arrow {
+    margin-top: 15px;
 
-    margin-top:15px;
+    text-align: right;
 
-    text-align:right;
+    font-size: 26px;
 
-    font-size:26px;
+    color: var(--gold);
+}
 
-    color:var(--gold);
 
+/*
+ACTION FORM SAFETY
+*/
+
+.action-row button.infra-button {
+    appearance: none;
+
+    -webkit-appearance: none;
+
+    font-family: inherit;
+
+    line-height: normal;
+
+    margin: 0;
+
+    outline: none;
+}
+
+.action-row a.infra-button {
+    flex: 0 0 auto;
 }
 
 
@@ -1022,49 +842,54 @@ ARROW
 RESPONSIVE
 */
 
-@media(max-width:1100px){
+@media(max-width:1100px) {
 
     .resource-list {
-
         grid-template-columns:
-
             repeat(
                 2,
                 1fr
             );
-
     }
-
 }
 
-
-@media(max-width:700px){
+@media(max-width:700px) {
 
     .resource-list {
-
         grid-template-columns:
-
             1fr;
-
     }
-
 
     .resource-meta {
-
         grid-template-columns:
-
             1fr;
-
     }
 
+    .action-row {
+        flex-direction: column;
+
+        align-items: stretch;
+
+        width: 100%;
+    }
+
+    .action-row form {
+        width: 100%;
+    }
+
+    .action-row .infra-button {
+        width: 100%;
+
+        min-height: 56px;
+
+        height: 56px;
+    }
 
     .infra-button {
+        width: 100%;
 
-        width:100%;
+        min-height: 56px;
 
-        min-height:56px;
-
+        height: 56px;
     }
-
 }
-```
