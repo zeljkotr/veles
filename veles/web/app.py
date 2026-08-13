@@ -20,6 +20,7 @@ from pathlib import Path
 from veles.modules.monitoring import monitoring
 from veles.modules.network.service import network
 from veles.modules.delivery.service import delivery
+from veles.modules.security.service import security
 
 
 BASE_DIR = os.path.abspath(
@@ -2319,6 +2320,34 @@ def delivery_view():
         "delivery.html",
         data=data
     )
+
+
+# ==========================================
+# SECURITY
+# ==========================================
+
+@app.route("/security")
+def security_view():
+
+    report = security.get_report()
+
+    return render_template(
+        "security.html",
+        report=report
+    )
+
+
+@app.route("/security/scan")
+def security_scan():
+
+    security.scan()
+
+    return redirect(
+        url_for(
+            "security_view"
+        )
+    )
+
 
 
 # ==========================================

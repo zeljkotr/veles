@@ -1,0 +1,719 @@
+/*
+VELES SECURITY CENTER
+AI Operations Center UI
+*/
+
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+.security-page {
+
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 28px;
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.security-header {
+
+    text-align: center;
+}
+
+.security-header h1 {
+
+    color: var(--gold);
+
+    letter-spacing: 4px;
+
+    font-size: 34px;
+
+    margin-bottom: 8px;
+}
+
+.security-header p {
+
+    color: var(--muted);
+
+    margin: 0;
+}
+
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+.security-status {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+.security-status span {
+
+    background: var(--panel);
+
+    border: 1px solid var(--border);
+
+    padding: 10px 20px;
+
+    border-radius: 25px;
+
+    color: var(--text);
+
+    box-shadow:
+        0 0 15px rgba(
+            217,
+            164,
+            65,
+            .16
+        );
+}
+
+
+/* ============================================================
+   ACTION
+   ============================================================ */
+
+.security-actions {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    width: 100%;
+
+    margin-top: 32px;
+}
+
+.security-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 260px;
+
+    min-width: 260px;
+
+    height: 58px;
+
+    padding: 0 24px;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1a2330,
+            #10161d
+        );
+
+    border:
+        2px solid var(--gold);
+
+    border-radius: 10px;
+
+    color: var(--gold2);
+
+    text-decoration: none;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+
+    transition:
+        .25s ease;
+
+    box-shadow:
+        0 0 20px rgba(
+            217,
+            164,
+            65,
+            .18
+        );
+}
+
+.security-button:hover {
+
+    background:
+        linear-gradient(
+            145deg,
+            #202c3a,
+            #141b23
+        );
+
+    border-color: var(--gold2);
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 0 32px rgba(
+            217,
+            164,
+            65,
+            .35
+        );
+}
+
+.security-button:active {
+
+    transform:
+        translateY(0);
+}
+
+
+/* ============================================================
+   PANEL
+   ============================================================ */
+
+.security-panel {
+
+    background: var(--panel);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 18px;
+
+    padding: 25px;
+}
+
+.security-panel h2 {
+
+    margin-top: 0;
+
+    margin-bottom: 20px;
+
+    color: var(--gold);
+}
+
+
+/* ============================================================
+   OVERVIEW
+   ============================================================ */
+
+.security-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            5,
+            1fr
+        );
+
+    gap: 18px;
+}
+
+.security-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1a2330,
+            #10161d
+        );
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 14px;
+
+    padding: 22px;
+
+    text-align: center;
+
+    transition:
+        .25s ease;
+}
+
+.security-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color:
+        var(--gold);
+
+    box-shadow:
+        0 0 22px rgba(
+            217,
+            164,
+            65,
+            .20
+        );
+}
+
+.security-card h3 {
+
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    letter-spacing: 1.5px;
+}
+
+.security-value {
+
+    margin-top: 12px;
+
+    color: var(--gold);
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   SECURITY STATES
+   ============================================================ */
+
+.security-ok {
+
+    color: var(--green);
+}
+
+.security-warning {
+
+    color: #d9a441;
+}
+
+.security-error {
+
+    color: #d9534f;
+}
+
+
+/* ============================================================
+   SECURITY CHECK LIST
+   ============================================================ */
+
+.security-check-list {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            1fr
+        );
+
+    gap: 18px;
+}
+
+
+/* ============================================================
+   SECURITY CHECK
+   ============================================================ */
+
+.security-check {
+
+    display: flex;
+
+    gap: 18px;
+
+    min-width: 0;
+
+    padding: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1a2330,
+            #10161d
+        );
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 16px;
+
+    transition:
+        .25s ease;
+}
+
+.security-check:hover {
+
+    border-color:
+        var(--gold);
+
+    box-shadow:
+        0 0 25px rgba(
+            217,
+            164,
+            65,
+            .20
+        );
+
+    transform:
+        translateY(-3px);
+}
+
+
+/* ============================================================
+   CHECK ICON
+   ============================================================ */
+
+.security-check-icon {
+
+    width: 58px;
+
+    height: 58px;
+
+    min-width: 58px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        #0b0f14;
+
+    border-radius: 14px;
+
+    font-size: 30px;
+}
+
+
+/* ============================================================
+   CHECK INFO
+   ============================================================ */
+
+.security-check-info {
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+.security-check-info h3 {
+
+    margin:
+        0 0 15px 0;
+
+    color: var(--gold2);
+
+    font-size: 18px;
+
+    letter-spacing: 1px;
+}
+
+
+/* ============================================================
+   META
+   ============================================================ */
+
+.security-meta {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
+    gap: 10px;
+}
+
+.security-meta div {
+
+    min-width: 0;
+
+    background:
+        #0b0f14;
+
+    padding: 11px;
+
+    border-radius: 10px;
+}
+
+.security-meta label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    letter-spacing: 1px;
+}
+
+.security-meta strong {
+
+    display: block;
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   DETAILS
+   ============================================================ */
+
+.security-details {
+
+    margin-top: 15px;
+
+    background:
+        #0b0f14;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+.security-details summary {
+
+    padding: 12px 14px;
+
+    color: var(--gold2);
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+}
+
+.security-details pre {
+
+    margin: 0;
+
+    padding: 14px;
+
+    border-top:
+        1px solid var(--border);
+
+    color: var(--muted);
+
+    white-space: pre-wrap;
+
+    overflow-x: auto;
+
+    font-family:
+        monospace;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.security-empty {
+
+    padding: 45px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+    border:
+        1px dashed var(--border);
+
+    border-radius: 12px;
+}
+
+
+/* ============================================================
+   SYSTEM SECURITY CONTEXT
+   ============================================================ */
+
+.security-system-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
+    gap: 15px;
+}
+
+.security-system-item {
+
+    background:
+        #0b0f14;
+
+    padding: 18px;
+
+    border-radius: 12px;
+
+    border:
+        1px solid var(--border);
+}
+
+.security-system-item label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+}
+
+.security-system-item strong {
+
+    color: var(--text);
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media(max-width:1100px) {
+
+    .security-grid {
+
+        grid-template-columns:
+            repeat(
+                3,
+                1fr
+            );
+    }
+
+    .security-check-list {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .security-meta {
+
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+    }
+}
+
+
+@media(max-width:700px) {
+
+    .security-header h1 {
+
+        font-size: 27px;
+
+        letter-spacing: 3px;
+    }
+
+    .security-status {
+
+        flex-direction: column;
+
+        gap: 10px;
+    }
+
+    .security-status span {
+
+        width: 100%;
+
+        box-sizing: border-box;
+    }
+
+    .security-actions {
+
+        margin-top: 24px;
+    }
+
+    .security-button {
+
+        width: 100%;
+
+        min-width: 0;
+
+        height: 56px;
+    }
+
+    .security-panel {
+
+        padding: 18px;
+    }
+
+    .security-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .security-check {
+
+        flex-direction: column;
+    }
+
+    .security-meta {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .security-system-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+}

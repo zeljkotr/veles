@@ -16,7 +16,7 @@ AI Operations Center UI
 
     flex-direction: column;
 
-    gap: 25px;
+    gap: 28px;
 }
 
 
@@ -84,6 +84,28 @@ AI Operations Center UI
             65,
             .2
         );
+}
+
+
+/* ============================================================
+   INFRASTRUCTURE ACTIONS
+   ============================================================ */
+
+.infra-actions {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 18px;
+
+    width: 100%;
+
+    margin-top: 34px;
+
+    margin-bottom: 8px;
 }
 
 
@@ -461,17 +483,19 @@ AI Operations Center UI
 
     flex-direction: row;
 
-    align-items: stretch;
+    align-items: center;
 
     justify-content: flex-start;
 
-    gap: 12px;
+    gap: 16px;
 
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
 
     width: 100%;
 
-    margin-top: 20px;
+    margin-top: 24px;
+
+    margin-bottom: 4px;
 }
 
 .action-row form {
@@ -484,7 +508,7 @@ AI Operations Center UI
 
     flex: 0 0 auto;
 
-    align-items: stretch;
+    align-items: center;
 }
 
 
@@ -502,11 +526,13 @@ AI Operations Center UI
 
     width: 240px;
 
+    min-width: 240px;
+
     min-height: 58px;
 
     height: 58px;
 
-    padding: 0 28px;
+    padding: 0 22px;
 
     box-sizing: border-box;
 
@@ -520,7 +546,7 @@ AI Operations Center UI
     border:
         2px solid var(--gold);
 
-    border-radius: 12px;
+    border-radius: 10px;
 
     color: var(--gold2);
 
@@ -528,9 +554,9 @@ AI Operations Center UI
 
     font-weight: 700;
 
-    font-size: 16px;
+    font-size: 15px;
 
-    letter-spacing: 1.5px;
+    letter-spacing: 1.3px;
 
     cursor: pointer;
 
@@ -548,11 +574,13 @@ AI Operations Center UI
 
 .action-row .infra-button {
 
-    width: 240px;
+    width: 210px;
 
-    min-height: 58px;
+    min-width: 210px;
 
-    height: 58px;
+    min-height: 52px;
+
+    height: 52px;
 }
 
 .infra-button:hover {
@@ -569,7 +597,7 @@ AI Operations Center UI
     color: var(--gold2);
 
     transform:
-        translateY(-3px);
+        translateY(-2px);
 
     box-shadow:
         0 0 30px rgba(
@@ -605,9 +633,9 @@ input[name="custom_network"] {
 
     min-width: 320px;
 
-    height: 58px;
+    height: 52px;
 
-    min-height: 58px;
+    min-height: 52px;
 
     box-sizing: border-box;
 
@@ -624,13 +652,13 @@ input[name="custom_network"] {
     border:
         2px solid var(--border);
 
-    border-radius: 12px;
+    border-radius: 10px;
 
     color: var(--text);
 
     font-family: inherit;
 
-    font-size: 16px;
+    font-size: 15px;
 
     font-weight: 600;
 
@@ -702,15 +730,15 @@ input[name="custom_network"]:focus {
 
     justify-content: center;
 
-    width: 240px;
+    width: 210px;
 
-    min-width: 240px;
+    min-width: 210px;
 
-    height: 58px;
+    height: 52px;
 
-    min-height: 58px;
+    min-height: 52px;
 
-    padding: 0 28px;
+    padding: 0 22px;
 
     box-sizing: border-box;
 
@@ -724,17 +752,17 @@ input[name="custom_network"]:focus {
     border:
         2px solid var(--gold);
 
-    border-radius: 12px;
+    border-radius: 10px;
 
     color: var(--gold2);
 
     font-family: inherit;
 
-    font-size: 16px;
+    font-size: 15px;
 
     font-weight: 700;
 
-    letter-spacing: 1.5px;
+    letter-spacing: 1.3px;
 
     cursor: pointer;
 
@@ -766,7 +794,7 @@ input[name="custom_network"]:focus {
         var(--gold2);
 
     transform:
-        translateY(-3px);
+        translateY(-2px);
 
     box-shadow:
         0 0 30px rgba(
@@ -797,7 +825,7 @@ input[name="custom_network"]:focus {
 
     padding: 0;
 
-    margin-top: 28px;
+    margin-top: 24px;
 }
 
 .scan-button {
@@ -810,9 +838,9 @@ input[name="custom_network"]:focus {
 
     width: 100%;
 
-    min-height: 76px;
+    min-height: 68px;
 
-    height: 76px;
+    height: 68px;
 
     padding: 0 30px;
 
@@ -828,17 +856,17 @@ input[name="custom_network"]:focus {
     border:
         2px solid var(--gold);
 
-    border-radius: 16px;
+    border-radius: 14px;
 
     color: var(--gold2);
 
     font-family: inherit;
 
-    font-size: 18px;
+    font-size: 17px;
 
     font-weight: 800;
 
-    letter-spacing: 2px;
+    letter-spacing: 1.8px;
 
     cursor: pointer;
 
@@ -870,7 +898,7 @@ input[name="custom_network"]:focus {
         var(--gold2);
 
     transform:
-        translateY(-3px);
+        translateY(-2px);
 
     box-shadow:
         0 0 38px rgba(
@@ -902,7 +930,7 @@ input[name="custom_network"]:focus {
 
 #scan-form + .resource-meta {
 
-    margin-top: 20px;
+    margin-top: 18px;
 
     color: var(--muted);
 
@@ -918,7 +946,7 @@ input[name="custom_network"]:focus {
 
 .resource-overview {
 
-    margin-top: 30px;
+    margin-top: 28px;
 }
 
 .resource-overview h2 {
@@ -1421,6 +1449,28 @@ input[type="checkbox"]:checked::after {
             1fr;
     }
 
+    .infra-actions {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 12px;
+
+        margin-top: 28px;
+    }
+
+    .infra-actions .infra-button {
+
+        width: 100%;
+
+        min-width: 0;
+
+        min-height: 58px;
+
+        height: 58px;
+    }
+
     .action-row {
 
         flex-direction: column;
@@ -1428,6 +1478,10 @@ input[type="checkbox"]:checked::after {
         align-items: stretch;
 
         width: 100%;
+
+        gap: 12px;
+
+        margin-top: 20px;
     }
 
     .action-row form {
@@ -1439,18 +1493,22 @@ input[type="checkbox"]:checked::after {
 
         width: 100%;
 
-        min-height: 56px;
+        min-width: 0;
 
-        height: 56px;
+        min-height: 52px;
+
+        height: 52px;
     }
 
     .infra-button {
 
         width: 100%;
 
-        min-height: 56px;
+        min-width: 0;
 
-        height: 56px;
+        min-height: 52px;
+
+        height: 52px;
     }
 
     input[name="custom_network"] {
@@ -1459,7 +1517,9 @@ input[type="checkbox"]:checked::after {
 
         min-width: 0;
 
-        height: 58px;
+        height: 52px;
+
+        min-height: 52px;
     }
 
     .action-row .add-button {
@@ -1468,14 +1528,16 @@ input[type="checkbox"]:checked::after {
 
         min-width: 0;
 
-        height: 58px;
+        height: 52px;
+
+        min-height: 52px;
     }
 
     .scan-button {
 
-        min-height: 64px;
+        min-height: 60px;
 
-        height: 64px;
+        height: 60px;
 
         font-size: 16px;
 
