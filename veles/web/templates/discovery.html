@@ -10,7 +10,7 @@ Veles Discovery Center
 
 <link
     rel="stylesheet"
-    href="{{ url_for('static', filename='css/infrastructure.css', v='4') }}"
+    href="{{ url_for('static', filename='css/infrastructure.css', v='5') }}"
 >
 
 {% endblock %}
@@ -39,6 +39,117 @@ Veles Discovery Center
 
 
     <!-- ========================================== -->
+    <!-- DISCOVERY CONTROLS -->
+    <!-- ========================================== -->
+
+    <section class="inventory-panel discovery-controls-panel">
+
+        <div class="discovery-controls-header">
+
+            <div>
+
+                <h2>
+                    ⚡ DISCOVERY CONTROLS
+                </h2>
+
+                <p>
+                    Configure networks and start fast discovery.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="discovery-controls">
+
+
+            <!-- ADD NETWORK -->
+
+            <form
+                method="POST"
+                action="{{ url_for('discovery_scan') }}"
+                class="discovery-control-form"
+            >
+
+                <input
+                    type="text"
+                    name="custom_network"
+                    placeholder="192.168.50.0/24"
+                    autocomplete="off"
+                >
+
+                <button
+                    class="infra-button discovery-control-button"
+                    type="submit"
+                    name="add_custom"
+                    value="1"
+                >
+                    ➕ ADD NETWORK
+                </button>
+
+            </form>
+
+
+            <!-- START FAST DISCOVERY -->
+
+            <form
+                id="scan-form"
+                method="POST"
+                action="{{ url_for('discovery_scan') }}"
+                class="discovery-control-form"
+            >
+
+                {% for target in targets %}
+
+                    {% if target.interface != "tailscale0"
+                          and target.scannable
+                          and target.network %}
+
+                        <input
+                            type="checkbox"
+                            name="network"
+                            value="{{ target.network }}"
+                            checked
+                            hidden
+                        >
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+                <button
+                    class="scan-button discovery-control-button"
+                    type="submit"
+                >
+                    🚀 START FAST DISCOVERY
+                </button>
+
+            </form>
+
+
+        </div>
+
+
+        <div class="discovery-controls-info">
+
+            <span>
+                ⚡ FAST DISCOVERY finds alive hosts,
+                ports, services and basic identity.
+            </span>
+
+            <span>
+                🔎 Detailed information is available
+                from each host's Details page.
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================== -->
     <!-- DISCOVERY TARGETS -->
     <!-- ========================================== -->
 
@@ -53,125 +164,132 @@ Veles Discovery Center
 
             {% for target in targets %}
 
-                <div class="resource-item">
+                {% if target.interface != "tailscale0" %}
 
-                    <div class="resource-icon">
-                        🌐
-                    </div>
+                    <div class="resource-item">
 
-
-                    <div class="resource-info">
-
-                        <h2>
-                            {{ target.interface }}
-                        </h2>
-
-
-                        <div class="resource-meta">
-
-                            <div>
-
-                                <label>
-                                    NETWORK
-                                </label>
-
-                                <strong>
-                                    {{ target.network or "Unavailable" }}
-                                </strong>
-
-                            </div>
-
-
-                            <div>
-
-                                <label>
-                                    ADDRESS
-                                </label>
-
-                                <strong>
-                                    {{ target.address or "-" }}
-                                </strong>
-
-                            </div>
-
-
-                            <div>
-
-                                <label>
-                                    SOURCE
-                                </label>
-
-                                <strong>
-                                    {{ target.source or "auto" }}
-                                </strong>
-
-                            </div>
-
+                        <div class="resource-icon">
+                            🌐
                         </div>
 
 
-                        {% if target.scannable and target.network %}
+                        <div class="resource-info">
+
+                            <h2>
+                                {{ target.interface }}
+                            </h2>
+
 
                             <div class="resource-meta">
 
                                 <div>
 
                                     <label>
-                                        SCAN TARGET
+                                        NETWORK
                                     </label>
 
                                     <strong>
+                                        {{ target.network or "Unavailable" }}
+                                    </strong>
 
-                                        <input
-                                            type="checkbox"
-                                            name="network"
-                                            value="{{ target.network }}"
-                                            checked
-                                            form="scan-form"
-                                        >
+                                </div>
 
-                                        {{ target.network }}
 
+                                <div>
+
+                                    <label>
+                                        ADDRESS
+                                    </label>
+
+                                    <strong>
+                                        {{ target.address or "-" }}
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <label>
+                                        SOURCE
+                                    </label>
+
+                                    <strong>
+                                        {{ target.source or "auto" }}
                                     </strong>
 
                                 </div>
 
                             </div>
 
-                        {% endif %}
+
+                            {% if target.scannable and target.network %}
+
+                                <div class="resource-meta">
+
+                                    <div>
+
+                                        <label>
+                                            SCAN TARGET
+                                        </label>
+
+                                        <strong>
+
+                                            <input
+                                                type="checkbox"
+                                                name="network"
+                                                value="{{ target.network }}"
+                                                checked
+                                                form="scan-form"
+                                            >
+
+                                            {{ target.network }}
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            {% endif %}
 
 
-                        {% if target.source == "custom" %}
+                            <!-- REMOVE CUSTOM NETWORK -->
 
-                            <div class="action-row">
+                            {% if target.source == "custom" %}
 
-                                <form
-                                    method="POST"
-                                    action="{{ url_for('discovery_scan') }}"
-                                >
+                                <div class="network-remove-action">
 
-                                    <input
-                                        type="hidden"
-                                        name="remove_network"
-                                        value="{{ target.network }}"
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('discovery_scan') }}"
                                     >
 
-                                    <button
-                                        class="infra-button"
-                                        type="submit"
-                                    >
-                                        🗑 REMOVE NETWORK
-                                    </button>
+                                        <input
+                                            type="hidden"
+                                            name="remove_network"
+                                            value="{{ target.network }}"
+                                        >
 
-                                </form>
+                                        <button
+                                            class="remove-network-button"
+                                            type="submit"
+                                        >
+                                            🗑 REMOVE NETWORK
+                                        </button>
 
-                            </div>
+                                    </form>
 
-                        {% endif %}
+                                </div>
+
+                            {% endif %}
+
+
+                        </div>
 
                     </div>
 
-                </div>
+                {% endif %}
 
             {% else %}
 
@@ -184,115 +302,6 @@ Veles Discovery Center
             {% endfor %}
 
         </div>
-
-    </section>
-
-
-    <!-- ========================================== -->
-    <!-- CUSTOM NETWORK -->
-    <!-- ========================================== -->
-
-    <section class="inventory-panel">
-
-        <h2>
-            ➕ CUSTOM NETWORK
-        </h2>
-
-
-        <div class="resource-list">
-
-            <div class="resource-item">
-
-                <div class="resource-icon">
-                    🌐
-                </div>
-
-
-                <div class="resource-info">
-
-                    <h2>
-                        ADD NETWORK
-                    </h2>
-
-
-                    <div class="resource-meta">
-
-                        <div>
-
-                            <label>
-                                CIDR NETWORK
-                            </label>
-
-
-                            <form
-                                method="POST"
-                                action="{{ url_for('discovery_scan') }}"
-                                class="action-row"
-                            >
-
-                                <input
-                                    type="text"
-                                    name="custom_network"
-                                    placeholder="192.168.50.0/24"
-                                    autocomplete="off"
-                                >
-
-
-                                <button
-                                    class="add-button"
-                                    type="submit"
-                                    name="add_custom"
-                                    value="1"
-                                >
-                                    ➕ ADD
-                                </button>
-
-                            </form>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ========================================== -->
-    <!-- START FAST DISCOVERY -->
-    <!-- ========================================== -->
-
-    <section class="inventory-panel">
-
-        <form
-            id="scan-form"
-            method="POST"
-            action="{{ url_for('discovery_scan') }}"
-        >
-
-            <button
-                class="scan-button"
-                type="submit"
-            >
-                🚀 START FAST DISCOVERY
-            </button>
-
-        </form>
-
-
-        <p class="resource-meta">
-
-            ⚡ Fast discovery finds alive hosts and basic
-            services.
-
-            🔬 Detailed Nmap scanning is performed only
-            from the selected host's Details page.
-
-        </p>
 
     </section>
 
@@ -491,7 +500,7 @@ Veles Discovery Center
                                             </label>
 
                                             <strong>
-                                                {{ device.os }}
+                                                🖥 {{ device.os }}
                                             </strong>
 
                                         </div>
@@ -508,15 +517,16 @@ Veles Discovery Center
                             <!-- SERVICES -->
                             <!-- ================================== -->
 
-                            {% if device.services %}
+                            <div class="resource-meta">
 
-                                <div class="resource-meta">
+                                <div>
 
-                                    <div>
+                                    <label>
+                                        SERVICES
+                                    </label>
 
-                                        <label>
-                                            SERVICES
-                                        </label>
+
+                                    {% if device.services %}
 
 
                                         {% for service in device.services %}
@@ -543,37 +553,27 @@ Veles Discovery Center
 
                                         {% endfor %}
 
-                                    </div>
 
-                                </div>
+                                    {% else %}
 
-                            {% else %}
-
-                                <div class="resource-meta">
-
-                                    <div>
-
-                                        <label>
-                                            SERVICES
-                                        </label>
 
                                         <strong>
                                             ⚪ NONE DETECTED
                                         </strong>
 
-                                    </div>
+
+                                    {% endif %}
 
                                 </div>
 
-                            {% endif %}
+                            </div>
 
 
                             <!-- ================================== -->
-                            <!-- SCAN STATE -->
+                            <!-- DISCOVERY STATE -->
                             <!-- ================================== -->
 
                             <div class="resource-meta">
-
 
                                 <div>
 
@@ -582,52 +582,10 @@ Veles Discovery Center
                                     </label>
 
                                     <strong>
-
-                                        {% if device.deep_scan %}
-
-                                            🔬 DEEP SCAN COMPLETE
-
-                                        {% else %}
-
-                                            ⚡ FAST DISCOVERY
-
-                                        {% endif %}
-
+                                        ⚡ FAST DISCOVERY
                                     </strong>
 
                                 </div>
-
-
-                                {% if device.deep_scan_status %}
-
-                                    <div>
-
-                                        <label>
-                                            DEEP SCAN STATUS
-                                        </label>
-
-                                        <strong>
-
-                                            {% if device.deep_scan_status == "completed" %}
-
-                                                🟢 COMPLETE
-
-                                            {% elif device.deep_scan_status == "failed" %}
-
-                                                🔴 FAILED
-
-                                            {% else %}
-
-                                                ⚪
-                                                {{ device.deep_scan_status }}
-
-                                            {% endif %}
-
-                                        </strong>
-
-                                    </div>
-
-                                {% endif %}
 
                             </div>
 

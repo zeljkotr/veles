@@ -27,8 +27,18 @@ FAST DISCOVERY
 lista pronađenih hostova
     ->
 DETAILS
-    ->
-DEEP NMAP SCAN samo jednog hosta
+
+FAST DISCOVERY radi:
+
+- host availability
+- TCP service detection
+- hostname
+- MAC
+- vendor kada je dostupan
+- HTTP identity
+- targeted OS detection
+
+Nema posebnog DEEP SCAN koraka.
 """
 
 import platform
@@ -502,15 +512,6 @@ def resolve_hostname(ip):
 
 def get_neighbor_info(ip):
 
-    """
-    Pokušava da pronađe MAC adresu preko Linux neighbor
-    tabele.
-
-    Primer:
-
-        192.168.2.22 dev eth0 lladdr aa:bb:cc:dd:ee:ff REACHABLE
-    """
-
     try:
 
         result = subprocess.run(
@@ -690,6 +691,470 @@ def detect_http_identity(
 
 
 # ============================================================
+# SSH BANNER
+# ============================================================
+
+def get_ssh_banner(
+    host,
+    port=22,
+    timeout=0.8
+):
+
+    """
+    Čita samo SSH banner.
+
+    Ovo nije service/deep scan.
+    Koristi se samo kada je TCP/22 već pronađen.
+    """
+
+    sock = None
+
+    try:
+
+        sock = socket.socket(
+            socket.AF_INET,
+            socket.SOCK_STREAM
+        )
+
+        sock.settimeout(timeout)
+
+        sock.connect(
+            (
+                host,
+                port
+            )
+        )
+
+        data = sock.recv(
+            512
+        )
+
+        if not data:
+
+            return ""
+
+        return data.decode(
+            "latin-1",
+            errors="ignore"
+        ).strip()
+
+    except Exception:
+
+        return ""
+
+    finally:
+
+        if sock:
+
+            try:
+                sock.close()
+            except Exception:
+                pass
+
+
+# ============================================================
+# TARGETED SMB OS DETECTION
+# ============================================================
+
+def detect_smb_os(
+    host
+):
+
+    """
+    Ciljani SMB OS detection.
+
+    Pokreće samo:
+
+        nmap -p 445 --script smb-os-discovery
+
+    Ne koristi:
+
+        -O
+        -A
+        service scan
+        port scan
+
+    Port 445 je već pronađen FAST DISCOVERY-jem.
+    """
+
+    nmap_binary = shutil.which(
+        "nmap"
+    )
+
+    if not nmap_binary:
+
+        return None
+
+    command = [
+
+        nmap_binary,
+
+        "-Pn",
+
+        "-sT",
+
+        "-p",
+        "445",
+
+        "--script",
+        "smb-os-discovery",
+
+        "-T4",
+
+        "--host-timeout",
+        "8s",
+
+        "--max-retries",
+        "1",
+
+        host
+    ]
+
+    try:
+
+        result = subprocess.run(
+
+            command,
+
+            capture_output=True,
+
+            text=True,
+
+            timeout=10
+
+        )
+
+    except (
+        subprocess.TimeoutExpired,
+        OSError
+    ):
+
+        return None
+
+    output = (
+        result.stdout
+        or ""
+    )
+
+    if not output:
+
+        return None
+
+    # --------------------------------------------------------
+    # Exact OS line
+    # --------------------------------------------------------
+
+    os_match = re.search(
+        r"(?im)^\s*OS:\s*(.+?)\s*$",
+        output
+    )
+
+    if os_match:
+
+        detected = (
+            os_match.group(1)
+            .strip()
+        )
+
+        if detected:
+
+            return detected
+
+    # --------------------------------------------------------
+    # Windows Server / Windows release
+    # --------------------------------------------------------
+
+    windows_patterns = [
+
+        r"(?im)^\s*(Windows\s+Server[^\r\n]*)$",
+
+        r"(?im)^\s*(Windows\s+10[^\r\n]*)$",
+
+        r"(?im)^\s*(Windows\s+11[^\r\n]*)$",
+
+        r"(?im)^\s*(Microsoft\s+Windows[^\r\n]*)$"
+
+    ]
+
+    for pattern in windows_patterns:
+
+        match = re.search(
+            pattern,
+            output
+        )
+
+        if match:
+
+            detected = (
+                match.group(1)
+                .strip()
+            )
+
+            if detected:
+
+                return detected
+
+    # --------------------------------------------------------
+    # Generic Windows signal
+    # --------------------------------------------------------
+
+    if re.search(
+        r"(?i)\bWindows\b",
+        output
+    ):
+
+        return "Microsoft Windows"
+
+    return None
+
+
+# ============================================================
+# TARGETED OS DETECTION
+# ============================================================
+
+def detect_os(
+    host,
+    open_ports,
+    hostname=None,
+    services=None,
+    http_identity=None
+):
+
+    """
+    Brza, ciljana OS detekcija.
+
+    Ne koristi Nmap -O.
+
+    Ne radi kompletan deep scan.
+
+    OS signal se traži samo kada postoji smislen razlog:
+
+        445       -> SMB / Windows
+        3389      -> RDP / Windows
+        5985/5986 -> WinRM / Windows
+        22        -> SSH banner / Linux-Unix
+        hostname  -> hostname hint
+        HTTP      -> server identity hint
+
+    Rezultat može biti:
+
+        Windows 10 ...
+        Windows Server ...
+        Microsoft Windows
+        Linux / Unix
+        unknown
+    """
+
+    services = services or []
+
+    ports = {
+        int(port)
+        for port in (open_ports or [])
+        if str(port).isdigit()
+    }
+
+    # --------------------------------------------------------
+    # WINDOWS SIGNALS
+    # --------------------------------------------------------
+
+    windows_ports = {
+        3389,
+        5985,
+        5986
+    }
+
+    if ports.intersection(
+        windows_ports
+    ):
+
+        # SMB daje mogućnost preciznijeg OS-a.
+        if 445 in ports:
+
+            smb_os = detect_smb_os(
+                host
+            )
+
+            if smb_os:
+
+                return smb_os
+
+        # RDP / WinRM je dovoljno jak signal
+        # za Windows family, ali nije dovoljan
+        # da izmišljamo Windows 10/11 verziju.
+
+        return "Microsoft Windows"
+
+    # --------------------------------------------------------
+    # SMB / WINDOWS
+    # --------------------------------------------------------
+
+    if 445 in ports:
+
+        smb_os = detect_smb_os(
+            host
+        )
+
+        if smb_os:
+
+            return smb_os
+
+        # SMB 445 sam po sebi je jak Windows signal
+        # za ovaj discovery kontekst.
+        #
+        # Ne tvrdimo Windows 10/11 bez dokaza.
+
+        return "Microsoft Windows"
+
+    # --------------------------------------------------------
+    # SSH / LINUX / UNIX
+    # --------------------------------------------------------
+
+    if 22 in ports:
+
+        banner = get_ssh_banner(
+            host
+        )
+
+        banner_lower = (
+            banner.lower()
+        )
+
+        if "openssh" in banner_lower:
+
+            if any(
+                value in banner_lower
+                for value in (
+                    "ubuntu",
+                    "debian",
+                    "centos",
+                    "red hat",
+                    "rhel",
+                    "fedora",
+                    "alpine",
+                    "arch",
+                    "linux"
+                )
+            ):
+
+                return "Linux"
+
+            return "Linux / Unix"
+
+        if (
+            "dropbear" in banner_lower
+            or "libssh" in banner_lower
+        ):
+
+            return "Linux / Unix"
+
+    # --------------------------------------------------------
+    # SERVICE INFORMATION
+    # --------------------------------------------------------
+
+    service_text = " ".join(
+
+        str(
+            item.get("service", "")
+        )
+
+        + " "
+
+        + str(
+            item.get("version", "")
+        )
+
+        for item in services
+
+    ).lower()
+
+    if "microsoft" in service_text:
+
+        return "Microsoft Windows"
+
+    if (
+        "winrm" in service_text
+        or "windows" in service_text
+    ):
+
+        return "Microsoft Windows"
+
+    if (
+        "openssh" in service_text
+        or "dropbear" in service_text
+    ):
+
+        return "Linux / Unix"
+
+    # --------------------------------------------------------
+    # HTTP SERVER HINT
+    # --------------------------------------------------------
+
+    if http_identity:
+
+        http_server = str(
+
+            http_identity.get(
+                "server"
+            )
+
+            or ""
+
+        ).lower()
+
+        if (
+            "microsoft-iis" in http_server
+            or "iis" in http_server
+        ):
+
+            return "Microsoft Windows"
+
+        if "apache" in http_server:
+
+            return "Linux / Unix"
+
+        if "nginx" in http_server:
+
+            return "Linux / Unix"
+
+    # --------------------------------------------------------
+    # HOSTNAME HINT
+    # --------------------------------------------------------
+
+    hostname_text = (
+        hostname or ""
+    ).lower()
+
+    if any(
+        value in hostname_text
+        for value in (
+            "windows",
+            "win10",
+            "win11",
+            "winserver"
+        )
+    ):
+
+        return "Microsoft Windows"
+
+    if any(
+        value in hostname_text
+        for value in (
+            "ubuntu",
+            "debian",
+            "linux",
+            "fedora",
+            "centos",
+            "rhel",
+            "arch"
+        )
+    ):
+
+        return "Linux / Unix"
+
+    return "unknown"
+
+
+# ============================================================
 # DEVICE CLASSIFICATION
 # ============================================================
 
@@ -700,24 +1165,6 @@ def classify_device(
     services,
     http_identity=None
 ):
-
-    """
-    Procena tipa uređaja.
-
-    Ovo je fingerprinting, ne apsolutna istina.
-
-    Prioritet:
-
-        camera
-        printer
-        router/network_device
-        tv
-        phone
-        server
-        computer
-        iot
-        unknown
-    """
 
     ports = set(
         open_ports
@@ -749,10 +1196,6 @@ def classify_device(
         + http_server
     )
 
-    # --------------------------------------------------------
-    # CAMERA
-    # --------------------------------------------------------
-
     camera_ports = {
         554,
         8554,
@@ -774,9 +1217,7 @@ def classify_device(
     )
 
     if (
-        ports.intersection(
-            camera_ports
-        )
+        ports.intersection(camera_ports)
         and (
             "rtsp" in service_names
             or any(
@@ -794,10 +1235,6 @@ def classify_device(
     ):
 
         return "camera"
-
-    # --------------------------------------------------------
-    # PRINTER
-    # --------------------------------------------------------
 
     printer_ports = {
         515,
@@ -831,10 +1268,6 @@ def classify_device(
 
         return "printer"
 
-    # --------------------------------------------------------
-    # ROUTER / NETWORK DEVICE
-    # --------------------------------------------------------
-
     router_words = (
         "router",
         "gateway",
@@ -861,10 +1294,6 @@ def classify_device(
 
         return "router"
 
-    # --------------------------------------------------------
-    # TV / MEDIA
-    # --------------------------------------------------------
-
     tv_words = (
         "tv",
         "smart-tv",
@@ -887,10 +1316,6 @@ def classify_device(
 
         return "tv"
 
-    # --------------------------------------------------------
-    # PHONE / MOBILE
-    # --------------------------------------------------------
-
     phone_words = (
         "iphone",
         "android",
@@ -911,10 +1336,6 @@ def classify_device(
     ):
 
         return "phone"
-
-    # --------------------------------------------------------
-    # SERVER
-    # --------------------------------------------------------
 
     server_words = (
         "server",
@@ -951,10 +1372,6 @@ def classify_device(
 
         return "server"
 
-    # --------------------------------------------------------
-    # COMPUTER
-    # --------------------------------------------------------
-
     computer_words = (
         "desktop",
         "workstation",
@@ -975,10 +1392,6 @@ def classify_device(
     ):
 
         return "computer"
-
-    # --------------------------------------------------------
-    # IOT
-    # --------------------------------------------------------
 
     iot_words = (
         "iot",
@@ -1003,10 +1416,6 @@ def classify_device(
 
         return "iot"
 
-    # --------------------------------------------------------
-    # UNKNOWN
-    # --------------------------------------------------------
-
     return "unknown"
 
 
@@ -1020,55 +1429,28 @@ def scan_services(
     cancel_event=None
 ):
 
-    """
-    Osnovni servis fingerprinting.
-
-    Ne koristi privileged Nmap.
-    Radi TCP connect scan.
-    """
-
     services = {
 
         22: "SSH",
-
         23: "Telnet",
-
         53: "DNS",
-
         80: "HTTP",
-
         81: "HTTP",
-
         443: "HTTPS",
-
         445: "SMB",
-
         515: "LPD",
-
         554: "RTSP",
-
         631: "IPP",
-
         1883: "MQTT",
-
         3389: "RDP",
-
         5000: "HTTP",
-
         5001: "HTTPS",
-
         8000: "HTTP",
-
         8080: "HTTP",
-
         8443: "HTTPS",
-
         8554: "RTSP",
-
         9100: "JetDirect",
-
         5985: "WinRM",
-
         5986: "WinRM SSL"
 
     }
@@ -1184,6 +1566,28 @@ def scan_host(
 
                 break
 
+    # --------------------------------------------------------
+    # TARGETED OS DETECTION
+    # --------------------------------------------------------
+
+    detected_os = detect_os(
+
+        host=ip,
+
+        open_ports=open_ports,
+
+        hostname=hostname,
+
+        services=found_services,
+
+        http_identity=http_identity
+
+    )
+
+    # --------------------------------------------------------
+    # DEVICE CLASSIFICATION
+    # --------------------------------------------------------
+
     device_type = classify_device(
 
         host=ip,
@@ -1222,7 +1626,7 @@ def scan_host(
             "interface"
         ),
 
-        "os": "unknown",
+        "os": detected_os,
 
         "port": (
             found_services[0]["port"]
@@ -1250,26 +1654,6 @@ def discover_network_hosts(
     progress_callback=None,
     cancel_event=None
 ):
-
-    """
-    Network discovery.
-
-    Ping + TCP service detection +
-    hostname + Linux neighbor information +
-    basic device fingerprinting.
-
-    Supports cancellation through
-    threading.Event().
-
-    IMPORTANT:
-
-    This is FAST DISCOVERY.
-
-    Nmap is NOT called here.
-
-    Nmap deep scan is performed only
-    by nmap_scan() for one selected host.
-    """
 
     hosts = []
 
@@ -1447,503 +1831,3 @@ def discover_network_hosts(
     )
 
     return hosts
-
-
-# ============================================================
-# NMAP DEEP SCAN
-# ============================================================
-
-def nmap_scan(
-    host,
-    timeout=60
-):
-
-    """
-    Comprehensive scan of ONE already discovered host.
-
-    FAST DISCOVERY never calls this function.
-
-    This function is called only after the user opens
-    Details and explicitly requests DEEP SCAN.
-
-    Uses:
-
-        -Pn
-        -sT
-        -sV
-        --open
-        -T4
-
-    This means:
-
-        no privileged/raw packet scan required
-        TCP connect scan
-        service/version detection
-        only open ports returned
-    """
-
-    host = str(
-        host
-    ).strip()
-
-    if not host:
-
-        raise ValueError(
-            "Host is empty"
-        )
-
-    # --------------------------------------------------------
-    # VALIDATE HOST
-    # --------------------------------------------------------
-
-    try:
-
-        ipaddress.ip_address(
-            host
-        )
-
-    except ValueError:
-
-        try:
-
-            socket.gethostbyname(
-                host
-            )
-
-        except Exception:
-
-            raise ValueError(
-                f"Invalid host: {host}"
-            )
-
-    # --------------------------------------------------------
-    # FIND NMAP
-    # --------------------------------------------------------
-
-    nmap_binary = shutil.which(
-        "nmap"
-    )
-
-    if not nmap_binary:
-
-        raise RuntimeError(
-            "Nmap is not installed"
-        )
-
-    # --------------------------------------------------------
-    # COMMAND
-    # --------------------------------------------------------
-
-    command = [
-
-        nmap_binary,
-
-        "-Pn",
-
-        "-sT",
-
-        "-sV",
-
-        "--open",
-
-        "-T4",
-
-        host
-
-    ]
-
-    print(
-        "NMAP DEEP SCAN START:",
-        host
-    )
-
-    print(
-        "NMAP COMMAND:",
-        " ".join(command)
-    )
-
-    # --------------------------------------------------------
-    # EXECUTE
-    # --------------------------------------------------------
-
-    try:
-
-        result = subprocess.run(
-
-            command,
-
-            capture_output=True,
-
-            text=True,
-
-            timeout=timeout
-
-        )
-
-    except subprocess.TimeoutExpired:
-
-        raise RuntimeError(
-            f"Nmap scan timeout for {host}"
-        )
-
-    except Exception as e:
-
-        raise RuntimeError(
-            f"Nmap execution failed: {e}"
-        )
-
-    stdout = (
-        result.stdout
-        or ""
-    )
-
-    stderr = (
-        result.stderr
-        or ""
-    )
-
-    if result.returncode != 0:
-
-        error = (
-            stderr.strip()
-            or stdout.strip()
-            or "Unknown nmap error"
-        )
-
-        raise RuntimeError(
-            error
-        )
-
-    # --------------------------------------------------------
-    # PARSE SERVICES
-    # --------------------------------------------------------
-
-    services = []
-
-    ports = []
-
-    for line in stdout.splitlines():
-
-        line = line.strip()
-
-        match = re.match(
-            r"^(\d+)/tcp\s+(\S+)\s*(.*)$",
-            line
-        )
-
-        if not match:
-
-            continue
-
-        port = int(
-            match.group(1)
-        )
-
-        state = match.group(2)
-
-        service_text = (
-            match.group(3).strip()
-        )
-
-        if state != "open":
-
-            continue
-
-        service_name = (
-            service_text
-            or "unknown"
-        )
-
-        version = None
-
-        # ----------------------------------------------------
-        # NMAP SERVICE FORMAT
-        #
-        # Examples:
-        #
-        # 22/tcp open ssh OpenSSH 9.6
-        # 80/tcp open http nginx 1.24
-        # ----------------------------------------------------
-
-        parts = service_text.split(
-            None,
-            1
-        )
-
-        if parts:
-
-            service_name = parts[0]
-
-            if len(parts) > 1:
-
-                version = parts[1].strip()
-
-        service = {
-
-            "service": service_name,
-
-            "port": port,
-
-            "protocol": "tcp"
-
-        }
-
-        if version:
-
-            service[
-                "version"
-            ] = version
-
-        services.append(
-            service
-        )
-
-        ports.append(
-            port
-        )
-
-    # --------------------------------------------------------
-    # HOSTNAME
-    # --------------------------------------------------------
-
-    hostname = None
-
-    host_match = re.search(
-        r"Nmap scan report for\s+(.+)",
-        stdout
-    )
-
-    if host_match:
-
-        report_name = (
-            host_match.group(1).strip()
-        )
-
-        # Format:
-        #
-        # hostname (192.168.2.111)
-        #
-        hostname_match = re.match(
-            r"^(.+?)\s+\(([^)]+)\)$",
-            report_name
-        )
-
-        if hostname_match:
-
-            candidate = (
-                hostname_match.group(1).strip()
-            )
-
-            candidate_ip = (
-                hostname_match.group(2).strip()
-            )
-
-            if candidate_ip == host:
-
-                hostname = candidate
-
-        else:
-
-            if report_name != host:
-
-                hostname = report_name
-
-    # --------------------------------------------------------
-    # OS DETECTION
-    #
-    # Note:
-    #
-    # We deliberately do NOT use -O here because it usually
-    # requires privileged/raw packet access.
-    #
-    # Service/version fingerprinting is still performed.
-    # --------------------------------------------------------
-
-    detected_os = "unknown"
-
-    os_match = re.search(
-        r"OS details:\s*(.+)",
-        stdout
-    )
-
-    if os_match:
-
-        detected_os = (
-            os_match.group(1).strip()
-        )
-
-    else:
-
-        aggressive_os = re.search(
-            r"Aggressive OS guesses:\s*(.+)",
-            stdout
-        )
-
-        if aggressive_os:
-
-            detected_os = (
-                aggressive_os.group(1).strip()
-            )
-
-    # --------------------------------------------------------
-    # MAC ADDRESS
-    # --------------------------------------------------------
-
-    mac = None
-
-    mac_match = re.search(
-        r"MAC Address:\s*([0-9A-Fa-f:]{17})",
-        stdout
-    )
-
-    if mac_match:
-
-        mac = (
-            mac_match.group(1).lower()
-        )
-
-    # --------------------------------------------------------
-    # VENDOR
-    # --------------------------------------------------------
-
-    vendor = None
-
-    if mac_match:
-
-        mac_line = mac_match.group(0)
-
-        vendor_match = re.search(
-            r"\(([^\)]+)\)\s*$",
-            mac_line
-        )
-
-        if vendor_match:
-
-            vendor = (
-                vendor_match.group(1).strip()
-            )
-
-    # --------------------------------------------------------
-    # HTTP IDENTITY
-    # --------------------------------------------------------
-
-    http_identity = None
-
-    http_ports = {
-
-        80,
-        81,
-        443,
-        5000,
-        5001,
-        8000,
-        8080,
-        8443
-
-    }
-
-    for port in ports:
-
-        if port not in http_ports:
-
-            continue
-
-        try:
-
-            identity = detect_http_identity(
-                host,
-                port
-            )
-
-            if identity:
-
-                http_identity = identity
-
-                if (
-                    identity.get("server")
-                    or identity.get("headers")
-                ):
-
-                    break
-
-        except Exception:
-
-            pass
-
-    # --------------------------------------------------------
-    # DEVICE CLASSIFICATION
-    # --------------------------------------------------------
-
-    device_type = classify_device(
-
-        host=host,
-
-        hostname=hostname,
-
-        open_ports=ports,
-
-        services=services,
-
-        http_identity=http_identity
-
-    )
-
-    # --------------------------------------------------------
-    # RESULT
-    # --------------------------------------------------------
-
-    result_data = {
-
-        "host": host,
-
-        "hostname": hostname,
-
-        "mac": mac,
-
-        "vendor": vendor,
-
-        "ports": ports,
-
-        "services": services,
-
-        "os": detected_os,
-
-        "type": device_type,
-
-        "device_type": device_type,
-
-        "nmap_scan": True,
-
-        "nmap_scan_status": "completed",
-
-        "nmap_output": stdout
-
-    }
-
-    if http_identity:
-
-        result_data[
-            "http_identity"
-        ] = http_identity
-
-    print(
-        "NMAP DEEP SCAN COMPLETE:",
-        host
-    )
-
-    print(
-        "NMAP PORTS:",
-        ports
-    )
-
-    print(
-        "NMAP OS:",
-        detected_os
-    )
-
-    print(
-        "NMAP TYPE:",
-        device_type
-    )
-
-    return result_data

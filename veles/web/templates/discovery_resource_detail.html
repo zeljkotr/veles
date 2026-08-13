@@ -39,10 +39,6 @@ Veles Discovery Resource
         {% if resource %}
 
 
-            <!-- ==========================================
-                 RESOURCE CARD
-                 ========================================== -->
-
             <div class="server-card">
 
 
@@ -116,7 +112,6 @@ Veles Discovery Resource
 
                 <section class="infra-actions">
 
-
                     <h4>
                         ACTIONS
                     </h4>
@@ -133,49 +128,6 @@ Veles Discovery Resource
                         >
                             ⬅ BACK TO DISCOVERY
                         </a>
-
-
-                        <!-- DEEP SCAN -->
-
-                        {% if resource.deep_scan_status == "completed" %}
-
-                            <span class="infra-button">
-
-                                🔬 DEEP SCAN COMPLETE
-
-                            </span>
-
-                        {% elif resource.deep_scan_status == "scanning" %}
-
-                            <span class="infra-button">
-
-                                🔬 DEEP SCAN RUNNING...
-
-                            </span>
-
-                        {% else %}
-
-                            <form
-                                method="POST"
-                                action="{{ url_for('discovery_resource_deep_scan') }}"
-                            >
-
-                                <input
-                                    type="hidden"
-                                    name="host"
-                                    value="{{ resource.host }}"
-                                >
-
-                                <button
-                                    class="infra-button"
-                                    type="submit"
-                                >
-                                    🔬 DEEP SCAN
-                                </button>
-
-                            </form>
-
-                        {% endif %}
 
 
                         <!-- ADD RESOURCE -->
@@ -202,7 +154,6 @@ Veles Discovery Resource
 
 
                     </div>
-
 
                 </section>
 
@@ -260,21 +211,7 @@ Veles Discovery Resource
                         </label>
 
                         <strong>
-
-                            {% if resource.deep_scan_status == "completed" %}
-
-                                🔬 DEEP SCANNED
-
-                            {% elif resource.deep_scan_status == "scanning" %}
-
-                                🔬 DEEP SCANNING
-
-                            {% else %}
-
-                                ⚡ FAST SCAN
-
-                            {% endif %}
-
+                            ⚡ FAST SCAN
                         </strong>
 
                     </div>
@@ -549,71 +486,6 @@ Veles Discovery Resource
                     </div>
 
                 </div>
-
-
-                <!-- ==========================================
-                     DEEP SCAN STATUS
-                     ========================================== -->
-
-                {% if resource.deep_scan_status %}
-
-                    <div class="server-grid">
-
-                        <div>
-
-                            <label>
-                                DEEP SCAN STATUS
-                            </label>
-
-                            <strong>
-
-                                {% if resource.deep_scan_status == "completed" %}
-
-                                    🟢 COMPLETE
-
-                                {% elif resource.deep_scan_status == "scanning" %}
-
-                                    🔬 SCANNING
-
-                                {% elif resource.deep_scan_status == "timeout" %}
-
-                                    🟠 TIMEOUT
-
-                                {% elif resource.deep_scan_status == "failed" %}
-
-                                    🔴 FAILED
-
-                                {% else %}
-
-                                    ⚪ {{ resource.deep_scan_status }}
-
-                                {% endif %}
-
-                            </strong>
-
-                        </div>
-
-
-                        {% if resource.deep_scan_error %}
-
-                            <div>
-
-                                <label>
-                                    ERROR
-                                </label>
-
-                                <strong>
-                                    {{ resource.deep_scan_error }}
-                                </strong>
-
-                            </div>
-
-                        {% endif %}
-
-
-                    </div>
-
-                {% endif %}
 
 
             </div>
