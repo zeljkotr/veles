@@ -2,7 +2,22 @@
 VELES Security Service
 
 Main local security inspection service.
+
+Security is read-only.
+
+This service is responsible for:
+- discovering the current local inspection target
+- executing registered security checks
+- attaching target context to every result
+- building the final security report
+
+Remote security will use the same result model later, but through
+separate remote connectors.
 """
+
+import getpass
+import platform
+import socket
 
 from veles.modules.security.models import (
     SecurityCheckResult,
@@ -16,7 +31,8 @@ from veles.modules.security.checks import (
     check_services,
     check_ssh,
     check_firewall,
-    check_system
+    check_system,
+    check_file_permissions
 )
 
 
@@ -24,17 +40,86 @@ class SecurityService:
     """
     Main VELES security service.
 
-    Read-only in v1.
+    Current implementation:
+        LOCAL / READ-ONLY
+
+    No system configuration is changed.
     """
 
     def __init__(self):
-
         self.report = None
 
 
-    def run_check(self, check_type):
+    def _get_local_target(self):
+        """
+        Discover the current local security inspection target.
+
+        No hostname, username, IP address, interface or other
+        machine-specific value is hardcoded.
+        """
+
+        try:
+            hostname = socket.gethostname()
+        except Exception:
+            hostname = "unknown"
+
+        try:
+            fqdn = socket.getfqdn()
+        except Exception:
+            fqdn = hostname
+
+        try:
+            user = getpass.getuser()
+        except Exception:
+            user = "unknown"
+
+        try:
+            system = platform.system()
+        except Exception:
+            system = "unknown"
+
+        try:
+            release = platform.release()
+        except Exception:
+            release = "unknown"
+
+        try:
+            machine = platform.machine()
+        except Exception:
+            machine = "unknown"
+
+        return {
+            "scope": "local",
+
+            "target": {
+                "name": hostname,
+                "hostname": hostname,
+                "fqdn": fqdn,
+                "host": hostname,
+                "platform": system.lower(),
+                "os": system,
+                "release": release,
+                "architecture": machine,
+                "user": user
+            },
+
+            "connector": {
+                "type": "local",
+                "mode": "direct"
+            }
+        }
+
+
+    def run_check(
+        self,
+        check_type,
+        target_metadata=None
+    ):
         """
         Execute one security check.
+
+        Target metadata is attached to the result without changing
+        the existing check implementation.
         """
 
         checks = {
@@ -44,32 +129,47 @@ class SecurityService:
             "services": check_services,
             "ssh": check_ssh,
             "firewall": check_firewall,
-            "system": check_system
+            "system": check_system,
+            "file_permissions": check_file_permissions
         }
 
-        check = checks.get(
-            check_type
-        )
+        check = checks.get(check_type)
 
         if check is None:
 
             return SecurityCheckResult(
                 check_type=check_type,
                 status="unknown",
-                message=(
-                    f"Unknown security check: {check_type}"
-                )
+                message=f"Unknown security check: {check_type}",
+                metadata=dict(target_metadata or {})
             )
 
         try:
 
             result = check()
 
+            metadata = dict(
+                target_metadata or {}
+            )
+
+            result_metadata = result.get(
+                "metadata",
+                {}
+            )
+
+            if isinstance(
+                result_metadata,
+                dict
+            ):
+                metadata.update(
+                    result_metadata
+                )
+
             return SecurityCheckResult(
                 check_type=check_type,
                 status=result.get(
                     "status",
-                    "ok"
+                    "unknown"
                 ),
                 message=result.get(
                     "message",
@@ -77,7 +177,8 @@ class SecurityService:
                 ),
                 data=result.get(
                     "data"
-                )
+                ),
+                metadata=metadata
             )
 
         except Exception as e:
@@ -85,7 +186,10 @@ class SecurityService:
             return SecurityCheckResult(
                 check_type=check_type,
                 status="error",
-                message=str(e)
+                message=str(e),
+                metadata=dict(
+                    target_metadata or {}
+                )
             )
 
 
@@ -94,6 +198,10 @@ class SecurityService:
         Run complete local security inspection.
         """
 
+        target_metadata = (
+            self._get_local_target()
+        )
+
         check_types = [
             "system",
             "users",
@@ -101,7 +209,8 @@ class SecurityService:
             "listening_ports",
             "services",
             "ssh",
-            "firewall"
+            "firewall",
+            "file_permissions"
         ]
 
         results = []
@@ -110,7 +219,8 @@ class SecurityService:
 
             results.append(
                 self.run_check(
-                    check_type
+                    check_type,
+                    target_metadata
                 )
             )
 
@@ -123,7 +233,8 @@ class SecurityService:
             checks=results,
             summary=self._build_summary(
                 results
-            )
+            ),
+            metadata=target_metadata
         )
 
         self.report = report
@@ -145,18 +256,27 @@ class SecurityService:
 
         return {
             "name": "Security",
+
             "status": (
                 report.status
                 if report
                 else "not_scanned"
             ),
+
             "checks": (
                 report.checks
                 if report
                 else []
             ),
+
             "summary": (
                 report.summary
+                if report
+                else {}
+            ),
+
+            "metadata": (
+                report.metadata
                 if report
                 else {}
             )
@@ -169,10 +289,13 @@ class SecurityService:
     ):
         """
         Calculate overall security inspection state.
+
+        UNKNOWN does not automatically make the whole system
+        unhealthy. This is important for checks such as firewall
+        inspection when the VELES process lacks root privileges.
         """
 
         if not results:
-
             return "unknown"
 
         error_count = sum(
@@ -182,7 +305,6 @@ class SecurityService:
         )
 
         if error_count:
-
             return "warning"
 
         return "healthy"
@@ -214,7 +336,9 @@ class SecurityService:
 
             else:
 
-                summary["unknown"] += 1
+                summary[
+                    "unknown"
+                ] += 1
 
         return summary
 

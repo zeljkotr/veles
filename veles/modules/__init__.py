@@ -1,13 +1,5 @@
 """
-VELES Security Module
+VELES Modules Package
+
+Individual VELES modules are imported explicitly.
 """
-
-from veles.modules.security.service import (
-    SecurityService,
-    security
-)
-
-__all__ = [
-    "SecurityService",
-    "security"
-]
