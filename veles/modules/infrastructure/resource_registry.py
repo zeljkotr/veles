@@ -7,54 +7,54 @@ Storage:
 PostgreSQL (primary)
 """
 
-
 from veles.database.connection import get_session
 from veles.database.models import Resource
 from veles.core.identity import IdentityService
 
 
-
 class ResourceRegistry:
-
 
     def __init__(self):
 
         pass
 
 
-
     def add_resource(self, resource):
 
         """
         Dodavanje resursa u PostgreSQL bazu.
-        Sprečava duplikate:
-        type + name + host
+
+        Sprečava duplikate po:
+            type + name + host
+
+        Vraća postojeći resource ako već postoji.
         """
 
         session = get_session()
 
         try:
 
+            resource_type = resource.get(
+                "type",
+                "server"
+            )
+
+            resource_name = resource.get(
+                "name",
+                "Unknown"
+            )
+
+            resource_host = resource.get(
+                "host"
+            )
+
             existing = session.query(
                 Resource
             ).filter(
-
-                Resource.type == resource.get(
-                    "type",
-                    "server"
-                ),
-
-                Resource.name == resource.get(
-                    "name",
-                    "Unknown"
-                ),
-
-                Resource.host == resource.get(
-                    "host"
-                )
-
+                Resource.type == resource_type,
+                Resource.name == resource_name,
+                Resource.host == resource_host
             ).first()
-
 
             if existing:
 
@@ -62,27 +62,17 @@ class ResourceRegistry:
                     existing
                 )
 
-
             resource["identity"] = IdentityService.create(
                 resource
             )
 
-
             db_resource = Resource(
 
-                type=resource.get(
-                    "type",
-                    "server"
-                ),
+                type=resource_type,
 
-                name=resource.get(
-                    "name",
-                    "Unknown"
-                ),
+                name=resource_name,
 
-                host=resource.get(
-                    "host"
-                ),
+                host=resource_host,
 
                 port=resource.get(
                     "port"
@@ -107,29 +97,23 @@ class ResourceRegistry:
 
             )
 
-
             session.add(
                 db_resource
             )
 
-
             session.commit()
-
 
             session.refresh(
                 db_resource
             )
 
-
             return self._to_dict(
                 db_resource
             )
 
-
         finally:
 
             session.close()
-
 
 
     def get_resources(self, group=None):
@@ -142,32 +126,22 @@ class ResourceRegistry:
                 Resource
             )
 
-
             if group:
 
                 query = query.filter(
-
                     Resource.type == group.rstrip("s")
-
                 )
-
 
             resources = query.all()
 
-
             return [
-
                 self._to_dict(item)
-
                 for item in resources
-
             ]
-
 
         finally:
 
             session.close()
-
 
 
     def get_resource(self, resource_id):
@@ -179,11 +153,8 @@ class ResourceRegistry:
             resource = session.query(
                 Resource
             ).filter(
-
                 Resource.id == resource_id
-
             ).first()
-
 
             if resource:
 
@@ -191,14 +162,11 @@ class ResourceRegistry:
                     resource
                 )
 
-
             return None
-
 
         finally:
 
             session.close()
-
 
 
     def update_resource(self, resource_id, data):
@@ -210,16 +178,12 @@ class ResourceRegistry:
             resource = session.query(
                 Resource
             ).filter(
-
                 Resource.id == resource_id
-
             ).first()
-
 
             if not resource:
 
                 return None
-
 
             for key, value in data.items():
 
@@ -234,24 +198,19 @@ class ResourceRegistry:
                         value
                     )
 
-
             session.commit()
-
 
             session.refresh(
                 resource
             )
 
-
             return self._to_dict(
                 resource
             )
 
-
         finally:
 
             session.close()
-
 
 
     def delete_resource(self, resource_id):
@@ -263,43 +222,38 @@ class ResourceRegistry:
             resource = session.query(
                 Resource
             ).filter(
-
                 Resource.id == resource_id
-
             ).first()
-
 
             if not resource:
 
                 return False
 
-
             session.delete(
                 resource
             )
 
-
             session.commit()
 
-
             return True
-
 
         finally:
 
             session.close()
 
 
-
-    def update_verification(self, resource_id, verification):
+    def update_verification(
+        self,
+        resource_id,
+        verification
+    ):
 
         self.update_resource(
-        resource_id,
-        {
-            "verification": verification
-        }
-    )
-
+            resource_id,
+            {
+                "verification": verification
+            }
+        )
 
 
     def _to_dict(self, item):

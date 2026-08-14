@@ -153,17 +153,6 @@ def _sort_discovery_results(results):
 
     """
     Sort discovered resources numerically by IP address.
-
-    Example:
-
-        192.168.2.1
-        192.168.2.11
-        192.168.2.12
-        192.168.2.20
-        192.168.2.100
-
-    This only sorts already discovered results.
-    It does not affect network scan speed.
     """
 
     def sort_key(item):
@@ -276,6 +265,7 @@ markdown = MarkdownIt(
 def markdown_filter(text):
 
     if not text:
+
         return ""
 
     return markdown.render(text)
@@ -285,7 +275,9 @@ def _generate_answer_audio(text: str):
 
     try:
 
-        wav_path = synthesize_to_file(text)
+        wav_path = synthesize_to_file(
+            text
+        )
 
         filename = (
             f"{uuid.uuid4().hex}.wav"
@@ -329,6 +321,7 @@ def infrastructure_page():
     server = None
 
     if servers:
+
         server = servers[0]
 
     return render_template(
@@ -353,18 +346,6 @@ def discovery_page():
     targets = discover_network_targets(
         custom_networks=custom_networks
     )
-
-    # --------------------------------------------------
-    # DISCOVERY RESULT LIFECYCLE
-    #
-    # Results are shown only when the current request
-    # follows a completed/cancelled scan, import, or
-    # return from a discovery resource detail page.
-    #
-    # This is intentionally NOT a persistent automatic
-    # scan cache. A normal new visit to /discovery starts
-    # clean.
-    # --------------------------------------------------
 
     show_results = session.pop(
         "discovery_show_results",
@@ -401,6 +382,10 @@ def discovery_page():
         discovered=current_results
     )
 
+
+# ==========================================
+# DISCOVERY SCAN
+# ==========================================
 
 @app.route(
     "/discovery/scan",
@@ -516,6 +501,7 @@ def discovery_scan():
         network = network.strip()
 
         if not network:
+
             continue
 
         try:
@@ -532,6 +518,7 @@ def discovery_scan():
         network_string = str(parsed)
 
         if network_string in seen_networks:
+
             continue
 
         seen_networks.add(
@@ -559,10 +546,6 @@ def discovery_scan():
                 "discovery_page"
             )
         )
-
-    # --------------------------------------
-    # New scan always starts clean.
-    # --------------------------------------
 
     with discovery_results_lock:
 
@@ -605,7 +588,6 @@ def discovery_scan():
         "results": [],
 
         "_cancel_event": cancel_event
-
     }
 
     def run_scan():
@@ -617,10 +599,11 @@ def discovery_scan():
         try:
 
             total_all = 0
+
             checked_all = 0
 
             # ----------------------------------
-            # CALCULATE TOTAL FOR ALL NETWORKS
+            # CALCULATE TOTAL
             # ----------------------------------
 
             for network in valid_networks:
@@ -631,7 +614,9 @@ def discovery_scan():
                 )
 
                 total_all += len(
-                    list(parsed.hosts())
+                    list(
+                        parsed.hosts()
+                    )
                 )
 
             if cancel_event.is_set():
@@ -647,7 +632,6 @@ def discovery_scan():
                     "current_network": None,
 
                     "results": []
-
                 })
 
                 return
@@ -663,15 +647,10 @@ def discovery_scan():
                 "current_network": valid_networks[0],
 
                 "network_index": 0
-
             })
 
             # ----------------------------------
-            # SCAN EACH SELECTED NETWORK
-            #
-            # FAST discovery only.
-            #
-            # No comprehensive Nmap scan.
+            # SCAN NETWORKS
             # ----------------------------------
 
             for index, network in enumerate(
@@ -679,6 +658,7 @@ def discovery_scan():
             ):
 
                 if cancel_event.is_set():
+
                     break
 
                 discovery_jobs[scan_id].update({
@@ -692,7 +672,6 @@ def discovery_scan():
                     "current_network": network,
 
                     "network_index": index
-
                 })
 
                 network_checked_start = checked_all
@@ -710,7 +689,6 @@ def discovery_scan():
                             "cancel_requested": True,
 
                             "cancelled": False
-
                         })
 
                         return
@@ -759,7 +737,6 @@ def discovery_scan():
                             len(discovered) +
                             local_found
                         )
-
                     })
 
                 print(
@@ -790,9 +767,11 @@ def discovery_scan():
                     )
 
                     if not host:
+
                         continue
 
                     if host in discovered_hosts:
+
                         continue
 
                     discovered_hosts.add(
@@ -809,7 +788,9 @@ def discovery_scan():
                 )
 
                 network_total = len(
-                    list(parsed.hosts())
+                    list(
+                        parsed.hosts()
+                    )
                 )
 
                 if cancel_event.is_set():
@@ -819,7 +800,8 @@ def discovery_scan():
                             "network_checked",
                             0
                         )
-                        - network_checked_start
+                        -
+                        network_checked_start
                     )
 
                     discovery_jobs[scan_id].update({
@@ -831,12 +813,14 @@ def discovery_scan():
 
                         "total": total_all,
 
-                        "found": len(discovered),
-
-                        "results": _sort_discovery_results(
+                        "found": len(
                             discovered
-                        )
+                        ),
 
+                        "results":
+                            _sort_discovery_results(
+                                discovered
+                            )
                     })
 
                     break
@@ -849,14 +833,16 @@ def discovery_scan():
 
                     "total": total_all,
 
-                    "found": len(discovered),
-
-                    "results": _sort_discovery_results(
+                    "found": len(
                         discovered
                     ),
 
-                    "network_index": index
+                    "results":
+                        _sort_discovery_results(
+                            discovered
+                        ),
 
+                    "network_index": index
                 })
 
             # ----------------------------------
@@ -885,12 +871,14 @@ def discovery_scan():
 
                     "total": total_all,
 
-                    "found": len(discovered),
-
-                    "results": _sort_discovery_results(
+                    "found": len(
                         discovered
-                    )
+                    ),
 
+                    "results":
+                        _sort_discovery_results(
+                            discovered
+                        )
                 })
 
                 with discovery_results_lock:
@@ -942,17 +930,15 @@ def discovery_scan():
 
                 "total": total_all,
 
-                "found": len(discovered),
-
-                "results": _sort_discovery_results(
+                "found": len(
                     discovered
-                )
+                ),
 
+                "results":
+                    _sort_discovery_results(
+                        discovered
+                    )
             })
-
-            # ----------------------------------
-            # SAVE RESULTS SERVER-SIDE
-            # ----------------------------------
 
             with discovery_results_lock:
 
@@ -989,12 +975,14 @@ def discovery_scan():
 
                     "cancel_requested": True,
 
-                    "results": _sort_discovery_results(
+                    "results":
+                        _sort_discovery_results(
+                            discovered
+                        ),
+
+                    "found": len(
                         discovered
-                    ),
-
-                    "found": len(discovered)
-
+                    )
                 })
 
             else:
@@ -1007,12 +995,14 @@ def discovery_scan():
 
                     "error": str(e),
 
-                    "results": _sort_discovery_results(
+                    "results":
+                        _sort_discovery_results(
+                            discovered
+                        ),
+
+                    "found": len(
                         discovered
-                    ),
-
-                    "found": len(discovered)
-
+                    )
                 })
 
             with discovery_results_lock:
@@ -1102,9 +1092,13 @@ def discovery_cancel():
             )
         )
 
-    if not job.get("running"):
+    if not job.get(
+        "running"
+    ):
 
-        if job.get("cancelled"):
+        if job.get(
+            "cancelled"
+        ):
 
             flash(
                 "SCAN CANCELLED",
@@ -1170,7 +1164,9 @@ def discovery_status():
             )
         )
 
-    if not job.get("running"):
+    if not job.get(
+        "running"
+    ):
 
         with discovery_results_lock:
 
@@ -1189,14 +1185,18 @@ def discovery_status():
             "discovery_show_results"
         ] = True
 
-        if job.get("cancelled"):
+        if job.get(
+            "cancelled"
+        ):
 
             flash(
                 "SCAN CANCELLED",
                 "success"
             )
 
-        elif job.get("error"):
+        elif job.get(
+            "error"
+        ):
 
             flash(
                 "SCAN ERROR",
@@ -1243,14 +1243,14 @@ def discovery_status_data():
         for key, value in job.items()
 
         if not key.startswith("_")
-
     }
 
-    # Keep status polling results numerically sorted too.
-    public_job["results"] = _sort_discovery_results(
-        public_job.get(
-            "results",
-            []
+    public_job["results"] = (
+        _sort_discovery_results(
+            public_job.get(
+                "results",
+                []
+            )
         )
     )
 
@@ -1271,8 +1271,12 @@ def discover_infrastructure():
     return render_template(
         "infrastructure.html",
         data=infrastructure.get_status(),
-        server=result.get("local"),
-        discovered=result.get("discovered")
+        server=result.get(
+            "local"
+        ),
+        discovered=result.get(
+            "discovered"
+        )
     )
 
 
@@ -1286,7 +1290,13 @@ def discover_infrastructure():
 def discovery_resource_detail():
 
     host = request.args.get(
-        "host"
+        "host",
+        ""
+    ).strip()
+
+    print(
+        "DISCOVERY RESOURCE DETAIL:",
+        host
     )
 
     if not host:
@@ -1297,25 +1307,73 @@ def discovery_resource_detail():
             )
         )
 
+    resource = None
+
+    # --------------------------------------
+    # FIND RESOURCE IN CURRENT RESULTS
+    # --------------------------------------
+
     with discovery_results_lock:
 
-        resource = next(
-            (
-                item
-                for item in discovery_results
-                if item.get("host") == host
-            ),
-            None
+        for item in discovery_results:
+
+            item_host = str(
+                item.get(
+                    "host",
+                    ""
+                )
+            ).strip()
+
+            if item_host == host:
+
+                resource = dict(
+                    item
+                )
+
+                break
+
+    # --------------------------------------
+    # FALLBACK: DISCOVERY JOB RESULTS
+    # --------------------------------------
+
+    if resource is None:
+
+        for job in discovery_jobs.values():
+
+            for item in job.get(
+                "results",
+                []
+            ):
+
+                item_host = str(
+                    item.get(
+                        "host",
+                        ""
+                    )
+                ).strip()
+
+                if item_host == host:
+
+                    resource = dict(
+                        item
+                    )
+
+                    break
+
+            if resource is not None:
+
+                break
+
+    # --------------------------------------
+    # RESOURCE NOT FOUND
+    # --------------------------------------
+
+    if resource is None:
+
+        print(
+            "DISCOVERY RESOURCE NOT FOUND:",
+            host
         )
-
-        if resource:
-
-            # Private copy for template.
-            resource = dict(
-                resource
-            )
-
-    if not resource:
 
         flash(
             "DISCOVERED RESOURCE NOT FOUND",
@@ -1328,9 +1386,68 @@ def discovery_resource_detail():
             )
         )
 
-    # --------------------------------------------------
-    # Add current deep scan runtime status.
-    # --------------------------------------------------
+    # --------------------------------------
+    # SAFE DEFAULT VALUES
+    # --------------------------------------
+
+    resource.setdefault(
+        "host",
+        host
+    )
+
+    resource.setdefault(
+        "name",
+        host
+    )
+
+    resource.setdefault(
+        "hostname",
+        host
+    )
+
+    resource.setdefault(
+        "type",
+        "server"
+    )
+
+    resource.setdefault(
+        "port",
+        0
+    )
+
+    resource.setdefault(
+        "os",
+        "Unknown"
+    )
+
+    resource.setdefault(
+        "services",
+        []
+    )
+
+    resource.setdefault(
+        "ports",
+        []
+    )
+
+    resource.setdefault(
+        "deep_scan",
+        False
+    )
+
+    resource.setdefault(
+        "deep_scan_status",
+        "not_started"
+    )
+
+    resource.setdefault(
+        "deep_scan_error",
+        None
+    )
+
+    # --------------------------------------
+    # DEEP SCAN RUNTIME STATE
+    # --------------------------------------
 
     with deep_scan_jobs_lock:
 
@@ -1365,19 +1482,36 @@ def discovery_resource_detail():
                 "finished_at"
             )
 
-    # --------------------------------------------------
-    # Keep current discovery results alive.
-    #
-    # DETAILS -> BACK must return to the existing
-    # discovery results.
-    # --------------------------------------------------
+    # --------------------------------------
+    # KEEP DISCOVERY RESULTS ALIVE
+    # --------------------------------------
 
     session[
         "discovery_show_results"
     ] = True
 
+    print(
+        "DISCOVERY RESOURCE TEMPLATE:",
+        "discovery_resource_details.html"
+    )
+
+    print(
+        "DISCOVERY RESOURCE DATA:",
+        resource
+    )
+
+    # --------------------------------------
+    # IMPORTANT:
+    #
+    # THE ACTUAL TEMPLATE FILE IS:
+    #
+    # discovery_resource_details.html
+    #
+    # PLURAL "details"
+    # --------------------------------------
+
     return render_template(
-        "discovery_resource_detail.html",
+        "discovery_resource_details.html",
         resource=resource
     )
 
@@ -1410,25 +1544,52 @@ def discovery_resource_deep_scan():
             )
         )
 
-    # --------------------------------------------------
-    # Locate already discovered host.
-    #
-    # IMPORTANT:
-    # We do NOT scan the network again.
-    # --------------------------------------------------
-
     with discovery_results_lock:
 
         resource = next(
             (
                 item
                 for item in discovery_results
-                if item.get("host") == host
+                if str(
+                    item.get(
+                        "host",
+                        ""
+                    )
+                ).strip() == host
             ),
             None
         )
 
-    if not resource:
+    # --------------------------------------
+    # FALLBACK TO JOB RESULTS
+    # --------------------------------------
+
+    if resource is None:
+
+        for job in discovery_jobs.values():
+
+            resource = next(
+                (
+                    item
+                    for item in job.get(
+                        "results",
+                        []
+                    )
+                    if str(
+                        item.get(
+                            "host",
+                            ""
+                        )
+                    ).strip() == host
+                ),
+                None
+            )
+
+            if resource is not None:
+
+                break
+
+    if resource is None:
 
         flash(
             "DISCOVERED RESOURCE NOT FOUND",
@@ -1441,10 +1602,9 @@ def discovery_resource_deep_scan():
             )
         )
 
-    # --------------------------------------------------
-    # Do not start another Deep Scan if one is already
-    # running for this host.
-    # --------------------------------------------------
+    # --------------------------------------
+    # CHECK EXISTING SCAN
+    # --------------------------------------
 
     with deep_scan_jobs_lock:
 
@@ -1454,13 +1614,10 @@ def discovery_resource_deep_scan():
 
         if (
             existing_job
-            and existing_job.get("status") == "scanning"
+            and existing_job.get(
+                "status"
+            ) == "scanning"
         ):
-
-            print(
-                "DISCOVERY DEEP SCAN ALREADY RUNNING:",
-                host
-            )
 
             session[
                 "discovery_show_results"
@@ -1473,27 +1630,24 @@ def discovery_resource_deep_scan():
                 )
             )
 
-        # --------------------------------------------------
-        # Create runtime Deep Scan state.
-        # --------------------------------------------------
-
         deep_scan_jobs[host] = {
 
             "status": "scanning",
 
             "started_at": str(
-                __import__("datetime").datetime.now()
+                __import__(
+                    "datetime"
+                ).datetime.now()
             ),
 
             "finished_at": None,
 
             "error": None
-
         }
 
-    # --------------------------------------------------
-    # Mark resource as SCANNING immediately.
-    # --------------------------------------------------
+    # --------------------------------------
+    # MARK RESOURCE SCANNING
+    # --------------------------------------
 
     with discovery_results_lock:
 
@@ -1501,7 +1655,12 @@ def discovery_resource_deep_scan():
             (
                 item
                 for item in discovery_results
-                if item.get("host") == host
+                if str(
+                    item.get(
+                        "host",
+                        ""
+                    )
+                ).strip() == host
             ),
             None
         )
@@ -1526,11 +1685,9 @@ def discovery_resource_deep_scan():
         host
     )
 
-    # --------------------------------------------------
+    # --------------------------------------
     # BACKGROUND WORKER
-    #
-    # Flask request NEVER waits for Nmap.
-    # --------------------------------------------------
+    # --------------------------------------
 
     def run_deep_scan():
 
@@ -1539,14 +1696,6 @@ def discovery_resource_deep_scan():
             from veles.modules.infrastructure.discovery import (
                 nmap_scan
             )
-
-            # --------------------------------------------------
-            # NMAP DEEP SCAN
-            #
-            # Only ONE already discovered host.
-            #
-            # timeout is deliberately bounded.
-            # --------------------------------------------------
 
             deep_result = nmap_scan(
                 host,
@@ -1566,9 +1715,9 @@ def discovery_resource_deep_scan():
                     "scan_result": deep_result
                 }
 
-            # --------------------------------------------------
-            # Update existing discovery resource.
-            # --------------------------------------------------
+            # ----------------------------------
+            # UPDATE DISCOVERY RESULT
+            # ----------------------------------
 
             with discovery_results_lock:
 
@@ -1576,7 +1725,12 @@ def discovery_resource_deep_scan():
                     (
                         item
                         for item in discovery_results
-                        if item.get("host") == host
+                        if str(
+                            item.get(
+                                "host",
+                                ""
+                            )
+                        ).strip() == host
                     ),
                     None
                 )
@@ -1601,10 +1755,9 @@ def discovery_resource_deep_scan():
                         "deep_scan_error"
                     ] = None
 
-                    # --------------------------------------------------
-                    # Keep the same result synchronized in Fast
-                    # Discovery job data.
-                    # --------------------------------------------------
+                    # ----------------------------------
+                    # SYNCHRONIZE JOB RESULTS
+                    # ----------------------------------
 
                     for job in discovery_jobs.values():
 
@@ -1615,32 +1768,36 @@ def discovery_resource_deep_scan():
 
                         for job_item in results:
 
-                            if (
-                                job_item.get("host")
-                                == host
-                            ):
+                            if str(
+                                job_item.get(
+                                    "host",
+                                    ""
+                                )
+                            ).strip() != host:
 
-                                for key, value in deep_result.items():
+                                continue
 
-                                    if value is not None:
+                            for key, value in deep_result.items():
 
-                                        job_item[key] = value
+                                if value is not None:
 
-                                job_item[
-                                    "deep_scan"
-                                ] = True
+                                    job_item[key] = value
 
-                                job_item[
-                                    "deep_scan_status"
-                                ] = "completed"
+                            job_item[
+                                "deep_scan"
+                            ] = True
 
-                                job_item[
-                                    "deep_scan_error"
-                                ] = None
+                            job_item[
+                                "deep_scan_status"
+                            ] = "completed"
 
-            # --------------------------------------------------
-            # Runtime status.
-            # --------------------------------------------------
+                            job_item[
+                                "deep_scan_error"
+                            ] = None
+
+            # ----------------------------------
+            # RUNTIME STATUS
+            # ----------------------------------
 
             with deep_scan_jobs_lock:
 
@@ -1655,11 +1812,12 @@ def discovery_resource_deep_scan():
                         "status": "completed",
 
                         "finished_at": str(
-                            __import__("datetime").datetime.now()
+                            __import__(
+                                "datetime"
+                            ).datetime.now()
                         ),
 
                         "error": None
-
                     })
 
             print(
@@ -1678,14 +1836,7 @@ def discovery_resource_deep_scan():
                 e
             )
 
-            # --------------------------------------------------
-            # Explicit timeout state.
-            # --------------------------------------------------
-
-            if (
-                "timeout" in
-                error_text.lower()
-            ):
+            if "timeout" in error_text.lower():
 
                 status = "timeout"
 
@@ -1699,9 +1850,9 @@ def discovery_resource_deep_scan():
                 error_text
             )
 
-            # --------------------------------------------------
-            # Update existing discovery resource.
-            # --------------------------------------------------
+            # ----------------------------------
+            # UPDATE RESOURCE ERROR
+            # ----------------------------------
 
             with discovery_results_lock:
 
@@ -1709,7 +1860,12 @@ def discovery_resource_deep_scan():
                     (
                         item
                         for item in discovery_results
-                        if item.get("host") == host
+                        if str(
+                            item.get(
+                                "host",
+                                ""
+                            )
+                        ).strip() == host
                     ),
                     None
                 )
@@ -1728,10 +1884,6 @@ def discovery_resource_deep_scan():
                         "deep_scan_error"
                     ] = error_text
 
-                    # --------------------------------------------------
-                    # Synchronize job result.
-                    # --------------------------------------------------
-
                     for job in discovery_jobs.values():
 
                         results = job.get(
@@ -1741,26 +1893,30 @@ def discovery_resource_deep_scan():
 
                         for job_item in results:
 
-                            if (
-                                job_item.get("host")
-                                == host
-                            ):
+                            if str(
+                                job_item.get(
+                                    "host",
+                                    ""
+                                )
+                            ).strip() != host:
 
-                                job_item[
-                                    "deep_scan"
-                                ] = False
+                                continue
 
-                                job_item[
-                                    "deep_scan_status"
-                                ] = status
+                            job_item[
+                                "deep_scan"
+                            ] = False
 
-                                job_item[
-                                    "deep_scan_error"
-                                ] = error_text
+                            job_item[
+                                "deep_scan_status"
+                            ] = status
 
-            # --------------------------------------------------
-            # Runtime status.
-            # --------------------------------------------------
+                            job_item[
+                                "deep_scan_error"
+                            ] = error_text
+
+            # ----------------------------------
+            # RUNTIME STATUS
+            # ----------------------------------
 
             with deep_scan_jobs_lock:
 
@@ -1775,11 +1931,12 @@ def discovery_resource_deep_scan():
                         "status": status,
 
                         "finished_at": str(
-                            __import__("datetime").datetime.now()
+                            __import__(
+                                "datetime"
+                            ).datetime.now()
                         ),
 
                         "error": error_text
-
                     })
 
     thread = threading.Thread(
@@ -1788,15 +1945,6 @@ def discovery_resource_deep_scan():
     )
 
     thread.start()
-
-    # --------------------------------------------------
-    # IMPORTANT:
-    #
-    # Return immediately.
-    #
-    # Browser goes straight back to Details.
-    # Nmap continues in background.
-    # --------------------------------------------------
 
     session[
         "discovery_show_results"
@@ -1877,7 +2025,6 @@ def discovery_resource_deep_scan_status():
         "started_at": started_at,
 
         "finished_at": finished_at
-
     }
 
 
@@ -1903,7 +2050,9 @@ def import_discovered_resources():
 
         try:
 
-            data = json.loads(item)
+            data = json.loads(
+                item
+            )
 
         except (
             TypeError,
@@ -1914,7 +2063,9 @@ def import_discovered_resources():
 
         resource = {
 
-            "id": f"res-{uuid.uuid4().hex[:6]}",
+            "id": (
+                f"res-{uuid.uuid4().hex[:6]}"
+            ),
 
             "type": data.get(
                 "type",
@@ -1942,17 +2093,20 @@ def import_discovered_resources():
             "group": "network",
 
             "status": "registered"
-
         }
 
         infrastructure.add_resource(
             resource
         )
 
-        if resource.get("host"):
+        if resource.get(
+            "host"
+        ):
 
             added_hosts.add(
-                resource.get("host")
+                resource.get(
+                    "host"
+                )
             )
 
         added += 1
@@ -1970,9 +2124,9 @@ def import_discovered_resources():
 
             for discovered in discovery_results
 
-            if discovered.get("host")
-            not in added_hosts
-
+            if discovered.get(
+                "host"
+            ) not in added_hosts
         ]
 
         discovery_results.clear()
@@ -2042,8 +2196,10 @@ def resource_group(group):
 )
 def resource_detail(resource_id):
 
-    resource = infrastructure.resource_registry.get_resource(
-        resource_id
+    resource = (
+        infrastructure.resource_registry.get_resource(
+            resource_id
+        )
     )
 
     return render_template(
@@ -2057,8 +2213,10 @@ def resource_detail(resource_id):
 )
 def verify_resource(resource_id):
 
-    resource = infrastructure.resource_registry.get_resource(
-        resource_id
+    resource = (
+        infrastructure.resource_registry.get_resource(
+            resource_id
+        )
     )
 
     if not resource:
@@ -2156,8 +2314,10 @@ def set_verify_state(
 )
 def monitor_resource(resource_id):
 
-    resource = infrastructure.resource_registry.get_resource(
-        resource_id
+    resource = (
+        infrastructure.resource_registry.get_resource(
+            resource_id
+        )
     )
 
     if not resource:
@@ -2168,7 +2328,9 @@ def monitor_resource(resource_id):
             )
         )
 
-    if request.args.get("check") == "1":
+    if request.args.get(
+        "check"
+    ) == "1":
 
         monitoring.check_resource(
             resource
@@ -2180,7 +2342,9 @@ def monitor_resource(resource_id):
 
     if health is None:
 
-        for key, item in monitoring.get_all_health().items():
+        for key, item in (
+            monitoring.get_all_health().items()
+        ):
 
             if str(key) == str(resource_id):
 
@@ -2201,8 +2365,10 @@ def monitor_resource(resource_id):
 )
 def delete_resource(resource_id):
 
-    resource = infrastructure.resource_registry.get_resource(
-        resource_id
+    resource = (
+        infrastructure.resource_registry.get_resource(
+            resource_id
+        )
     )
 
     if not resource:
@@ -2241,7 +2407,9 @@ def add_resource():
 
         resource = {
 
-            "id": f"res-{uuid.uuid4().hex[:6]}",
+            "id": (
+                f"res-{uuid.uuid4().hex[:6]}"
+            ),
 
             "type": request.form.get(
                 "type",
@@ -2274,7 +2442,6 @@ def add_resource():
             ),
 
             "status": "registered"
-
         }
 
         infrastructure.add_resource(
@@ -2347,7 +2514,6 @@ def security_scan():
             "security_view"
         )
     )
-
 
 
 # ==========================================
@@ -2543,7 +2709,9 @@ def logs_view():
 
     entries = []
 
-    if os.path.exists(LOG_FILE):
+    if os.path.exists(
+        LOG_FILE
+    ):
 
         with open(
             LOG_FILE,
@@ -2644,7 +2812,10 @@ if __name__ == "__main__":
 
     if VELES_TLS:
 
-        if not VELES_CERT_FILE or not VELES_KEY_FILE:
+        if (
+            not VELES_CERT_FILE
+            or not VELES_KEY_FILE
+        ):
 
             raise RuntimeError(
                 "VELES_TLS=true requires "

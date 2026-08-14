@@ -456,6 +456,8 @@ AI Operations Center UI
 .discovery-controls {
 
     position: relative;
+
+    width: 100%;
 }
 
 .discovery-controls h2 {
@@ -470,6 +472,91 @@ AI Operations Center UI
     margin-top: 0;
 
     margin-bottom: 22px;
+}
+
+
+/* ============================================================
+   DISCOVERY CONTROLS HEADER
+   ============================================================ */
+
+.discovery-controls-header {
+
+    margin-bottom: 22px;
+}
+
+.discovery-controls-header h2 {
+
+    color: var(--gold);
+
+    margin-top: 0;
+
+    margin-bottom: 8px;
+}
+
+.discovery-controls-header p {
+
+    color: var(--muted);
+
+    margin: 0;
+}
+
+
+/* ============================================================
+   DISCOVERY CONTROL FORMS
+   ============================================================ */
+
+.discovery-control-form {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    width: 100%;
+
+    margin: 0 0 16px 0;
+
+    padding: 0;
+}
+
+
+/* ============================================================
+   DISCOVERY CONTROL BUTTON
+   ============================================================ */
+
+.discovery-control-button {
+
+    width: auto;
+
+    min-width: 240px;
+}
+
+
+/* ============================================================
+   DISCOVERY HELP
+   ============================================================ */
+
+.discovery-controls-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin-top: 18px;
+
+    padding-top: 18px;
+
+    border-top:
+        1px solid var(--border);
+
+    color: var(--muted);
+
+    line-height: 1.6;
+
+    font-size: 14px;
 }
 
 
@@ -570,17 +657,6 @@ AI Operations Center UI
             65,
             .18
         );
-}
-
-.action-row .infra-button {
-
-    width: 210px;
-
-    min-width: 210px;
-
-    min-height: 52px;
-
-    height: 52px;
 }
 
 .infra-button:hover {
@@ -719,102 +795,7 @@ input[name="custom_network"]:focus {
 
 
 /* ============================================================
-   ADD NETWORK BUTTON
-   ============================================================ */
-
-.action-row .add-button {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    width: 210px;
-
-    min-width: 210px;
-
-    height: 52px;
-
-    min-height: 52px;
-
-    padding: 0 22px;
-
-    box-sizing: border-box;
-
-    background:
-        linear-gradient(
-            145deg,
-            #1a2330,
-            #10161d
-        );
-
-    border:
-        2px solid var(--gold);
-
-    border-radius: 10px;
-
-    color: var(--gold2);
-
-    font-family: inherit;
-
-    font-size: 15px;
-
-    font-weight: 700;
-
-    letter-spacing: 1.3px;
-
-    cursor: pointer;
-
-    transition:
-        .25s ease;
-
-    box-shadow:
-        0 0 18px rgba(
-            217,
-            164,
-            65,
-            .18
-        );
-}
-
-.action-row .add-button:hover {
-
-    background:
-        linear-gradient(
-            145deg,
-            #202c3a,
-            #141b23
-        );
-
-    border-color:
-        var(--gold2);
-
-    color:
-        var(--gold2);
-
-    transform:
-        translateY(-2px);
-
-    box-shadow:
-        0 0 30px rgba(
-            217,
-            164,
-            65,
-            .35
-        );
-}
-
-.action-row .add-button:active {
-
-    transform:
-        translateY(0);
-}
-
-
-/* ============================================================
    START FAST DISCOVERY
-   MAIN VELES ACTION
    ============================================================ */
 
 #scan-form {
@@ -921,22 +902,6 @@ input[name="custom_network"]:focus {
             65,
             .20
         );
-}
-
-
-/* ============================================================
-   DISCOVERY HELP TEXT
-   ============================================================ */
-
-#scan-form + .resource-meta {
-
-    margin-top: 18px;
-
-    color: var(--muted);
-
-    line-height: 1.7;
-
-    font-size: 14px;
 }
 
 
@@ -1161,6 +1126,8 @@ input[name="custom_network"]:focus {
     color: var(--gold2);
 
     font-size: 20px;
+
+    word-break: break-word;
 }
 
 
@@ -1179,6 +1146,8 @@ input[name="custom_network"]:focus {
         );
 
     gap: 10px;
+
+    margin-bottom: 10px;
 }
 
 .resource-meta div {
@@ -1188,6 +1157,8 @@ input[name="custom_network"]:focus {
     padding: 10px;
 
     border-radius: 10px;
+
+    min-width: 0;
 }
 
 .resource-meta label {
@@ -1356,18 +1327,6 @@ input[type="checkbox"]:checked::after {
     margin-top: 20px;
 }
 
-.resource-item .action-row form {
-
-    width: 100%;
-
-    flex: 1 1 100%;
-}
-
-.resource-item .action-row form .infra-button {
-
-    width: 100%;
-}
-
 
 /* ============================================================
    ACTION FORM SAFETY
@@ -1395,6 +1354,832 @@ input[type="checkbox"]:checked::after {
 
 
 /* ============================================================
+   DISCOVERED RESOURCE ACTIONS
+   DETAILS + ADD RESOURCE
+   ============================================================ */
+
+.discovered-resource-item .action-row {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 14px;
+
+    width: 100%;
+
+    margin-top: auto;
+
+    padding-top: 24px;
+
+    margin-bottom: 0;
+}
+
+
+.discovered-resource-item
+.action-row > form {
+
+    width: 100%;
+
+    min-width: 0;
+
+    margin: 0;
+
+    padding: 0;
+
+    display: block;
+}
+
+
+.discovered-resource-item
+.action-row
+.details-button,
+
+.discovered-resource-item
+.action-row
+.add-resource-button {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 100%;
+
+    min-width: 0;
+
+    max-width: none;
+
+    height: 52px;
+
+    min-height: 52px;
+
+    box-sizing: border-box;
+}
+
+
+/* ============================================================
+   ADD RESOURCE BUTTON
+   ============================================================ */
+
+.add-resource-button {
+
+    appearance: none;
+
+    -webkit-appearance: none;
+
+    font-family: inherit;
+
+    line-height: normal;
+
+    margin: 0;
+
+    outline: none;
+}
+
+
+.add-resource-button:disabled {
+
+    opacity: .65;
+
+    cursor: wait;
+
+    transform: none;
+}
+
+
+/* ============================================================
+   DETAILS BUTTON
+   ============================================================ */
+
+.details-button {
+
+    appearance: none;
+
+    -webkit-appearance: none;
+
+    font-family: inherit;
+
+    line-height: normal;
+
+    margin: 0;
+
+    outline: none;
+}
+
+
+/* ============================================================
+   DETAILS MODAL
+   ============================================================ */
+
+.details-modal {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    visibility: hidden;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition:
+        opacity .2s ease,
+        visibility .2s ease;
+}
+
+
+.details-modal.open {
+
+    visibility: visible;
+
+    opacity: 1;
+
+    pointer-events: auto;
+}
+
+
+/* ============================================================
+   MODAL BACKDROP
+   ============================================================ */
+
+.details-modal-backdrop {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        rgba(
+            0,
+            0,
+            0,
+            .82
+        );
+
+    backdrop-filter:
+        blur(7px);
+
+    -webkit-backdrop-filter:
+        blur(7px);
+
+    cursor: pointer;
+}
+
+
+/* ============================================================
+   MODAL WINDOW
+   ============================================================ */
+
+.details-modal-window {
+
+    position: relative;
+
+    z-index: 1;
+
+    width: min(
+        850px,
+        88vw
+    );
+
+    height: min(
+        680px,
+        82vh
+    );
+
+    max-width: 850px;
+
+    max-height: 82vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1a2330,
+            #10161d
+        );
+
+    border:
+        1px solid var(--gold);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 0 60px rgba(
+            217,
+            164,
+            65,
+            .30
+        );
+
+    transform:
+        translateY(15px)
+        scale(.96);
+
+    transition:
+        transform .2s ease;
+}
+
+
+.details-modal.open
+.details-modal-window {
+
+    transform:
+        translateY(0)
+        scale(1);
+}
+
+
+/* ============================================================
+   MODAL HEADER
+   ============================================================ */
+
+.details-modal-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding:
+        16px
+        20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #202c3a,
+            #141b23
+        );
+
+    border-bottom:
+        1px solid var(--border);
+
+    flex: 0 0 auto;
+}
+
+
+/* ============================================================
+   MODAL HEADER TITLE
+   ============================================================ */
+
+.details-modal-label {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    letter-spacing: 2px;
+
+    font-weight: 700;
+}
+
+
+.details-modal-header h2 {
+
+    margin: 0;
+
+    color: var(--gold2);
+
+    font-size: 18px;
+
+    letter-spacing: 1px;
+}
+
+
+/* ============================================================
+   CLOSE BUTTON
+   ============================================================ */
+
+.details-modal-close {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 42px;
+
+    height: 42px;
+
+    min-width: 42px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    background: #0b0f14;
+
+    color: var(--muted);
+
+    font-family: inherit;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s ease;
+
+    position: relative;
+
+    z-index: 10;
+}
+
+
+.details-modal-close:hover {
+
+    color: var(--gold2);
+
+    border-color: var(--gold);
+
+    background: #141b23;
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 0 18px rgba(
+            217,
+            164,
+            65,
+            .25
+        );
+}
+
+
+/* ============================================================
+   MODAL CONTENT
+   ============================================================ */
+
+.details-modal-content {
+
+    position: relative;
+
+    flex: 1 1 auto;
+
+    min-height: 0;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    background:
+        #0b0f14;
+
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        var(--gold)
+        #0b0f14;
+}
+
+
+.details-modal-content::-webkit-scrollbar {
+
+    width: 8px;
+}
+
+
+.details-modal-content::-webkit-scrollbar-track {
+
+    background: #0b0f14;
+}
+
+
+.details-modal-content::-webkit-scrollbar-thumb {
+
+    background:
+        rgba(
+            217,
+            164,
+            65,
+            .65
+        );
+
+    border-radius: 10px;
+}
+
+
+.details-modal-content
+.discovery-details-page {
+
+    width: 100%;
+}
+
+
+/*
+ * Hide duplicated page header
+ */
+
+.details-modal-content
+.discovery-details-header {
+
+    display: none;
+}
+
+
+/*
+ * Remove duplicated outer card
+ */
+
+.details-modal-content
+.discovery-details-card {
+
+    padding: 0;
+
+    border: 0;
+
+    border-radius: 0;
+
+    background: transparent;
+
+    box-shadow: none;
+}
+
+
+.details-modal-content
+.discovery-details-card:hover {
+
+    border: 0;
+
+    box-shadow: none;
+}
+
+
+/* ============================================================
+   DISCOVERY DETAILS TITLE
+   ============================================================ */
+
+.details-modal-content
+.discovery-details-title {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 20;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin:
+        -20px
+        -20px
+        20px
+        -20px;
+
+    padding:
+        14px
+        20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #1a2330,
+            #10161d
+        );
+
+    border-bottom:
+        1px solid var(--border);
+
+    box-shadow:
+        0 8px 20px rgba(
+            0,
+            0,
+            0,
+            .35
+        );
+}
+
+
+/* ============================================================
+   DETAILS ACTIONS
+   ============================================================ */
+
+/*
+ * IMPORTANT:
+ * Buttons remain visible while the details
+ * content scrolls.
+ */
+
+.details-modal-content
+.discovery-details-actions {
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 30;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    width: 100%;
+
+    margin:
+        0
+        0
+        20px
+        0;
+
+    padding:
+        12px;
+
+    box-sizing: border-box;
+
+    background:
+        rgba(
+            11,
+            15,
+            20,
+            .96
+        );
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 12px;
+
+    backdrop-filter:
+        blur(8px);
+
+    -webkit-backdrop-filter:
+        blur(8px);
+
+    box-shadow:
+        0 8px 22px rgba(
+            0,
+            0,
+            0,
+            .35
+        );
+}
+
+
+.details-modal-content
+.discovery-details-actions form {
+
+    flex: 1 1 0;
+
+    min-width: 0;
+
+    margin: 0;
+
+    padding: 0;
+}
+
+
+.details-modal-content
+.discovery-details-actions
+form button,
+
+.details-modal-content
+.discovery-details-actions
+a {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 100%;
+
+    height: 48px;
+
+    min-height: 48px;
+
+    box-sizing: border-box;
+}
+
+
+.details-modal-content
+.discovery-details-back {
+
+    flex: 1 1 0;
+
+    min-width: 0;
+}
+
+
+/* ============================================================
+   DETAILS GRID
+   ============================================================ */
+
+.details-modal-content
+.discovery-details-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.details-modal-loading {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 40;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+    background:
+        #0b0f14;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    letter-spacing: 1px;
+}
+
+
+.details-spinner {
+
+    width: 42px;
+
+    height: 42px;
+
+    border:
+        4px solid var(--border);
+
+    border-top-color:
+        var(--gold);
+
+    border-radius: 50%;
+
+    animation:
+        details-spin
+        1s linear infinite;
+}
+
+
+@keyframes details-spin {
+
+    from {
+
+        transform:
+            rotate(0deg);
+
+    }
+
+    to {
+
+        transform:
+            rotate(360deg);
+
+    }
+
+}
+
+
+/* ============================================================
+   PREVENT BACKGROUND SCROLL
+   ============================================================ */
+
+body.details-modal-open {
+
+    overflow: hidden;
+}
+
+
+/* ============================================================
+   DISCOVERY SCAN STATUS
+   ============================================================ */
+
+.scan-status,
+
+#scan-status {
+
+    font-size: 20px;
+
+    margin: 20px 0;
+}
+
+
+/* ============================================================
+   SCAN ORB
+   ============================================================ */
+
+#scanner {
+
+    text-align: center;
+
+    margin-top: 30px;
+}
+
+
+.orb {
+
+    width: 60px;
+
+    height: 60px;
+
+    border-radius: 50%;
+
+    border: 5px solid var(--green);
+
+    border-top-color: transparent;
+
+    margin: 20px auto;
+
+    animation:
+        spin 1s linear infinite;
+}
+
+
+@keyframes spin {
+
+    from {
+
+        transform:
+            rotate(0deg);
+    }
+
+    to {
+
+        transform:
+            rotate(360deg);
+    }
+
+}
+
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 
@@ -1406,6 +2191,7 @@ input[type="checkbox"]:checked::after {
             1fr;
     }
 
+
     .monitor-grid {
 
         grid-template-columns:
@@ -1414,6 +2200,7 @@ input[type="checkbox"]:checked::after {
                 1fr
             );
     }
+
 
     .server-grid {
 
@@ -1424,6 +2211,7 @@ input[type="checkbox"]:checked::after {
             );
     }
 
+
     .resource-list {
 
         grid-template-columns:
@@ -1432,6 +2220,7 @@ input[type="checkbox"]:checked::after {
                 1fr
             );
     }
+
 }
 
 
@@ -1443,11 +2232,13 @@ input[type="checkbox"]:checked::after {
             1fr;
     }
 
+
     .resource-meta {
 
         grid-template-columns:
             1fr;
     }
+
 
     .infra-actions {
 
@@ -1460,6 +2251,7 @@ input[type="checkbox"]:checked::after {
         margin-top: 28px;
     }
 
+
     .infra-actions .infra-button {
 
         width: 100%;
@@ -1470,6 +2262,25 @@ input[type="checkbox"]:checked::after {
 
         height: 58px;
     }
+
+
+    .discovery-control-form {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+        gap: 12px;
+    }
+
+
+    .discovery-control-button {
+
+        width: 100%;
+
+        min-width: 0;
+    }
+
 
     .action-row {
 
@@ -1484,10 +2295,12 @@ input[type="checkbox"]:checked::after {
         margin-top: 20px;
     }
 
+
     .action-row form {
 
         width: 100%;
     }
+
 
     .action-row .infra-button {
 
@@ -1500,6 +2313,7 @@ input[type="checkbox"]:checked::after {
         height: 52px;
     }
 
+
     .infra-button {
 
         width: 100%;
@@ -1510,6 +2324,7 @@ input[type="checkbox"]:checked::after {
 
         height: 52px;
     }
+
 
     input[name="custom_network"] {
 
@@ -1522,16 +2337,6 @@ input[type="checkbox"]:checked::after {
         min-height: 52px;
     }
 
-    .action-row .add-button {
-
-        width: 100%;
-
-        min-width: 0;
-
-        height: 52px;
-
-        min-height: 52px;
-    }
 
     .scan-button {
 
@@ -1543,4 +2348,138 @@ input[type="checkbox"]:checked::after {
 
         letter-spacing: 1px;
     }
+
+
+    /* =========================================
+       DISCOVERED RESOURCE BUTTONS
+       ========================================= */
+
+    .discovered-resource-item
+    .action-row {
+
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap: 12px;
+    }
+
+
+    .discovered-resource-item
+    .action-row
+    .details-button,
+
+    .discovered-resource-item
+    .action-row
+    .add-resource-button {
+
+        width: 100%;
+
+        min-width: 0;
+
+        height: 52px;
+
+        min-height: 52px;
+    }
+
+
+    /* =========================================
+       DETAILS MODAL
+       ========================================= */
+
+    .details-modal {
+
+        padding: 10px;
+    }
+
+
+    .details-modal-window {
+
+        width: 100%;
+
+        height: 92vh;
+
+        max-height: 92vh;
+
+        border-radius: 14px;
+    }
+
+
+    .details-modal-header {
+
+        padding:
+            14px
+            15px;
+    }
+
+
+    .details-modal-header h2 {
+
+        font-size: 16px;
+    }
+
+
+    .details-modal-close {
+
+        width: 40px;
+
+        height: 40px;
+
+        min-width: 40px;
+    }
+
+
+    .details-modal-content {
+
+        padding: 15px;
+    }
+
+
+    .details-modal-content
+    .discovery-details-title {
+
+        margin:
+            -15px
+            -15px
+            15px
+            -15px;
+
+        padding:
+            12px
+            15px;
+    }
+
+
+    .details-modal-content
+    .discovery-details-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .details-modal-content
+    .discovery-details-actions {
+
+        flex-direction: row;
+
+        gap: 8px;
+
+        padding: 8px;
+    }
+
+
+    .details-modal-content
+    .discovery-details-actions
+    form,
+
+    .details-modal-content
+    .discovery-details-back {
+
+        width: 100%;
+
+        flex: 1 1 0;
+    }
+
 }

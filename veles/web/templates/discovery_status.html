@@ -10,7 +10,7 @@ Discovery Scan
 
 <link
     rel="stylesheet"
-    href="{{ url_for('static', filename='css/infrastructure.css', v='4') }}"
+    href="{{ url_for('static', filename='css/infrastructure.css', v='7') }}"
 >
 
 {% endblock %}
@@ -85,8 +85,55 @@ const detailsUrl =
 const importUrl =
     "{{ url_for('import_discovered_resources') }}";
 
-let statusTimer;
 
+let statusTimer = null;
+
+let scanFinished = false;
+
+
+/* =========================================================
+   STOP SCAN ANIMATION
+   ========================================================= */
+
+function stopScanAnimation() {
+
+    const scanner =
+        document.getElementById(
+            "scanner"
+        );
+
+
+    if (!scanner) {
+        return;
+    }
+
+
+    const orb =
+        scanner.querySelector(
+            ".orb"
+        );
+
+
+    if (orb) {
+
+        orb.style.animation =
+            "none";
+
+        orb.style.display =
+            "none";
+
+    }
+
+
+    scanner.style.display =
+        "none";
+
+}
+
+
+/* =========================================================
+   RENDER RESULTS
+   ========================================================= */
 
 function renderResults(results) {
 
@@ -100,38 +147,52 @@ function renderResults(results) {
             "results-list"
         );
 
+
+    if (!panel || !list) {
+        return;
+    }
+
+
     list.innerHTML = "";
 
 
     if (!results || results.length === 0) {
 
-        panel.style.display = "block";
+        panel.style.display =
+            "block";
+
 
         list.innerHTML =
-            "<div class=\"resource-item\">" +
+            "<div class=\"empty-state\">" +
 
-            "<div class=\"resource-info\">" +
-
-            "<h2>NO RESOURCES FOUND</h2>" +
-
-            "</div>" +
+            "⚪ NO RESOURCES FOUND" +
 
             "</div>";
+
 
         return;
     }
 
 
-    panel.style.display = "block";
+    panel.style.display =
+        "block";
 
 
     results.forEach(function(device) {
 
+
         const item =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
         item.className =
-            "resource-item";
+            "resource-item discovered-resource-item";
+
+
+        item.dataset.resourceHost =
+            device.host || "";
 
 
         const services =
@@ -148,21 +209,47 @@ function renderResults(results) {
 
         if (services.length) {
 
-            services.forEach(function(service) {
+            services.forEach(
+                function(service) {
 
-                servicesHtml +=
-                    "<strong>🟢 " +
-                    service.service +
-                    " : " +
-                    service.port +
-                    "</strong>";
+                    servicesHtml +=
+                        "<strong>🟢 " +
+                        escapeHtml(
+                            service.service ||
+                            "Unknown"
+                        ) +
+                        " : " +
+                        escapeHtml(
+                            service.port ||
+                            "-"
+                        );
 
-            });
+
+                    if (
+                        service.version
+                    ) {
+
+                        servicesHtml +=
+                            " — " +
+                            escapeHtml(
+                                service.version
+                            );
+
+                    }
+
+
+                    servicesHtml +=
+                        "</strong>";
+
+                }
+            );
 
         } else {
 
             servicesHtml +=
-                "<strong>⚪ UNKNOWN</strong>";
+                "<strong>" +
+                "⚪ NONE DETECTED" +
+                "</strong>";
 
         }
 
@@ -184,7 +271,9 @@ function renderResults(results) {
         const detailsHref =
             detailsUrl +
             "?host=" +
-            encodeURIComponent(host);
+            encodeURIComponent(
+                host
+            );
 
 
         /*
@@ -192,17 +281,24 @@ function renderResults(results) {
          */
 
         const resourceJson =
-            JSON.stringify(device)
-                .replace(/'/g, "&#39;");
+            JSON.stringify(
+                device
+            );
 
 
         /*
-         * RESOURCE CARD
+         * CARD
          */
 
         item.innerHTML =
 
-            "<div class=\"resource-icon\">🖥</div>" +
+            "<div class=\"resource-icon\">" +
+
+            getDeviceIcon(
+                device.type
+            ) +
+
+            "</div>" +
 
 
             "<div class=\"resource-info\">" +
@@ -210,8 +306,9 @@ function renderResults(results) {
 
             "<h2>" +
 
-            (
+            escapeHtml(
                 device.name ||
+                device.host ||
                 "Discovered Resource"
             ) +
 
@@ -219,7 +316,7 @@ function renderResults(results) {
 
 
             /*
-             * RESOURCE META
+             * BASIC META
              */
 
             "<div class=\"resource-meta\">" +
@@ -229,11 +326,16 @@ function renderResults(results) {
 
             "<label>STATUS</label>" +
 
-            "<strong>🟢 " +
+            "<strong>" +
 
             (
-                device.status ||
-                "alive"
+                device.status === "alive"
+                    ? "🟢 ALIVE"
+                    : "⚪ " +
+                      escapeHtml(
+                          device.status ||
+                          "UNKNOWN"
+                      )
             ) +
 
             "</strong>" +
@@ -247,9 +349,9 @@ function renderResults(results) {
 
             "<strong>" +
 
-            (
+            escapeHtml(
                 device.type ||
-                "server"
+                "unknown"
             ) +
 
             "</strong>" +
@@ -263,7 +365,7 @@ function renderResults(results) {
 
             "<strong>" +
 
-            (
+            escapeHtml(
                 device.host ||
                 "-"
             ) +
@@ -279,7 +381,7 @@ function renderResults(results) {
 
             "<strong>" +
 
-            (
+            escapeHtml(
                 device.port ||
                 "-"
             ) +
@@ -293,10 +395,111 @@ function renderResults(results) {
 
 
             /*
+             * IDENTITY
+             */
+
+            (
+                (
+                    device.hostname ||
+                    device.mac ||
+                    (
+                        device.os &&
+                        device.os !== "unknown"
+                    )
+                )
+
+                ?
+
+                "<div class=\"resource-meta\">" +
+
+                (
+                    device.hostname
+                    ?
+
+                    "<div>" +
+                    "<label>HOSTNAME</label>" +
+                    "<strong>" +
+                    escapeHtml(
+                        device.hostname
+                    ) +
+                    "</strong>" +
+                    "</div>"
+
+                    :
+
+                    ""
+                ) +
+
+                (
+                    device.mac
+                    ?
+
+                    "<div>" +
+                    "<label>MAC</label>" +
+                    "<strong>" +
+                    escapeHtml(
+                        device.mac
+                    ) +
+                    "</strong>" +
+                    "</div>"
+
+                    :
+
+                    ""
+                ) +
+
+                (
+                    device.os &&
+                    device.os !== "unknown"
+
+                    ?
+
+                    "<div>" +
+                    "<label>OS</label>" +
+                    "<strong>🖥 " +
+                    escapeHtml(
+                        device.os
+                    ) +
+                    "</strong>" +
+                    "</div>"
+
+                    :
+
+                    ""
+                ) +
+
+                "</div>"
+
+                :
+
+                ""
+            ) +
+
+
+            /*
              * SERVICES
              */
 
             servicesHtml +
+
+
+            /*
+             * DISCOVERY
+             */
+
+            "<div class=\"resource-meta\">" +
+
+            "<div>" +
+
+            "<label>DISCOVERY</label>" +
+
+            "<strong>" +
+            "⚡ FAST DISCOVERY" +
+            "</strong>" +
+
+            "</div>" +
+
+            "</div>" +
 
 
             /*
@@ -306,11 +509,17 @@ function renderResults(results) {
             "<div class=\"action-row\">" +
 
 
-            "<a " +
+            /*
+             * DETAILS
+             */
 
-            "class=\"infra-button\" " +
+            "<button " +
 
-            "href=\"" +
+            "type=\"button\" " +
+
+            "class=\"infra-button details-button\" " +
+
+            "data-details-url=\"" +
             detailsHref +
             "\"" +
 
@@ -318,10 +527,16 @@ function renderResults(results) {
 
             "🔎 DETAILS" +
 
-            "</a>" +
+            "</button>" +
 
+
+            /*
+             * ADD RESOURCE
+             */
 
             "<form " +
+
+            "class=\"add-resource-form\" " +
 
             "method=\"POST\" " +
 
@@ -339,7 +554,9 @@ function renderResults(results) {
             "name=\"resource\" " +
 
             "value='" +
-            resourceJson +
+            escapeAttribute(
+                resourceJson
+            ) +
             "'" +
 
             ">" +
@@ -347,7 +564,7 @@ function renderResults(results) {
 
             "<button " +
 
-            "class=\"infra-button\" " +
+            "class=\"infra-button add-resource-button\" " +
 
             "type=\"submit\"" +
 
@@ -373,44 +590,637 @@ function renderResults(results) {
 
     });
 
+
+    bindResultActions();
+
 }
 
 
+/* =========================================================
+   DEVICE ICON
+   ========================================================= */
+
+function getDeviceIcon(type) {
+
+    switch (
+        String(
+            type || ""
+        ).toLowerCase()
+    ) {
+
+        case "server":
+            return "🖥";
+
+        case "computer":
+            return "🖥";
+
+        case "laptop":
+            return "💻";
+
+        case "phone":
+            return "📱";
+
+        case "tv":
+            return "📺";
+
+        case "camera":
+            return "📷";
+
+        case "printer":
+            return "🖨️";
+
+        case "router":
+            return "📡";
+
+        case "network_device":
+            return "🌐";
+
+        case "iot":
+            return "💡";
+
+        case "container":
+            return "🐳";
+
+        case "agent":
+            return "🤖";
+
+        case "device":
+            return "📡";
+
+        default:
+            return "☁";
+
+    }
+
+}
+
+
+/* =========================================================
+   HTML SAFETY
+   ========================================================= */
+
+function escapeHtml(value) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        value == null
+            ? ""
+            : String(value);
+
+
+    return div.innerHTML;
+
+}
+
+
+function escapeAttribute(value) {
+
+    return escapeHtml(
+        value
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#39;"
+    );
+
+}
+
+
+/* =========================================================
+   ADD RESOURCE AJAX
+   ========================================================= */
+
+function bindAddResourceForms() {
+
+    const forms =
+        document.querySelectorAll(
+            "#results-list .add-resource-form"
+        );
+
+
+    forms.forEach(
+        function(form) {
+
+            if (
+                form.dataset.ajaxBound ===
+                "1"
+            ) {
+                return;
+            }
+
+
+            form.dataset.ajaxBound =
+                "1";
+
+
+            form.addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    const button =
+                        form.querySelector(
+                            ".add-resource-button"
+                        );
+
+
+                    const resourceItem =
+                        form.closest(
+                            ".discovered-resource-item"
+                        );
+
+
+                    if (
+                        !button ||
+                        !resourceItem
+                    ) {
+                        return;
+                    }
+
+
+                    if (
+                        button.disabled
+                    ) {
+                        return;
+                    }
+
+
+                    button.disabled =
+                        true;
+
+
+                    const originalText =
+                        button.innerHTML;
+
+
+                    button.innerHTML =
+                        "⏳ ADDING...";
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                form.action,
+                                {
+                                    method:
+                                        "POST",
+
+                                    body:
+                                        new FormData(
+                                            form
+                                        ),
+
+                                    credentials:
+                                        "same-origin",
+
+                                    headers: {
+                                        "X-Requested-With":
+                                            "XMLHttpRequest",
+
+                                        "Accept":
+                                            "application/json"
+                                    },
+
+                                    redirect:
+                                        "follow"
+                                }
+                            );
+
+
+                        if (
+                            !response.ok
+                        ) {
+
+                            throw new Error(
+                                "HTTP " +
+                                response.status
+                            );
+
+                        }
+
+
+                        resourceItem.remove();
+
+
+                        const list =
+                            document.getElementById(
+                                "results-list"
+                            );
+
+
+                        if (
+                            list &&
+                            !list.querySelector(
+                                ".discovered-resource-item"
+                            )
+                        ) {
+
+                            list.innerHTML =
+                                "<div class=\"empty-state\">" +
+
+                                "✓ ALL DISCOVERED RESOURCES HAVE BEEN ADDED." +
+
+                                "</div>";
+
+                        }
+
+
+                    } catch (
+                        error
+                    ) {
+
+                        console.error(
+                            "Failed to add discovered resource:",
+                            error
+                        );
+
+
+                        button.disabled =
+                            false;
+
+
+                        button.innerHTML =
+                            originalText;
+
+
+                        alert(
+                            "Failed to add resource."
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   DETAILS BUTTONS
+   ========================================================= */
+
+function bindDetailsButtons() {
+
+    const buttons =
+        document.querySelectorAll(
+            "#results-list .details-button"
+        );
+
+
+    buttons.forEach(
+        function(button) {
+
+            if (
+                button.dataset.detailsBound ===
+                "1"
+            ) {
+                return;
+            }
+
+
+            button.dataset.detailsBound =
+                "1";
+
+
+            button.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+
+                    const url =
+                        button.dataset.detailsUrl;
+
+
+                    if (!url) {
+                        return;
+                    }
+
+
+                    /*
+                     * If the main Discovery page
+                     * modal functions are available,
+                     * use the same modal without
+                     * navigating away.
+                     */
+
+                    if (
+                        typeof window.openDetails ===
+                        "function"
+                    ) {
+
+                        window.openDetails(
+                            url
+                        );
+
+                        return;
+                    }
+
+
+                    /*
+                     * Fallback for the scan page.
+                     */
+
+                    window.location.href =
+                        url;
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   BIND RESULT ACTIONS
+   ========================================================= */
+
+function bindResultActions() {
+
+    bindAddResourceForms();
+
+    bindDetailsButtons();
+
+}
+
+
+/* =========================================================
+   STOP COMPLETED SCAN
+   ========================================================= */
+
+function finishScan(data) {
+
+    if (scanFinished) {
+        return;
+    }
+
+
+    scanFinished =
+        true;
+
+
+    /*
+     * STOP POLLING
+     */
+
+    if (
+        statusTimer !== null
+    ) {
+
+        clearInterval(
+            statusTimer
+        );
+
+        statusTimer =
+            null;
+
+    }
+
+
+    /*
+     * STOP VISUAL SCANNER
+     */
+
+    stopScanAnimation();
+
+
+    /*
+     * FINAL STATUS
+     */
+
+    const status =
+        document.getElementById(
+            "scan-status"
+        );
+
+
+    const message =
+        document.getElementById(
+            "scan-message"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "scan-progress"
+        );
+
+
+    const found =
+        document.getElementById(
+            "scan-found"
+        );
+
+
+    if (status) {
+
+        status.textContent =
+            "🟢 STATUS: COMPLETE";
+
+    }
+
+
+    if (message) {
+
+        message.textContent =
+            "Network discovery completed.";
+
+    }
+
+
+    if (progress) {
+
+        progress.textContent =
+            "Checked: " +
+            (data.checked || 0) +
+            " / " +
+            (data.total || 0);
+
+    }
+
+
+    if (found) {
+
+        found.textContent =
+            "Found: " +
+            (data.found || 0);
+
+    }
+
+
+    /*
+     * SHOW FINAL RESULTS
+     */
+
+    renderResults(
+        data.results || []
+    );
+
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+function finishScanWithError(
+    errorMessage
+) {
+
+    if (statusTimer !== null) {
+
+        clearInterval(
+            statusTimer
+        );
+
+        statusTimer =
+            null;
+
+    }
+
+
+    stopScanAnimation();
+
+
+    const status =
+        document.getElementById(
+            "scan-status"
+        );
+
+
+    const message =
+        document.getElementById(
+            "scan-message"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "scan-progress"
+        );
+
+
+    if (status) {
+
+        status.textContent =
+            "🔴 STATUS: ERROR";
+
+    }
+
+
+    if (message) {
+
+        message.textContent =
+            "Network discovery failed.";
+
+    }
+
+
+    if (progress) {
+
+        progress.textContent =
+            errorMessage ||
+            "Unknown discovery error.";
+
+    }
+
+}
+
+
+/* =========================================================
+   UPDATE SCAN STATUS
+   ========================================================= */
+
 function updateScanStatus() {
+
+    /*
+     * Do not continue polling after
+     * the scan has already completed.
+     */
+
+    if (scanFinished) {
+        return;
+    }
+
 
     fetch(
         statusUrl +
         "?scan_id=" +
-        encodeURIComponent(scanId) +
+        encodeURIComponent(
+            scanId
+        ) +
         "&_=" +
         Date.now(),
         {
-            cache: "no-store"
+            cache:
+                "no-store",
+
+            credentials:
+                "same-origin"
         }
     )
 
     .then(
-        response =>
-            response.json()
+        function(response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            return response.json();
+
+        }
     )
 
     .then(
-        data => {
+        function(data) {
+
+            if (scanFinished) {
+                return;
+            }
+
 
             const progress =
                 document.getElementById(
                     "scan-progress"
                 );
 
+
             const found =
                 document.getElementById(
                     "scan-found"
                 );
 
+
             const status =
                 document.getElementById(
                     "scan-status"
                 );
+
 
             const message =
                 document.getElementById(
@@ -418,72 +1228,90 @@ function updateScanStatus() {
                 );
 
 
+            /*
+             * BACKEND ERROR
+             */
+
             if (data.error) {
 
-                clearInterval(
-                    statusTimer
+                finishScanWithError(
+                    data.error
                 );
 
+                return;
+            }
 
-                status.textContent =
-                    "🔴 STATUS: ERROR";
 
+            /*
+             * UPDATE PROGRESS
+             */
 
-                message.textContent =
-                    "Network discovery failed.";
-
+            if (progress) {
 
                 progress.textContent =
-                    data.error;
+                    "Checked: " +
+                    (data.checked || 0) +
+                    " / " +
+                    (data.total || 0);
+
+            }
+
+
+            if (found) {
+
+                found.textContent =
+                    "Found: " +
+                    (data.found || 0);
+
+            }
+
+
+            /*
+             * RUNNING
+             */
+
+            if (
+                data.running === true
+            ) {
+
+                if (status) {
+
+                    status.textContent =
+                        "🟡 STATUS: ACTIVE";
+
+                }
+
+
+                if (message) {
+
+                    message.textContent =
+                        "Network discovery running...";
+
+                }
 
 
                 return;
             }
 
 
-            progress.textContent =
-                "Checked: " +
-                (data.checked || 0) +
-                " / " +
-                (data.total || 0);
+            /*
+             * IMPORTANT:
+             *
+             * running === false means
+             * backend has finished.
+             *
+             * Stop spinner immediately.
+             */
 
-
-            found.textContent =
-                "Found: " +
-                (data.found || 0);
-
-
-            if (data.running) {
-
-                status.textContent =
-                    "🟡 STATUS: ACTIVE";
-
-                return;
-            }
-
-
-            clearInterval(
-                statusTimer
-            );
-
-
-            status.textContent =
-                "🟢 STATUS: COMPLETE";
-
-
-            message.textContent =
-                "Network discovery completed.";
-
-
-            renderResults(
-                data.results || []
+            finishScan(
+                data
             );
 
         }
     )
 
     .catch(
-        error => {
+        function(error) {
 
             console.error(
                 "Discovery status error:",
@@ -496,14 +1324,29 @@ function updateScanStatus() {
 }
 
 
+/* =========================================================
+   INITIAL STATUS REQUEST
+   ========================================================= */
+
 updateScanStatus();
 
+
+/* =========================================================
+   POLLING
+   ========================================================= */
 
 statusTimer =
     setInterval(
         updateScanStatus,
         500
     );
+
+
+/* =========================================================
+   INITIAL RESULT ACTIONS
+   ========================================================= */
+
+bindResultActions();
 
 </script>
 

@@ -279,6 +279,15 @@ def _build_network_target(
 
     }
 
+    # --------------------------------------------------------
+    # HOST-ONLY ADDRESS
+    #
+    # A /32 does not describe a local network that Discovery
+    # can enumerate.
+    #
+    # Do not expose it as a Discovery target.
+    # --------------------------------------------------------
+
     if (
         ip_interface.version == 4
         and prefix == 32
@@ -306,6 +315,11 @@ def discover_network_targets(
 
     Ne skenira.
     Ne dodaje resurse.
+
+    Samo scannable targeti se vraćaju pozivaocu.
+
+    Interfejsi koji imaju samo host adresu (/32)
+    automatski se ignorišu.
     """
 
     targets = []
@@ -313,6 +327,10 @@ def discover_network_targets(
     seen = set()
 
     custom_networks = custom_networks or []
+
+    # --------------------------------------------------------
+    # AUTO NETWORK TARGETS
+    # --------------------------------------------------------
 
     try:
 
@@ -344,6 +362,10 @@ def discover_network_targets(
 
         interface = parts[1]
 
+        # ----------------------------------------------------
+        # LOOPBACK
+        # ----------------------------------------------------
+
         if interface == "lo":
             continue
 
@@ -358,6 +380,20 @@ def discover_network_targets(
         if not target:
             continue
 
+        # ----------------------------------------------------
+        # ONLY REAL SCANNABLE NETWORKS
+        #
+        # This removes /32 interfaces automatically.
+        #
+        # No interface name is hardcoded here.
+        # ----------------------------------------------------
+
+        if not target.get("scannable"):
+            continue
+
+        if not target.get("network"):
+            continue
+
         identity = (
             target["interface"],
             target["address"]
@@ -369,6 +405,10 @@ def discover_network_targets(
         seen.add(identity)
 
         targets.append(target)
+
+    # --------------------------------------------------------
+    # CUSTOM NETWORKS
+    # --------------------------------------------------------
 
     for value in custom_networks:
 
@@ -967,7 +1007,6 @@ def detect_os(
         windows_ports
     ):
 
-        # SMB daje mogućnost preciznijeg OS-a.
         if 445 in ports:
 
             smb_os = detect_smb_os(
@@ -977,10 +1016,6 @@ def detect_os(
             if smb_os:
 
                 return smb_os
-
-        # RDP / WinRM je dovoljno jak signal
-        # za Windows family, ali nije dovoljan
-        # da izmišljamo Windows 10/11 verziju.
 
         return "Microsoft Windows"
 
@@ -997,11 +1032,6 @@ def detect_os(
         if smb_os:
 
             return smb_os
-
-        # SMB 445 sam po sebi je jak Windows signal
-        # za ovaj discovery kontekst.
-        #
-        # Ne tvrdimo Windows 10/11 bez dokaza.
 
         return "Microsoft Windows"
 

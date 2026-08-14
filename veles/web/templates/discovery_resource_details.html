@@ -1,0 +1,1068 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Veles Discovery Resource Details
+{% endblock %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/infrastructure.css',
+        v='10'
+    ) }}"
+>
+
+<style>
+
+    .discovery-details-page {
+
+        width: 100%;
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 24px;
+
+        box-sizing: border-box;
+
+    }
+
+
+    .discovery-details-card {
+
+        width: 100%;
+
+        margin: 0;
+
+        padding: 24px;
+
+        background:
+            linear-gradient(
+                145deg,
+                #1a2330,
+                #10161d
+            );
+
+        border:
+            1px solid
+            var(--border);
+
+        border-radius: 18px;
+
+        box-sizing: border-box;
+
+    }
+
+
+    .discovery-details-header {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 20px;
+
+        margin-bottom: 24px;
+
+    }
+
+
+    .discovery-details-header h1 {
+
+        margin: 0;
+
+        color: var(--gold);
+
+        letter-spacing: 3px;
+
+        font-size: 28px;
+
+    }
+
+
+    .discovery-details-header p {
+
+        margin:
+            7px
+            0
+            0
+            0;
+
+        color: var(--muted);
+
+    }
+
+
+    .discovery-details-close {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        width: 44px;
+
+        height: 44px;
+
+        min-width: 44px;
+
+        border:
+            1px solid
+            var(--border);
+
+        border-radius: 10px;
+
+        background: #0b0f14;
+
+        color: var(--muted);
+
+        font-family: inherit;
+
+        font-size: 18px;
+
+        font-weight: 700;
+
+        cursor: pointer;
+
+        text-decoration: none;
+
+        transition: .2s ease;
+
+    }
+
+
+    .discovery-details-close:hover {
+
+        color: var(--gold2);
+
+        border-color: var(--gold);
+
+        background: #141b23;
+
+        transform:
+            translateY(-1px);
+
+        box-shadow:
+            0 0 18px
+            rgba(
+                217,
+                164,
+                65,
+                .25
+            );
+
+    }
+
+
+    /* =====================================================
+       ACTION BAR
+       ===================================================== */
+
+    .discovery-details-actions {
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr);
+
+        gap: 14px;
+
+        width: 100%;
+
+        margin:
+            0
+            0
+            24px
+            0;
+
+        box-sizing: border-box;
+
+    }
+
+
+    .discovery-details-actions form {
+
+        display: flex;
+
+        width: 100%;
+
+        min-width: 0;
+
+        margin: 0;
+
+        padding: 0;
+
+        box-sizing: border-box;
+
+    }
+
+
+    .discovery-details-actions button,
+    .discovery-details-actions a {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        width: 100%;
+
+        min-width: 0;
+
+        height: 52px;
+
+        min-height: 52px;
+
+        margin: 0;
+
+        padding:
+            0
+            16px;
+
+        box-sizing: border-box;
+
+        white-space: nowrap;
+
+    }
+
+
+    .discovery-details-back {
+
+        text-decoration: none;
+
+    }
+
+
+    /* =====================================================
+       TITLE
+       ===================================================== */
+
+    .discovery-details-title {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 20px;
+
+        margin-bottom: 24px;
+
+    }
+
+
+    .discovery-details-title h2 {
+
+        margin: 0;
+
+        color: var(--gold2);
+
+        font-size: 25px;
+
+        word-break: break-word;
+
+    }
+
+
+    .discovery-details-status {
+
+        flex:
+            0
+            0
+            auto;
+
+        padding:
+            8px
+            14px;
+
+        border:
+            1px solid
+            var(--green);
+
+        border-radius: 20px;
+
+        background: #0b0f14;
+
+        color: var(--green);
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        white-space: nowrap;
+
+    }
+
+
+    /* =====================================================
+       DETAILS GRID
+       ===================================================== */
+
+    .discovery-details-grid {
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+
+        gap: 16px;
+
+        margin-top: 18px;
+
+    }
+
+
+    .discovery-details-item {
+
+        background: #0b0f14;
+
+        border-radius: 12px;
+
+        padding: 17px;
+
+        min-width: 0;
+
+        box-sizing: border-box;
+
+    }
+
+
+    .discovery-details-item label {
+
+        display: block;
+
+        color: var(--muted);
+
+        font-size: 11px;
+
+        letter-spacing: 1px;
+
+        margin-bottom: 8px;
+
+    }
+
+
+    .discovery-details-item strong {
+
+        display: block;
+
+        color: var(--text);
+
+        font-size: 14px;
+
+        line-height: 1.5;
+
+        word-break: break-word;
+
+    }
+
+
+    /* =====================================================
+       SECTIONS
+       ===================================================== */
+
+    .discovery-details-section {
+
+        margin-top: 24px;
+
+    }
+
+
+    .discovery-details-section h3 {
+
+        margin:
+            0
+            0
+            12px
+            0;
+
+        color: var(--gold);
+
+        font-size: 15px;
+
+        letter-spacing: 1.5px;
+
+    }
+
+
+    .discovery-details-list {
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 8px;
+
+    }
+
+
+    .discovery-details-list-item {
+
+        padding:
+            12px
+            14px;
+
+        background: #0b0f14;
+
+        border-radius: 10px;
+
+        color: var(--text);
+
+        font-size: 14px;
+
+        word-break: break-word;
+
+        box-sizing: border-box;
+
+    }
+
+
+    .discovery-details-empty {
+
+        text-align: center;
+
+        padding:
+            50px
+            20px;
+
+        color: var(--muted);
+
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+       ===================================================== */
+
+    @media(max-width: 900px) {
+
+        .discovery-details-grid {
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(
+                        0,
+                        1fr
+                    )
+                );
+
+        }
+
+    }
+
+
+    @media(max-width: 700px) {
+
+        .discovery-details-card {
+
+            padding: 18px;
+
+        }
+
+
+        .discovery-details-header {
+
+            align-items: flex-start;
+
+        }
+
+
+        .discovery-details-header h1 {
+
+            font-size: 22px;
+
+            letter-spacing: 2px;
+
+        }
+
+
+        .discovery-details-title {
+
+            flex-direction: column;
+
+            align-items: flex-start;
+
+        }
+
+
+        .discovery-details-grid {
+
+            grid-template-columns:
+                1fr;
+
+        }
+
+
+        .discovery-details-actions {
+
+            grid-template-columns:
+                1fr;
+
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="discovery-details-page">
+
+    {% if resource %}
+
+        <section class="discovery-details-card">
+
+
+            <!-- =================================================
+                 HEADER
+                 ================================================= -->
+
+            <header class="discovery-details-header">
+
+                <div>
+
+                    <h1>
+                        🔎 DISCOVERY RESOURCE
+                    </h1>
+
+                    <p>
+                        Discovered Network Resource Details
+                    </p>
+
+                </div>
+
+
+                <!--
+
+                    IMPORTANT:
+
+                    This is a normal standalone page.
+
+                    Therefore X returns directly to Discovery.
+
+                -->
+
+                <a
+                    href="{{ url_for('discovery_page') }}"
+                    class="discovery-details-close"
+                    aria-label="Back to Discovery"
+                >
+                    ✕
+                </a>
+
+            </header>
+
+
+            <!-- =================================================
+                 ACTIONS
+                 ================================================= -->
+
+            <div class="discovery-details-actions">
+
+
+                <!-- BACK -->
+
+                <a
+                    href="{{ url_for('discovery_page') }}"
+                    class="infra-button discovery-details-back"
+                >
+                    ⬅ BACK TO DISCOVERY
+                </a>
+
+
+                <!-- ADD RESOURCE -->
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'import_discovered_resources'
+                    ) }}"
+                >
+
+                    <input
+                        type="hidden"
+                        name="resource"
+                        value='{{ resource | tojson }}'
+                    >
+
+
+                    <button
+                        type="submit"
+                        class="infra-button add-resource-button"
+                    >
+                        ➕ ADD RESOURCE
+                    </button>
+
+                </form>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 RESOURCE TITLE
+                 ================================================= -->
+
+            <div class="discovery-details-title">
+
+                <h2>
+
+                    {% if resource.type == "server" %}
+                        🖥
+                    {% elif resource.type == "computer" %}
+                        🖥
+                    {% elif resource.type == "laptop" %}
+                        💻
+                    {% elif resource.type == "phone" %}
+                        📱
+                    {% elif resource.type == "tv" %}
+                        📺
+                    {% elif resource.type == "camera" %}
+                        📷
+                    {% elif resource.type == "printer" %}
+                        🖨️
+                    {% elif resource.type == "router" %}
+                        📡
+                    {% elif resource.type == "network_device" %}
+                        🌐
+                    {% elif resource.type == "iot" %}
+                        💡
+                    {% elif resource.type == "container" %}
+                        🐳
+                    {% elif resource.type == "agent" %}
+                        🤖
+                    {% elif resource.type == "device" %}
+                        📡
+                    {% else %}
+                        ☁
+                    {% endif %}
+
+                    {{ resource.name
+                       or resource.host
+                       or "Unknown Resource" }}
+
+                </h2>
+
+
+                <span class="discovery-details-status">
+
+                    {% if resource.status == "alive" %}
+
+                        🟢 ALIVE
+
+                    {% elif resource.status %}
+
+                        ⚪ {{ resource.status }}
+
+                    {% else %}
+
+                        ⚪ UNKNOWN
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+
+            <!-- =================================================
+                 BASIC INFORMATION
+                 ================================================= -->
+
+            <div class="discovery-details-grid">
+
+
+                <div class="discovery-details-item">
+
+                    <label>
+                        TYPE
+                    </label>
+
+                    <strong>
+                        {{ resource.type or "unknown" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="discovery-details-item">
+
+                    <label>
+                        HOST
+                    </label>
+
+                    <strong>
+                        {{ resource.host or "-" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="discovery-details-item">
+
+                    <label>
+                        PORT
+                    </label>
+
+                    <strong>
+                        {{ resource.port or "None" }}
+                    </strong>
+
+                </div>
+
+
+                <div class="discovery-details-item">
+
+                    <label>
+                        DISCOVERY
+                    </label>
+
+                    <strong>
+                        ⚡ FAST DISCOVERY
+                    </strong>
+
+                </div>
+
+
+                <div class="discovery-details-item">
+
+                    <label>
+                        STATUS
+                    </label>
+
+                    <strong>
+
+                        {% if resource.status == "alive" %}
+
+                            🟢 ALIVE
+
+                        {% else %}
+
+                            ⚪
+                            {{ resource.status or "UNKNOWN" }}
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <div class="discovery-details-item">
+
+                    <label>
+                        HOSTNAME
+                    </label>
+
+                    <strong>
+                        {{ resource.hostname or "Not detected" }}
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- =================================================
+                 NETWORK IDENTITY
+                 ================================================= -->
+
+            {% if resource.mac
+                  or resource.vendor
+                  or resource.device_type %}
+
+                <div class="discovery-details-section">
+
+                    <h3>
+                        NETWORK IDENTITY
+                    </h3>
+
+
+                    <div class="discovery-details-grid">
+
+
+                        {% if resource.mac %}
+
+                            <div class="discovery-details-item">
+
+                                <label>
+                                    MAC ADDRESS
+                                </label>
+
+                                <strong>
+                                    {{ resource.mac }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if resource.vendor %}
+
+                            <div class="discovery-details-item">
+
+                                <label>
+                                    VENDOR
+                                </label>
+
+                                <strong>
+                                    {{ resource.vendor }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if resource.device_type %}
+
+                            <div class="discovery-details-item">
+
+                                <label>
+                                    DEVICE TYPE
+                                </label>
+
+                                <strong>
+                                    {{ resource.device_type }}
+                                </strong>
+
+                            </div>
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+
+            <!-- =================================================
+                 OPERATING SYSTEM
+                 ================================================= -->
+
+            <div class="discovery-details-section">
+
+                <h3>
+                    OPERATING SYSTEM
+                </h3>
+
+
+                <div class="discovery-details-item">
+
+                    <strong>
+
+                        {% if resource.os
+                              and resource.os != "unknown" %}
+
+                            🖥 {{ resource.os }}
+
+                        {% elif resource.os_name
+                              and resource.os_name != "unknown" %}
+
+                            🖥 {{ resource.os_name }}
+
+                        {% elif resource.os_family
+                              and resource.os_family != "unknown" %}
+
+                            🖥 {{ resource.os_family }}
+
+                        {% else %}
+
+                            ⚪ NOT DETECTED
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 OPEN PORTS
+                 ================================================= -->
+
+            <div class="discovery-details-section">
+
+                <h3>
+                    OPEN PORTS
+                </h3>
+
+
+                <div class="discovery-details-list">
+
+
+                    {% if resource.ports %}
+
+                        {% for port in resource.ports %}
+
+                            <div class="discovery-details-list-item">
+
+                                🟢
+
+                                <strong>
+                                    {{ port }}
+                                </strong>
+
+                            </div>
+
+                        {% endfor %}
+
+
+                    {% elif resource.port %}
+
+                        <div class="discovery-details-list-item">
+
+                            🟢
+
+                            <strong>
+                                {{ resource.port }}
+                            </strong>
+
+                        </div>
+
+
+                    {% else %}
+
+                        <div class="discovery-details-list-item">
+
+                            ⚪ NO OPEN PORTS DETECTED
+
+                        </div>
+
+                    {% endif %}
+
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 SERVICES
+                 ================================================= -->
+
+            <div class="discovery-details-section">
+
+                <h3>
+                    DETECTED SERVICES
+                </h3>
+
+
+                <div class="discovery-details-list">
+
+
+                    {% if resource.services %}
+
+
+                        {% for service in resource.services %}
+
+                            <div class="discovery-details-list-item">
+
+                                🟢
+
+
+                                {% if service.service %}
+
+                                    <strong>
+                                        {{ service.service }}
+                                    </strong>
+
+                                {% else %}
+
+                                    <strong>
+                                        Unknown Service
+                                    </strong>
+
+                                {% endif %}
+
+
+                                {% if service.port %}
+
+                                    :
+                                    {{ service.port }}
+
+                                {% endif %}
+
+
+                                {% if service.version %}
+
+                                    —
+                                    {{ service.version }}
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endfor %}
+
+
+                    {% else %}
+
+
+                        <div class="discovery-details-list-item">
+
+                            ⚪ NO KNOWN SERVICES DETECTED
+
+                        </div>
+
+
+                    {% endif %}
+
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+    {% else %}
+
+
+        <section class="discovery-details-card">
+
+            <div class="discovery-details-empty">
+
+                ⚠ DISCOVERED RESOURCE NOT FOUND.
+
+            </div>
+
+        </section>
+
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -10,8 +10,449 @@ Veles Discovery Center
 
 <link
     rel="stylesheet"
-    href="{{ url_for('static', filename='css/infrastructure.css', v='5') }}"
+    href="{{ url_for(
+        'static',
+        filename='css/infrastructure.css',
+        v='10'
+    ) }}"
 >
+
+<style>
+
+    /* =========================================================
+       DISCOVERY DETAILS MODAL
+       ========================================================= */
+
+    .details-modal {
+
+        position: fixed;
+
+        inset: 0;
+
+        z-index: 9999;
+
+        display: none;
+
+        box-sizing: border-box;
+
+    }
+
+
+    .details-modal.open {
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+    }
+
+
+    .details-modal-backdrop {
+
+        position: absolute;
+
+        inset: 0;
+
+        background:
+            rgba(
+                0,
+                0,
+                0,
+                .78
+            );
+
+        backdrop-filter:
+            blur(5px);
+
+    }
+
+
+    .details-modal-window {
+
+        position: relative;
+
+        z-index: 2;
+
+        width: min(
+            1100px,
+            calc(
+                100vw - 40px
+            )
+        );
+
+        max-height:
+            calc(
+                100vh - 40px
+            );
+
+        display: flex;
+
+        flex-direction: column;
+
+        overflow: hidden;
+
+        background:
+            linear-gradient(
+                145deg,
+                #1a2330,
+                #10161d
+            );
+
+        border:
+            1px solid
+            var(--border);
+
+        border-radius: 18px;
+
+        box-shadow:
+            0 25px 80px
+            rgba(
+                0,
+                0,
+                0,
+                .65
+            );
+
+        box-sizing: border-box;
+
+    }
+
+
+    .details-modal-header {
+
+        flex:
+            0
+            0
+            auto;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 20px;
+
+        padding:
+            18px
+            22px;
+
+        border-bottom:
+            1px solid
+            var(--border);
+
+        background:
+            #10161d;
+
+    }
+
+
+    .details-modal-label {
+
+        display: block;
+
+        color: var(--gold);
+
+        font-size: 11px;
+
+        letter-spacing: 2px;
+
+        font-weight: 700;
+
+    }
+
+
+    .details-modal-header h2 {
+
+        margin:
+            5px
+            0
+            0
+            0;
+
+        color: var(--gold2);
+
+        font-size: 20px;
+
+        letter-spacing: 1px;
+
+    }
+
+
+    .details-modal-close {
+
+        display: inline-flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        flex:
+            0
+            0
+            auto;
+
+        width: 44px;
+
+        height: 44px;
+
+        border:
+            1px solid
+            var(--border);
+
+        border-radius: 10px;
+
+        background: #0b0f14;
+
+        color: var(--muted);
+
+        font-size: 18px;
+
+        font-weight: 700;
+
+        cursor: pointer;
+
+        transition: .2s ease;
+
+    }
+
+
+    .details-modal-close:hover {
+
+        color: var(--gold2);
+
+        border-color: var(--gold);
+
+        background: #141b23;
+
+    }
+
+
+    .details-modal-loading {
+
+        display: none;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 12px;
+
+        min-height: 160px;
+
+        padding: 30px;
+
+        color: var(--muted);
+
+        box-sizing: border-box;
+
+    }
+
+
+    .details-spinner {
+
+        width: 20px;
+
+        height: 20px;
+
+        border:
+            2px solid
+            var(--border);
+
+        border-top-color:
+            var(--gold);
+
+        border-radius: 50%;
+
+        animation:
+            details-spin
+            .8s
+            linear
+            infinite;
+
+    }
+
+
+    @keyframes details-spin {
+
+        to {
+
+            transform:
+                rotate(
+                    360deg
+                );
+
+        }
+
+    }
+
+
+    .details-modal-content {
+
+        flex:
+            1
+            1
+            auto;
+
+        min-height: 0;
+
+        overflow-y: auto;
+
+        padding: 22px;
+
+        box-sizing: border-box;
+
+    }
+
+
+    /*
+     * When the standalone details page is inserted
+     * into the modal, its outer page wrapper must
+     * not create another card/page spacing problem.
+     */
+
+    .details-modal-content
+    .discovery-details-page {
+
+        width: 100%;
+
+        gap: 0;
+
+    }
+
+
+    .details-modal-content
+    .discovery-details-card {
+
+        width: 100%;
+
+        margin: 0;
+
+        padding: 0;
+
+        background: transparent;
+
+        border: 0;
+
+        border-radius: 0;
+
+    }
+
+
+    .details-modal-content
+    .discovery-details-header {
+
+        display: none;
+
+    }
+
+
+    .details-modal-content
+    .discovery-details-actions {
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(0, 1fr);
+
+        gap: 14px;
+
+        width: 100%;
+
+        margin:
+            0
+            0
+            24px
+            0;
+
+    }
+
+
+    .details-modal-content
+    .discovery-details-actions form {
+
+        width: 100%;
+
+        margin: 0;
+
+    }
+
+
+    .details-modal-content
+    .discovery-details-actions
+    button,
+
+    .details-modal-content
+    .discovery-details-actions
+    a {
+
+        width: 100%;
+
+        height: 52px;
+
+        min-height: 52px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        box-sizing: border-box;
+
+    }
+
+
+    /*
+     * In modal mode BACK closes the modal.
+     * This class is only visual; JS intercepts the click.
+     */
+
+    body.details-modal-open {
+
+        overflow: hidden;
+
+    }
+
+
+    @media(max-width: 700px) {
+
+        .details-modal-window {
+
+            width:
+                calc(
+                    100vw - 20px
+                );
+
+            max-height:
+                calc(
+                    100vh - 20px
+                );
+
+        }
+
+
+        .details-modal-content {
+
+            padding: 16px;
+
+        }
+
+
+        .details-modal-content
+        .discovery-details-actions {
+
+            grid-template-columns:
+                1fr;
+
+        }
+
+    }
+
+</style>
 
 {% endblock %}
 
@@ -21,9 +462,9 @@ Veles Discovery Center
 <div class="infra-page">
 
 
-    <!-- ========================================== -->
-    <!-- HEADER -->
-    <!-- ========================================== -->
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
 
     <header class="infra-header">
 
@@ -38,9 +479,9 @@ Veles Discovery Center
     </header>
 
 
-    <!-- ========================================== -->
-    <!-- DISCOVERY CONTROLS -->
-    <!-- ========================================== -->
+    <!-- =====================================================
+         DISCOVERY CONTROLS
+         ===================================================== -->
 
     <section class="inventory-panel discovery-controls-panel">
 
@@ -78,6 +519,7 @@ Veles Discovery Center
                     placeholder="192.168.50.0/24"
                     autocomplete="off"
                 >
+
 
                 <button
                     class="infra-button discovery-control-button"
@@ -128,7 +570,6 @@ Veles Discovery Center
 
             </form>
 
-
         </div>
 
 
@@ -149,9 +590,9 @@ Veles Discovery Center
     </section>
 
 
-    <!-- ========================================== -->
-    <!-- DISCOVERY TARGETS -->
-    <!-- ========================================== -->
+    <!-- =====================================================
+         DISCOVERY TARGETS
+         ===================================================== -->
 
     <section class="inventory-panel">
 
@@ -189,7 +630,8 @@ Veles Discovery Center
                                     </label>
 
                                     <strong>
-                                        {{ target.network or "Unavailable" }}
+                                        {{ target.network
+                                           or "Unavailable" }}
                                     </strong>
 
                                 </div>
@@ -223,46 +665,15 @@ Veles Discovery Center
                             </div>
 
 
-                            {% if target.scannable and target.network %}
-
-                                <div class="resource-meta">
-
-                                    <div>
-
-                                        <label>
-                                            SCAN TARGET
-                                        </label>
-
-                                        <strong>
-
-                                            <input
-                                                type="checkbox"
-                                                name="network"
-                                                value="{{ target.network }}"
-                                                checked
-                                                form="scan-form"
-                                            >
-
-                                            {{ target.network }}
-
-                                        </strong>
-
-                                    </div>
-
-                                </div>
-
-                            {% endif %}
-
-
-                            <!-- REMOVE CUSTOM NETWORK -->
-
                             {% if target.source == "custom" %}
 
                                 <div class="network-remove-action">
 
                                     <form
                                         method="POST"
-                                        action="{{ url_for('discovery_scan') }}"
+                                        action="{{ url_for(
+                                            'discovery_scan'
+                                        ) }}"
                                     >
 
                                         <input
@@ -270,6 +681,7 @@ Veles Discovery Center
                                             name="remove_network"
                                             value="{{ target.network }}"
                                         >
+
 
                                         <button
                                             class="remove-network-button"
@@ -284,7 +696,6 @@ Veles Discovery Center
 
                             {% endif %}
 
-
                         </div>
 
                     </div>
@@ -294,9 +705,7 @@ Veles Discovery Center
             {% else %}
 
                 <div class="empty-state">
-
                     ⚠ NO DISCOVERY TARGETS FOUND.
-
                 </div>
 
             {% endfor %}
@@ -306,9 +715,9 @@ Veles Discovery Center
     </section>
 
 
-    <!-- ========================================== -->
-    <!-- DISCOVERED RESOURCES -->
-    <!-- ========================================== -->
+    <!-- =====================================================
+         DISCOVERED RESOURCES
+         ===================================================== -->
 
     {% if discovered %}
 
@@ -319,16 +728,20 @@ Veles Discovery Center
             </h2>
 
 
-            <div class="resource-list">
+            <div
+                id="discovered-resources-list"
+                class="resource-list"
+            >
 
                 {% for device in discovered %}
 
-                    <div class="resource-item">
+                    <div
+                        class="resource-item discovered-resource-item"
+                        data-resource-host="{{ device.host }}"
+                    >
 
 
-                        <!-- ================================== -->
                         <!-- DEVICE ICON -->
-                        <!-- ================================== -->
 
                         <div class="resource-icon">
 
@@ -352,6 +765,12 @@ Veles Discovery Center
                                 🌐
                             {% elif device.type == "iot" %}
                                 💡
+                            {% elif device.type == "container" %}
+                                🐳
+                            {% elif device.type == "agent" %}
+                                🤖
+                            {% elif device.type == "device" %}
+                                📡
                             {% else %}
                                 ☁
                             {% endif %}
@@ -359,12 +778,9 @@ Veles Discovery Center
                         </div>
 
 
-                        <!-- ================================== -->
                         <!-- DEVICE INFORMATION -->
-                        <!-- ================================== -->
 
                         <div class="resource-info">
-
 
                             <h2>
 
@@ -375,10 +791,7 @@ Veles Discovery Center
                             </h2>
 
 
-                            <!-- STATUS -->
-
                             <div class="resource-meta">
-
 
                                 <div>
 
@@ -395,7 +808,8 @@ Veles Discovery Center
                                         {% else %}
 
                                             ⚪
-                                            {{ device.status or "UNKNOWN" }}
+                                            {{ device.status
+                                               or "UNKNOWN" }}
 
                                         {% endif %}
 
@@ -411,7 +825,8 @@ Veles Discovery Center
                                     </label>
 
                                     <strong>
-                                        {{ device.type or "unknown" }}
+                                        {{ device.type
+                                           or "unknown" }}
                                     </strong>
 
                                 </div>
@@ -445,16 +860,11 @@ Veles Discovery Center
                             </div>
 
 
-                            <!-- ================================== -->
-                            <!-- BASIC IDENTITY -->
-                            <!-- ================================== -->
-
                             {% if device.hostname
                                   or device.mac
                                   or device.os %}
 
                                 <div class="resource-meta">
-
 
                                     {% if device.hostname %}
 
@@ -507,15 +917,12 @@ Veles Discovery Center
 
                                     {% endif %}
 
-
                                 </div>
 
                             {% endif %}
 
 
-                            <!-- ================================== -->
                             <!-- SERVICES -->
-                            <!-- ================================== -->
 
                             <div class="resource-meta">
 
@@ -525,21 +932,16 @@ Veles Discovery Center
                                         SERVICES
                                     </label>
 
-
                                     {% if device.services %}
-
 
                                         {% for service in device.services %}
 
                                             <strong>
 
                                                 🟢
-
                                                 {{ service.service
                                                    or "Unknown" }}
-
                                                 :
-
                                                 {{ service.port }}
 
                                                 {% if service.version %}
@@ -553,14 +955,11 @@ Veles Discovery Center
 
                                         {% endfor %}
 
-
                                     {% else %}
-
 
                                         <strong>
                                             ⚪ NONE DETECTED
                                         </strong>
-
 
                                     {% endif %}
 
@@ -569,9 +968,7 @@ Veles Discovery Center
                             </div>
 
 
-                            <!-- ================================== -->
                             <!-- DISCOVERY STATE -->
-                            <!-- ================================== -->
 
                             <div class="resource-meta">
 
@@ -590,29 +987,29 @@ Veles Discovery Center
                             </div>
 
 
-                            <!-- ================================== -->
                             <!-- ACTIONS -->
-                            <!-- ================================== -->
 
                             <div class="action-row">
 
 
                                 <!-- DETAILS -->
 
-                                <a
-                                    class="infra-button"
-                                    href="{{ url_for(
+                                <button
+                                    type="button"
+                                    class="infra-button details-button"
+                                    data-details-url="{{ url_for(
                                         'discovery_resource_detail',
                                         host=device.host
                                     ) }}"
                                 >
                                     🔎 DETAILS
-                                </a>
+                                </button>
 
 
                                 <!-- ADD RESOURCE -->
 
                                 <form
+                                    class="add-resource-form"
                                     method="POST"
                                     action="{{ url_for(
                                         'import_discovered_resources'
@@ -627,7 +1024,7 @@ Veles Discovery Center
 
 
                                     <button
-                                        class="infra-button"
+                                        class="infra-button add-resource-button"
                                         type="submit"
                                     >
                                         ➕ ADD RESOURCE
@@ -635,9 +1032,7 @@ Veles Discovery Center
 
                                 </form>
 
-
                             </div>
-
 
                         </div>
 
@@ -651,8 +1046,622 @@ Veles Discovery Center
 
     {% endif %}
 
+</div>
+
+
+<!-- =========================================================
+     DETAILS MODAL
+     ========================================================= -->
+
+<div
+    id="details-modal"
+    class="details-modal"
+    aria-hidden="true"
+>
+
+    <div
+        id="details-modal-backdrop"
+        class="details-modal-backdrop"
+    ></div>
+
+
+    <div
+        class="details-modal-window"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="details-modal-title"
+    >
+
+
+        <div class="details-modal-header">
+
+            <div>
+
+                <span class="details-modal-label">
+                    VELES DISCOVERY
+                </span>
+
+                <h2 id="details-modal-title">
+                    🔎 RESOURCE DETAILS
+                </h2>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="details-modal-close"
+                class="details-modal-close"
+                aria-label="Close details"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <div
+            id="details-modal-loading"
+            class="details-modal-loading"
+        >
+
+            <div class="details-spinner"></div>
+
+            <span>
+                LOADING RESOURCE DETAILS...
+            </span>
+
+        </div>
+
+
+        <div
+            id="details-modal-content"
+            class="details-modal-content"
+        ></div>
+
+    </div>
 
 </div>
 
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        /* =====================================================
+           ELEMENTS
+           ===================================================== */
+
+        const detailsModal =
+            document.getElementById(
+                "details-modal"
+            );
+
+
+        const detailsContent =
+            document.getElementById(
+                "details-modal-content"
+            );
+
+
+        const detailsLoading =
+            document.getElementById(
+                "details-modal-loading"
+            );
+
+
+        const detailsClose =
+            document.getElementById(
+                "details-modal-close"
+            );
+
+
+        const detailsBackdrop =
+            document.getElementById(
+                "details-modal-backdrop"
+            );
+
+
+        /* =====================================================
+           ADD RESOURCE
+           ===================================================== */
+
+        document.addEventListener(
+            "submit",
+            async function (event) {
+
+                const form =
+                    event.target.closest(
+                        ".add-resource-form"
+                    );
+
+
+                if (!form) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+
+                const button =
+                    form.querySelector(
+                        ".add-resource-button"
+                    );
+
+
+                const resourceItem =
+                    form.closest(
+                        ".discovered-resource-item"
+                    );
+
+
+                if (
+                    !button ||
+                    !resourceItem
+                ) {
+                    return;
+                }
+
+
+                if (button.disabled) {
+                    return;
+                }
+
+
+                button.disabled = true;
+
+
+                const originalText =
+                    button.innerHTML;
+
+
+                button.innerHTML =
+                    "⏳ ADDING...";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            form.action,
+                            {
+                                method: "POST",
+
+                                body:
+                                    new FormData(form),
+
+                                credentials:
+                                    "same-origin",
+
+                                headers: {
+                                    "X-Requested-With":
+                                        "XMLHttpRequest",
+
+                                    "Accept":
+                                        "application/json"
+                                },
+
+                                redirect:
+                                    "follow"
+                            }
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "HTTP " +
+                            response.status
+                        );
+
+                    }
+
+
+                    resourceItem.remove();
+
+
+                    const list =
+                        document.getElementById(
+                            "discovered-resources-list"
+                        );
+
+
+                    if (
+                        list &&
+                        !list.querySelector(
+                            ".discovered-resource-item"
+                        )
+                    ) {
+
+                        const emptyState =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        emptyState.className =
+                            "empty-state";
+
+
+                        emptyState.innerHTML =
+                            "✓ ALL DISCOVERED RESOURCES HAVE BEEN ADDED.";
+
+
+                        list.appendChild(
+                            emptyState
+                        );
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Failed to add discovered resource:",
+                        error
+                    );
+
+
+                    button.disabled =
+                        false;
+
+
+                    button.innerHTML =
+                        originalText;
+
+
+                    alert(
+                        "Failed to add resource."
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* =====================================================
+           MODAL CHECK
+           ===================================================== */
+
+        if (
+            !detailsModal ||
+            !detailsContent ||
+            !detailsLoading ||
+            !detailsClose ||
+            !detailsBackdrop
+        ) {
+
+            return;
+
+        }
+
+
+        /* =====================================================
+           OPEN MODAL
+           ===================================================== */
+
+        async function openDetails(url) {
+
+            if (!url) {
+                return;
+            }
+
+
+            detailsContent.innerHTML =
+                "";
+
+
+            detailsLoading.style.display =
+                "flex";
+
+
+            detailsModal.classList.add(
+                "open"
+            );
+
+
+            detailsModal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+
+            document.body.classList.add(
+                "details-modal-open"
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        url,
+                        {
+                            method: "GET",
+
+                            credentials:
+                                "same-origin",
+
+                            headers: {
+                                "X-Requested-With":
+                                    "XMLHttpRequest",
+
+                                "Accept":
+                                    "text/html"
+                            },
+
+                            cache:
+                                "no-store"
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "HTTP " +
+                        response.status
+                    );
+
+                }
+
+
+                const html =
+                    await response.text();
+
+
+                if (!html.trim()) {
+
+                    throw new Error(
+                        "Empty details response"
+                    );
+
+                }
+
+
+                /*
+                 * Parse the complete standalone page.
+                 */
+
+                const parser =
+                    new DOMParser();
+
+
+                const parsed =
+                    parser.parseFromString(
+                        html,
+                        "text/html"
+                    );
+
+
+                /*
+                 * Extract ONLY the details page.
+                 */
+
+                const detailsPage =
+                    parsed.querySelector(
+                        ".discovery-details-page"
+                    );
+
+
+                if (!detailsPage) {
+
+                    throw new Error(
+                        "Resource details content not found"
+                    );
+
+                }
+
+
+                detailsContent.innerHTML =
+                    detailsPage.outerHTML;
+
+
+                detailsLoading.style.display =
+                    "none";
+
+
+                detailsContent.scrollTop =
+                    0;
+
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to load resource details:",
+                    error
+                );
+
+
+                detailsLoading.style.display =
+                    "none";
+
+
+                detailsContent.innerHTML = `
+
+                    <div class="empty-state">
+
+                        ⚠ FAILED TO LOAD RESOURCE DETAILS.
+
+                        <br><br>
+
+                        <span>
+                            ${error.message || "Unknown error"}
+                        </span>
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           CLOSE MODAL
+           ===================================================== */
+
+        function closeDetails() {
+
+            detailsModal.classList.remove(
+                "open"
+            );
+
+
+            detailsModal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            document.body.classList.remove(
+                "details-modal-open"
+            );
+
+
+            detailsContent.innerHTML =
+                "";
+
+
+            detailsLoading.style.display =
+                "none";
+
+        }
+
+
+        /* =====================================================
+           DETAILS BUTTON
+           ===================================================== */
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                const button =
+                    event.target.closest(
+                        ".details-button"
+                    );
+
+
+                if (!button) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+
+                const url =
+                    button.dataset.detailsUrl;
+
+
+                openDetails(url);
+
+            }
+        );
+
+
+        /* =====================================================
+           CLOSE BUTTON
+           ===================================================== */
+
+        detailsClose.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                closeDetails();
+
+            }
+        );
+
+
+        /* =====================================================
+           BACKDROP
+           ===================================================== */
+
+        detailsBackdrop.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                closeDetails();
+
+            }
+        );
+
+
+        /* =====================================================
+           BACK / X INSIDE LOADED DETAILS
+           ===================================================== */
+
+        detailsContent.addEventListener(
+            "click",
+            function (event) {
+
+                const closeButton =
+                    event.target.closest(
+                        ".discovery-details-close, .discovery-details-back"
+                    );
+
+
+                if (!closeButton) {
+                    return;
+                }
+
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                closeDetails();
+
+            }
+        );
+
+
+        /* =====================================================
+           ESC
+           ===================================================== */
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Escape" &&
+                    detailsModal.classList.contains(
+                        "open"
+                    )
+                ) {
+
+                    event.preventDefault();
+
+                    closeDetails();
+
+                }
+
+            }
+        );
+
+
+    }
+);
+
+</script>
 
 {% endblock %}

@@ -5,7 +5,10 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
 
 <title>
@@ -20,7 +23,7 @@ Veles AI Operations Center
     href="{{ url_for(
         'static',
         filename='css/veles.css',
-        v='2'
+        v='3'
     ) }}"
 >
 
@@ -59,6 +62,151 @@ Veles AI Operations Center
 {% endblock %}
 
 
+<style>
+
+/* =========================================================
+   VELES OS BASE NAVIGATION
+   ========================================================= */
+
+.sidebar {
+
+    padding: 28px 22px;
+
+}
+
+
+.sidebar-brand {
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+}
+
+
+.sidebar-subtitle {
+
+    margin-top: 7px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    letter-spacing: 1.5px;
+
+}
+
+
+.main-menu {
+
+    margin-top: 34px;
+
+}
+
+
+.main-menu-section {
+
+    margin-bottom: 28px;
+
+}
+
+
+.main-menu-section-title {
+
+    margin-bottom: 12px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+}
+
+
+.main-menu a {
+
+    display: flex;
+
+    align-items: center;
+
+    min-height: 48px;
+
+    padding: 0 14px;
+
+    margin-bottom: 6px;
+
+    border-radius: 9px;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    letter-spacing: .4px;
+
+    text-decoration: none;
+
+}
+
+
+.main-menu a:hover {
+
+    font-size: 18px;
+
+}
+
+
+.main-menu-icon {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 28px;
+
+    margin-right: 10px;
+
+    font-size: 21px;
+
+}
+
+
+/* =========================================================
+   TOP HEADER
+   ========================================================= */
+
+.brand {
+
+    font-size: 21px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+}
+
+
+.brand-status {
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.2px;
+
+}
+
+
+</style>
+
 </head>
 
 
@@ -68,51 +216,118 @@ Veles AI Operations Center
 <div class="app-layout">
 
 
+<!-- =====================================================
+     VELES OS SIDEBAR
+     ===================================================== -->
 
 <aside class="sidebar">
 
 
 <div class="sidebar-brand">
-
-    ◉ VELES
-
+    VELES OPERATING SYSTEM
 </div>
-
-
-<div class="sidebar-subtitle">
-
-    AI Operations Center
-
-</div>
-
 
 
 <nav class="main-menu">
 
 
-<a href="{{ url_for('dashboard_view') }}">
-    Dashboard
-</a>
+<!-- WORKSPACE -->
+
+<div class="main-menu-section">
+
+    <div class="main-menu-section-title">
+        WORKSPACE
+    </div>
 
 
-<a href="{{ url_for('chat') }}">
-    AI Console
-</a>
+    <a href="{{ url_for('dashboard_view') }}">
+
+        <span class="main-menu-icon">
+            ◉
+        </span>
+
+        Overview
+
+    </a>
+
+</div>
 
 
-<a href="{{ url_for('memory_view') }}">
-    Memory
-</a>
+<!-- OPERATIONS -->
+
+<div class="main-menu-section">
+
+    <div class="main-menu-section-title">
+        OPERATIONS
+    </div>
 
 
-<a href="{{ url_for('system_view') }}">
-    System
-</a>
+    <a href="{{ url_for('discovery_page') }}">
+
+        <span class="main-menu-icon">
+            ◈
+        </span>
+
+        Discovery
+
+    </a>
 
 
-<a href="{{ url_for('logs_view') }}">
-    Logs
-</a>
+    <a href="{{ url_for('system_view') }}">
+
+        <span class="main-menu-icon">
+            ▣
+        </span>
+
+        System
+
+    </a>
+
+
+    <a href="{{ url_for('logs_view') }}">
+
+        <span class="main-menu-icon">
+            ◇
+        </span>
+
+        Events
+
+    </a>
+
+</div>
+
+
+<!-- INTELLIGENCE -->
+
+<div class="main-menu-section">
+
+    <div class="main-menu-section-title">
+        INTELLIGENCE
+    </div>
+
+
+    <a href="{{ url_for('chat') }}">
+
+        <span class="main-menu-icon">
+            ✦
+        </span>
+
+        AI
+
+    </a>
+
+
+    <a href="{{ url_for('memory_view') }}">
+
+        <span class="main-menu-icon">
+            ◎
+        </span>
+
+        Memory
+
+    </a>
+
+</div>
 
 
 </nav>
@@ -121,7 +336,9 @@ Veles AI Operations Center
 </aside>
 
 
-
+<!-- =====================================================
+     MAIN AREA
+     ===================================================== -->
 
 <section class="main-area">
 
@@ -146,28 +363,18 @@ Veles AI Operations Center
 </header>
 
 
-
-
-
 <main class="page-container">
 
-
 {% block content %}
-
 {% endblock %}
 
-
 </main>
-
 
 
 </section>
 
 
 </div>
-
-
-
 
 
 <script
@@ -193,6 +400,5 @@ Veles AI Operations Center
 
 
 </body>
-
 
 </html>

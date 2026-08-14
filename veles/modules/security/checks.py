@@ -330,7 +330,15 @@ def check_ssh():
 # ============================================================
 
 def check_firewall():
-    """Inspect firewall state without modifying configuration."""
+    """
+    Inspect firewall state without modifying configuration.
+
+    Firewall inspection is read-only.
+
+    Some firewall tools require elevated privileges even for
+    inspection. In that situation the result is UNKNOWN rather
+    than ERROR because the security state could not be verified.
+    """
 
     checks = []
 
@@ -338,7 +346,9 @@ def check_firewall():
     # UFW
     # --------------------------------------------------------
 
-    ufw = _run(["ufw", "status"])
+    ufw = _run(
+        ["ufw", "status"]
+    )
 
     if ufw["available"]:
 
@@ -354,38 +364,56 @@ def check_firewall():
             ufw["returncode"] != 0
             and (
                 "you need to be root" in lowered
+                or "need to be root" in lowered
                 or "permission denied" in lowered
                 or "operation not permitted" in lowered
+                or "not authorized" in lowered
             )
         )
 
         if insufficient:
+
             state = "unknown"
             inspection = "insufficient_privileges"
+
+            display_status = (
+                "inspection requires elevated privileges"
+            )
 
         elif (
             ufw["returncode"] == 0
             and "status: active" in lowered
         ):
+
             state = "active"
             inspection = "completed"
+
+            display_status = output
 
         elif (
             ufw["returncode"] == 0
             and "status: inactive" in lowered
         ):
+
             state = "inactive"
             inspection = "completed"
 
+            display_status = output
+
         else:
+
             state = "unknown"
             inspection = "completed"
+
+            display_status = output or (
+                "firewall state could not be determined"
+            )
 
         checks.append(
             {
                 "name": "ufw",
                 "available": True,
-                "status": output,
+                "status": display_status,
                 "state": state,
                 "inspection": inspection,
                 "returncode": ufw["returncode"],
@@ -419,33 +447,53 @@ def check_firewall():
                 "permission denied" in lowered
                 or "operation not permitted" in lowered
                 or "not authorized" in lowered
+                or "authentication is required" in lowered
             )
         )
 
         if insufficient:
+
             state = "unknown"
             inspection = "insufficient_privileges"
+
+            display_status = (
+                "inspection requires elevated privileges"
+            )
 
         elif (
             firewalld["returncode"] == 0
             and firewalld["stdout"].strip() == "running"
         ):
+
             state = "active"
             inspection = "completed"
 
+            display_status = "running"
+
         elif firewalld["returncode"] == 0:
+
             state = "inactive"
             inspection = "completed"
 
+            display_status = (
+                firewalld["stdout"].strip()
+                or "inactive"
+            )
+
         else:
+
             state = "unknown"
             inspection = "completed"
+
+            display_status = output or (
+                "firewall state could not be determined"
+            )
 
         checks.append(
             {
                 "name": "firewalld",
                 "available": True,
-                "status": output,
+                "status": display_status,
                 "state": state,
                 "inspection": inspection,
                 "returncode": firewalld["returncode"],
@@ -466,11 +514,13 @@ def check_firewall():
 
     if nft["available"]:
 
-        output = (
-            "ruleset available"
-            if nft["returncode"] == 0
-            else nft["stderr"]
-        )
+        if nft["returncode"] == 0:
+
+            output = "ruleset available"
+
+        else:
+
+            output = nft["stderr"]
 
         lowered = output.lower()
 
@@ -479,27 +529,43 @@ def check_firewall():
             and (
                 "operation not permitted" in lowered
                 or "you must be root" in lowered
+                or "need to be root" in lowered
                 or "permission denied" in lowered
+                or "not authorized" in lowered
             )
         )
 
         if insufficient:
+
             state = "unknown"
             inspection = "insufficient_privileges"
 
+            display_status = (
+                "inspection requires elevated privileges"
+            )
+
         elif nft["returncode"] == 0:
+
             state = "active"
             inspection = "completed"
 
+            display_status = "ruleset available"
+
         else:
+
             state = "inactive"
             inspection = "completed"
+
+            display_status = (
+                output
+                or "nftables ruleset not active"
+            )
 
         checks.append(
             {
                 "name": "nftables",
                 "available": True,
-                "status": output,
+                "status": display_status,
                 "state": state,
                 "inspection": inspection,
                 "returncode": nft["returncode"],
@@ -511,6 +577,7 @@ def check_firewall():
     # --------------------------------------------------------
 
     if not checks:
+
         return {
             "status": "unknown",
             "message": (
@@ -518,6 +585,10 @@ def check_firewall():
             ),
             "data": [],
         }
+
+    # --------------------------------------------------------
+    # RESULT ANALYSIS
+    # --------------------------------------------------------
 
     active = any(
         item["state"] == "active"
@@ -541,28 +612,42 @@ def check_firewall():
     )
 
     if active:
+
         status = "healthy"
-        message = "Firewall protection detected"
+
+        message = (
+            "Firewall protection detected"
+        )
 
     elif insufficient:
+
         status = "unknown"
+
         message = (
-            "Firewall state could not be determined: "
-            "insufficient privileges"
+            "Firewall state could not be determined "
+            "because elevated privileges are required"
         )
 
     elif unknown:
+
         status = "unknown"
+
         message = (
             "Firewall state could not be determined"
         )
 
     elif inactive:
+
         status = "warning"
-        message = "No active firewall detected"
+
+        message = (
+            "No active firewall detected"
+        )
 
     else:
+
         status = "unknown"
+
         message = (
             "Firewall state could not be determined"
         )
