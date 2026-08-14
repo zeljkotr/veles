@@ -13,17 +13,45 @@
 
 <title>
 {% block title %}
-Veles AI Operations Center
+Veles Operating System
 {% endblock %}
 </title>
 
+
+<!-- =====================================================
+     VELES FAVICON
+     ===================================================== -->
+
+<link
+    rel="icon"
+    type="image/svg+xml"
+    href="{{ url_for(
+        'static',
+        filename='images/favicon.svg',
+        v='1'
+    ) }}"
+>
+
+<link
+    rel="shortcut icon"
+    href="{{ url_for(
+        'static',
+        filename='images/favicon.svg',
+        v='1'
+    ) }}"
+>
+
+
+<!-- =====================================================
+     GLOBAL CSS
+     ===================================================== -->
 
 <link
     rel="stylesheet"
     href="{{ url_for(
         'static',
         filename='css/veles.css',
-        v='3'
+        v='4'
     ) }}"
 >
 
@@ -61,152 +89,6 @@ Veles AI Operations Center
 {% block extra_css %}
 {% endblock %}
 
-
-<style>
-
-/* =========================================================
-   VELES OS BASE NAVIGATION
-   ========================================================= */
-
-.sidebar {
-
-    padding: 28px 22px;
-
-}
-
-
-.sidebar-brand {
-
-    font-size: 30px;
-
-    font-weight: 800;
-
-    letter-spacing: 2px;
-
-}
-
-
-.sidebar-subtitle {
-
-    margin-top: 7px;
-
-    font-size: 15px;
-
-    font-weight: 600;
-
-    letter-spacing: 1.5px;
-
-}
-
-
-.main-menu {
-
-    margin-top: 34px;
-
-}
-
-
-.main-menu-section {
-
-    margin-bottom: 28px;
-
-}
-
-
-.main-menu-section-title {
-
-    margin-bottom: 12px;
-
-    color: var(--muted);
-
-    font-size: 13px;
-
-    font-weight: 800;
-
-    letter-spacing: 2px;
-
-    text-transform: uppercase;
-
-}
-
-
-.main-menu a {
-
-    display: flex;
-
-    align-items: center;
-
-    min-height: 48px;
-
-    padding: 0 14px;
-
-    margin-bottom: 6px;
-
-    border-radius: 9px;
-
-    font-size: 18px;
-
-    font-weight: 700;
-
-    letter-spacing: .4px;
-
-    text-decoration: none;
-
-}
-
-
-.main-menu a:hover {
-
-    font-size: 18px;
-
-}
-
-
-.main-menu-icon {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    width: 28px;
-
-    margin-right: 10px;
-
-    font-size: 21px;
-
-}
-
-
-/* =========================================================
-   TOP HEADER
-   ========================================================= */
-
-.brand {
-
-    font-size: 21px;
-
-    font-weight: 800;
-
-    letter-spacing: 2px;
-
-}
-
-
-.brand-status {
-
-    font-size: 13px;
-
-    font-weight: 700;
-
-    letter-spacing: 1.2px;
-
-}
-
-
-</style>
-
 </head>
 
 
@@ -223,152 +105,251 @@ Veles AI Operations Center
 <aside class="sidebar">
 
 
-<div class="sidebar-brand">
-    VELES OPERATING SYSTEM
-</div>
+    <!-- OS BRAND -->
 
+    <div class="sidebar-brand">
 
-<nav class="main-menu">
+        <div class="sidebar-brand-mark">
+            V
+        </div>
 
+        <div class="sidebar-brand-name">
+            VELES
+        </div>
 
-<!-- WORKSPACE -->
+        <div class="sidebar-brand-os">
+            OPERATING SYSTEM
+        </div>
 
-<div class="main-menu-section">
-
-    <div class="main-menu-section-title">
-        WORKSPACE
     </div>
 
 
-    <a href="{{ url_for('dashboard_view') }}">
+    <!-- NAVIGATION -->
 
-        <span class="main-menu-icon">
-            ◉
-        </span>
-
-        Overview
-
-    </a>
-
-</div>
+    <nav class="main-menu">
 
 
-<!-- OPERATIONS -->
+        <!-- WORKSPACE -->
 
-<div class="main-menu-section">
+        <div class="main-menu-section">
 
-    <div class="main-menu-section-title">
-        OPERATIONS
+            <div class="main-menu-section-title">
+                WORKSPACE
+            </div>
+
+
+            <a
+                href="{{ url_for('dashboard_view') }}"
+                class="{% if request.endpoint == 'dashboard_view' %}active{% endif %}"
+            >
+
+                <span class="main-menu-icon">
+                    ◉
+                </span>
+
+                <span class="main-menu-label">
+                    Overview
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <!-- OPERATIONS -->
+
+        <div class="main-menu-section">
+
+            <div class="main-menu-section-title">
+                OPERATIONS
+            </div>
+
+
+            <a
+                href="{{ url_for('discovery_page') }}"
+                class="{% if request.endpoint == 'discovery_page' %}active{% endif %}"
+            >
+
+                <span class="main-menu-icon">
+                    ◈
+                </span>
+
+                <span class="main-menu-label">
+                    Discovery
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('system_view') }}"
+                class="{% if request.endpoint == 'system_view' %}active{% endif %}"
+            >
+
+                <span class="main-menu-icon">
+                    ▣
+                </span>
+
+                <span class="main-menu-label">
+                    System
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('logs_view') }}"
+                class="{% if request.endpoint == 'logs_view' %}active{% endif %}"
+            >
+
+                <span class="main-menu-icon">
+                    ◇
+                </span>
+
+                <span class="main-menu-label">
+                    Events
+                </span>
+
+            </a>
+
+        </div>
+
+
+        <!-- INTELLIGENCE -->
+
+        <div class="main-menu-section">
+
+            <div class="main-menu-section-title">
+                INTELLIGENCE
+            </div>
+
+
+            <a
+                href="{{ url_for('chat') }}"
+                class="{% if request.endpoint == 'chat' %}active{% endif %}"
+            >
+
+                <span class="main-menu-icon">
+                    ✦
+                </span>
+
+                <span class="main-menu-label">
+                    AI
+                </span>
+
+            </a>
+
+
+            <a
+                href="{{ url_for('memory_view') }}"
+                class="{% if request.endpoint == 'memory_view' %}active{% endif %}"
+            >
+
+                <span class="main-menu-icon">
+                    ◎
+                </span>
+
+                <span class="main-menu-label">
+                    Memory
+                </span>
+
+            </a>
+
+        </div>
+
+
+    </nav>
+
+
+    <!-- SIDEBAR FOOTER -->
+
+    <div class="sidebar-footer">
+
+        <div class="sidebar-footer-line"></div>
+
+        <div class="sidebar-footer-label">
+            VELES OS
+        </div>
+
+        <div class="sidebar-footer-status">
+            LOCAL SYSTEM
+        </div>
+
     </div>
-
-
-    <a href="{{ url_for('discovery_page') }}">
-
-        <span class="main-menu-icon">
-            ◈
-        </span>
-
-        Discovery
-
-    </a>
-
-
-    <a href="{{ url_for('system_view') }}">
-
-        <span class="main-menu-icon">
-            ▣
-        </span>
-
-        System
-
-    </a>
-
-
-    <a href="{{ url_for('logs_view') }}">
-
-        <span class="main-menu-icon">
-            ◇
-        </span>
-
-        Events
-
-    </a>
-
-</div>
-
-
-<!-- INTELLIGENCE -->
-
-<div class="main-menu-section">
-
-    <div class="main-menu-section-title">
-        INTELLIGENCE
-    </div>
-
-
-    <a href="{{ url_for('chat') }}">
-
-        <span class="main-menu-icon">
-            ✦
-        </span>
-
-        AI
-
-    </a>
-
-
-    <a href="{{ url_for('memory_view') }}">
-
-        <span class="main-menu-icon">
-            ◎
-        </span>
-
-        Memory
-
-    </a>
-
-</div>
-
-
-</nav>
 
 
 </aside>
 
 
 <!-- =====================================================
-     MAIN AREA
+     MAIN OS AREA
      ===================================================== -->
 
 <section class="main-area">
 
 
-<header class="top-header">
+    <!-- =================================================
+         SYSTEM BAR
+         ================================================= -->
+
+    <header class="top-header">
 
 
-<div class="brand">
+        <div class="top-header-left">
 
-    VELES OPERATIONS CENTER
+            <div class="top-header-title">
+                VELES OPERATING SYSTEM
+            </div>
 
-</div>
+            <div class="top-header-divider"></div>
+
+            <div class="top-header-application">
+                {% block application %}
+                APPLICATION
+                {% endblock %}
+            </div>
+
+        </div>
 
 
-<div class="brand-status">
-
-    ONLINE • LOCAL AI • OLLAMA
-
-</div>
+        <div class="top-header-right">
 
 
-</header>
+            <div class="system-status">
+
+                <span class="system-status-dot"></span>
+
+                <span class="system-status-text">
+                    ONLINE
+                </span>
+
+            </div>
 
 
-<main class="page-container">
+            <div class="system-status-separator"></div>
 
-{% block content %}
-{% endblock %}
 
-</main>
+            <div class="system-status-secondary">
+                LOCAL
+            </div>
+
+
+        </div>
+
+
+    </header>
+
+
+    <!-- =================================================
+         APPLICATION CONTENT
+         ================================================= -->
+
+    <main class="page-container">
+
+        {% block content %}
+        {% endblock %}
+
+    </main>
 
 
 </section>
@@ -376,6 +357,10 @@ Veles AI Operations Center
 
 </div>
 
+
+<!-- =====================================================
+     GLOBAL JAVASCRIPT
+     ===================================================== -->
 
 <script
     src="{{ url_for(

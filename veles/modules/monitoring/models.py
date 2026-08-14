@@ -6,8 +6,7 @@ Data models for resource monitoring.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, Dict, Any
-
+from typing import Any, Dict, Optional
 
 
 @dataclass
@@ -27,13 +26,13 @@ class HealthCheckResult:
     response_time_ms: Optional[float] = None
 
     timestamp: str = field(
-        default_factory=lambda: datetime.now().isoformat()
+        default_factory=lambda:
+            datetime.now().isoformat()
     )
 
     metadata: Dict[str, Any] = field(
         default_factory=dict
     )
-
 
 
 @dataclass
@@ -51,7 +50,8 @@ class ResourceHealth:
     )
 
     last_check: str = field(
-        default_factory=lambda: datetime.now().isoformat()
+        default_factory=lambda:
+            datetime.now().isoformat()
     )
 
     uptime: Optional[str] = None

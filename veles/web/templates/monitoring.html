@@ -3,8 +3,285 @@
 
 {% block extra_css %}
 
-<link rel="stylesheet"
-      href="{{ url_for('static', filename='css/infrastructure.css') }}">
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/infrastructure.css'
+    ) }}"
+>
+
+<style>
+
+.monitoring-status-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                170px,
+                1fr
+            )
+        );
+
+    gap: 16px;
+
+    margin-top: 20px;
+}
+
+
+.monitoring-status-card {
+
+    border: 1px solid rgba(
+        255,
+        255,
+        255,
+        0.08
+    );
+
+    border-radius: 12px;
+
+    padding: 18px;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.025
+    );
+
+}
+
+
+.monitoring-status-card h3 {
+
+    margin: 0 0 10px 0;
+
+    font-size: 13px;
+
+    letter-spacing: 1px;
+
+}
+
+
+.monitoring-status-number {
+
+    font-size: 30px;
+
+    font-weight: 700;
+
+}
+
+
+.monitoring-status-healthy {
+
+    color: #55d68a;
+
+}
+
+
+.monitoring-status-warning {
+
+    color: #f0b84b;
+
+}
+
+
+.monitoring-status-failed {
+
+    color: #ef6464;
+
+}
+
+
+.monitoring-status-neutral {
+
+    color: #aaa;
+
+}
+
+
+.monitoring-next-check {
+
+    margin-top: 20px;
+
+    padding: 18px;
+
+    border: 1px solid rgba(
+        255,
+        255,
+        255,
+        0.08
+    );
+
+    border-radius: 12px;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.025
+    );
+
+}
+
+
+.monitoring-next-check-title {
+
+    font-size: 13px;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 8px;
+
+}
+
+
+.monitoring-countdown {
+
+    font-size: 28px;
+
+    font-weight: 700;
+
+}
+
+
+.monitoring-last-cycle {
+
+    margin-top: 8px;
+
+    font-size: 13px;
+
+    opacity: 0.7;
+
+}
+
+
+.monitoring-check-count {
+
+    margin-top: 6px;
+
+    font-size: 13px;
+
+    opacity: 0.7;
+
+}
+
+
+.monitoring-resource-checks {
+
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    opacity: 0.75;
+
+}
+
+
+.monitoring-status-badge {
+
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.7px;
+
+}
+
+
+.monitoring-status-badge.healthy {
+
+    color: #55d68a;
+
+    border: 1px solid rgba(
+        85,
+        214,
+        138,
+        0.35
+    );
+
+    background: rgba(
+        85,
+        214,
+        138,
+        0.08
+    );
+
+}
+
+
+.monitoring-status-badge.warning {
+
+    color: #f0b84b;
+
+    border: 1px solid rgba(
+        240,
+        184,
+        75,
+        0.35
+    );
+
+    background: rgba(
+        240,
+        184,
+        75,
+        0.08
+    );
+
+}
+
+
+.monitoring-status-badge.failed {
+
+    color: #ef6464;
+
+    border: 1px solid rgba(
+        239,
+        100,
+        100,
+        0.35
+    );
+
+    background: rgba(
+        239,
+        100,
+        100,
+        0.08
+    );
+
+}
+
+
+.monitoring-status-badge.not-checked {
+
+    color: #aaa;
+
+    border: 1px solid rgba(
+        170,
+        170,
+        170,
+        0.25
+    );
+
+    background: rgba(
+        170,
+        170,
+        170,
+        0.05
+    );
+
+}
+
+</style>
 
 {% endblock %}
 
@@ -21,6 +298,10 @@ Veles Monitoring Center
 <div class="infra-page">
 
 
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
     <div class="infra-header">
 
         <h1>
@@ -33,6 +314,10 @@ Veles Monitoring Center
 
     </div>
 
+
+    <!-- =====================================
+         ACTIONS
+    ====================================== -->
 
     <div class="infra-actions">
 
@@ -50,6 +335,10 @@ Veles Monitoring Center
     </div>
 
 
+    <!-- =====================================
+         MONITORING STATUS
+    ====================================== -->
+
     <div class="resource-overview">
 
         <h2>
@@ -61,31 +350,58 @@ Veles Monitoring Center
             healthy=0,
             failed=0,
             warning=0,
-            checked=0
+            unknown=0,
+            checked=0,
+            total_checks=0
         ) %}
 
 
         {% for resource in resources %}
 
-            {% set item = health.get(resource.id) %}
+            {% set item = health.get(
+                resource.id|string
+            ) %}
 
 
             {% if item %}
 
-                {% set stats.checked = stats.checked + 1 %}
+                {% set stats.checked =
+                    stats.checked + 1
+                %}
+
+
+                {% set stats.total_checks =
+                    stats.total_checks +
+                    (item.checks|length)
+                %}
 
 
                 {% if item.status == "healthy" %}
 
-                    {% set stats.healthy = stats.healthy + 1 %}
+                    {% set stats.healthy =
+                        stats.healthy + 1
+                    %}
+
 
                 {% elif item.status == "critical" %}
 
-                    {% set stats.failed = stats.failed + 1 %}
+                    {% set stats.failed =
+                        stats.failed + 1
+                    %}
+
 
                 {% elif item.status == "warning" %}
 
-                    {% set stats.warning = stats.warning + 1 %}
+                    {% set stats.warning =
+                        stats.warning + 1
+                    %}
+
+
+                {% else %}
+
+                    {% set stats.unknown =
+                        stats.unknown + 1
+                    %}
 
                 {% endif %}
 
@@ -94,43 +410,109 @@ Veles Monitoring Center
         {% endfor %}
 
 
-        <div class="resource-grid">
+        <div class="monitoring-status-grid">
 
 
-            <div class="resource-card">
+            <!-- TOTAL -->
+
+            <div class="monitoring-status-card">
 
                 <h3>
-                    SERVERS
+                    RESOURCES
                 </h3>
 
-                <div class="resource-number">
+                <div class="monitoring-status-number">
                     {{ resources|length }}
                 </div>
 
             </div>
 
 
-            <div class="resource-card">
+            <!-- HEALTHY -->
+
+            <div class="monitoring-status-card">
 
                 <h3>
                     HEALTHY
                 </h3>
 
-                <div class="resource-number">
+                <div class="
+                    monitoring-status-number
+                    monitoring-status-healthy
+                ">
                     {{ stats.healthy }}
                 </div>
 
             </div>
 
 
-            <div class="resource-card">
+            <!-- WARNING -->
+
+            <div class="monitoring-status-card">
+
+                <h3>
+                    WARNING
+                </h3>
+
+                <div class="
+                    monitoring-status-number
+                    monitoring-status-warning
+                ">
+                    {{ stats.warning }}
+                </div>
+
+            </div>
+
+
+            <!-- FAILED -->
+
+            <div class="monitoring-status-card">
 
                 <h3>
                     FAILED
                 </h3>
 
-                <div class="resource-number">
+                <div class="
+                    monitoring-status-number
+                    monitoring-status-failed
+                ">
                     {{ stats.failed }}
+                </div>
+
+            </div>
+
+
+            <!-- CHECKED -->
+
+            <div class="monitoring-status-card">
+
+                <h3>
+                    CHECKED RESOURCES
+                </h3>
+
+                <div class="
+                    monitoring-status-number
+                    monitoring-status-neutral
+                ">
+                    {{ stats.checked }}
+                </div>
+
+            </div>
+
+
+            <!-- CHECK COUNT -->
+
+            <div class="monitoring-status-card">
+
+                <h3>
+                    CHECK RESULTS
+                </h3>
+
+                <div class="
+                    monitoring-status-number
+                    monitoring-status-neutral
+                ">
+                    {{ stats.total_checks }}
                 </div>
 
             </div>
@@ -138,8 +520,75 @@ Veles Monitoring Center
 
         </div>
 
+
+        <!-- =================================
+             NEXT AUTOMATIC CHECK
+        ================================== -->
+
+        <div class="monitoring-next-check">
+
+            <div class="monitoring-next-check-title">
+
+                NEXT AUTOMATIC CHECK
+
+            </div>
+
+
+            <div
+                id="monitoring-countdown"
+                class="monitoring-countdown"
+            >
+                —
+            </div>
+
+
+            <div class="monitoring-last-cycle">
+
+                LAST MONITORING CYCLE:
+
+                <span id="monitoring-last-check">
+
+                    {% if scheduler.last_check_at %}
+
+                        {{ scheduler.last_check_at }}
+
+                    {% else %}
+
+                        NOT RUN YET
+
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+
+            <div class="monitoring-check-count">
+
+                AUTOMATIC CHECK CYCLES:
+
+                <strong id="monitoring-cycle-count">
+                    {{ scheduler.check_count }}
+                </strong>
+
+                &nbsp;|&nbsp;
+
+                INTERVAL:
+
+                <strong>
+                    {{ scheduler.interval }}s
+                </strong>
+
+            </div>
+
+        </div>
+
     </div>
 
+
+    <!-- =====================================
+         REGISTERED RESOURCES
+    ====================================== -->
 
     <div class="inventory-panel">
 
@@ -155,7 +604,9 @@ Veles Monitoring Center
 
                 {% for resource in resources %}
 
-                    {% set item = health.get(resource.id) %}
+                    {% set item = health.get(
+                        resource.id|string
+                    ) %}
 
 
                     <div class="resource-item">
@@ -176,6 +627,8 @@ Veles Monitoring Center
                             <div class="resource-meta">
 
 
+                                <!-- HOST -->
+
                                 <div>
 
                                     <label>
@@ -189,6 +642,8 @@ Veles Monitoring Center
                                 </div>
 
 
+                                <!-- STATUS -->
+
                                 <div>
 
                                     <label>
@@ -197,29 +652,71 @@ Veles Monitoring Center
 
                                     <strong>
 
+
                                         {% if item and item.status == "healthy" %}
 
-                                            <span class="status-online">
+                                            <span class="
+                                                monitoring-status-badge
+                                                healthy
+                                            ">
                                                 HEALTHY
                                             </span>
 
+
                                         {% elif item and item.status == "critical" %}
 
-                                            <span>
+                                            <span class="
+                                                monitoring-status-badge
+                                                failed
+                                            ">
                                                 FAILED
                                             </span>
 
+
                                         {% elif item and item.status == "warning" %}
 
-                                            <span>
+                                            <span class="
+                                                monitoring-status-badge
+                                                warning
+                                            ">
                                                 WARNING
                                             </span>
 
+
                                         {% else %}
 
-                                            <span>
+                                            <span class="
+                                                monitoring-status-badge
+                                                not-checked
+                                            ">
                                                 NOT CHECKED
                                             </span>
+
+                                        {% endif %}
+
+
+                                    </strong>
+
+                                </div>
+
+
+                                <!-- CHECK COUNT -->
+
+                                <div>
+
+                                    <label>
+                                        CHECKS
+                                    </label>
+
+                                    <strong>
+
+                                        {% if item %}
+
+                                            {{ item.checks|length }}
+
+                                        {% else %}
+
+                                            0
 
                                         {% endif %}
 
@@ -227,6 +724,8 @@ Veles Monitoring Center
 
                                 </div>
 
+
+                                <!-- LAST CHECK -->
 
                                 <div>
 
@@ -252,6 +751,30 @@ Veles Monitoring Center
 
 
                             </div>
+
+
+                            {% if item and item.checks %}
+
+                                <div class="
+                                    monitoring-resource-checks
+                                ">
+
+                                    CHECK TYPES:
+
+                                    {% for check in item.checks %}
+
+                                        {{ check.check_type|upper }}
+
+                                        {% if not loop.last %}
+                                            ·
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
 
                         </div>
 
@@ -291,5 +814,141 @@ Veles Monitoring Center
 
 
 </div>
+
+
+<!-- =========================================
+     MONITORING COUNTDOWN
+========================================== -->
+
+<script>
+
+(function () {
+
+    const nextCheck =
+        {{ scheduler.next_check_at|tojson }};
+
+    const countdown =
+        document.getElementById(
+            "monitoring-countdown"
+        );
+
+
+    if (!countdown) {
+
+        return;
+
+    }
+
+
+    if (!nextCheck) {
+
+        countdown.textContent =
+            "NOT SCHEDULED";
+
+        return;
+
+    }
+
+
+    const target =
+        new Date(
+            nextCheck
+        );
+
+
+    function updateCountdown() {
+
+        const now =
+            new Date();
+
+
+        let seconds =
+            Math.ceil(
+                (
+                    target.getTime()
+                    -
+                    now.getTime()
+                ) / 1000
+            );
+
+
+        if (seconds <= 0) {
+
+            countdown.textContent =
+                "CHECKING...";
+
+            return;
+
+        }
+
+
+        const minutes =
+            Math.floor(
+                seconds / 60
+            );
+
+
+        seconds =
+            seconds % 60;
+
+
+        countdown.textContent =
+            String(minutes).padStart(
+                2,
+                "0"
+            )
+            +
+            ":"
+            +
+            String(seconds).padStart(
+                2,
+                "0"
+            );
+
+    }
+
+
+    updateCountdown();
+
+
+    setInterval(
+        updateCountdown,
+        1000
+    );
+
+
+    /*
+     * Refresh the page shortly after the
+     * scheduled check has completed so the
+     * displayed health/status values become
+     * current automatically.
+     */
+
+    const refreshDelay =
+        Math.max(
+            3000,
+            (
+                target.getTime()
+                -
+                Date.now()
+                +
+                3000
+            )
+        );
+
+
+    setTimeout(
+        function () {
+
+            window.location.reload();
+
+        },
+        refreshDelay
+    );
+
+
+})();
+
+</script>
 
 {% endblock %}

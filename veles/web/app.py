@@ -17,7 +17,12 @@ import threading
 
 from pathlib import Path
 
-from veles.modules.monitoring import monitoring
+
+from veles.modules.monitoring import (
+    monitoring,
+    MonitoringScheduler
+)
+
 from veles.modules.network.service import network
 from veles.modules.delivery.service import delivery
 from veles.modules.security.service import security
@@ -32,7 +37,10 @@ BASE_DIR = os.path.abspath(
 )
 
 
-sys.path.insert(0, BASE_DIR)
+sys.path.insert(
+    0,
+    BASE_DIR
+)
 
 
 from flask import (
@@ -82,7 +90,9 @@ from veles.modules.infrastructure.discovery import (
 )
 
 
-app = Flask(__name__)
+app = Flask(
+    __name__
+)
 
 
 # ==========================================
@@ -121,13 +131,18 @@ def inject_static_version():
 @app.after_request
 def disable_discovery_cache(response):
 
-    if request.path.startswith("/discovery"):
+    if request.path.startswith(
+        "/discovery"
+    ):
 
         response.headers["Cache-Control"] = (
-            "no-store, no-cache, must-revalidate, max-age=0"
+            "no-store, no-cache, "
+            "must-revalidate, max-age=0"
         )
 
-        response.headers["Pragma"] = "no-cache"
+        response.headers["Pragma"] = (
+            "no-cache"
+        )
 
         response.headers["Expires"] = "0"
 
@@ -197,6 +212,10 @@ deep_scan_jobs = {}
 deep_scan_jobs_lock = threading.Lock()
 
 
+# ==========================================
+# FLASK SECRET
+# ==========================================
+
 app.secret_key = os.getenv(
     "VELES_SECRET_KEY",
     "veles-dev-secret-change-me"
@@ -239,6 +258,113 @@ VELES_KEY_FILE = os.getenv(
 )
 
 
+# ==========================================
+# MONITORING CONFIGURATION
+# ==========================================
+
+VELES_MONITORING_INTERVAL = int(
+    os.getenv(
+        "VELES_MONITORING_INTERVAL",
+        "60"
+    )
+)
+
+
+monitoring_scheduler = MonitoringScheduler(
+    monitoring,
+    interval=VELES_MONITORING_INTERVAL
+)
+
+
+def _get_monitoring_resources():
+
+    """
+    Return the current infrastructure resources
+    for the monitoring scheduler.
+
+    Resources are loaded from the infrastructure
+    registry every scheduler cycle so newly added
+    resources are automatically included.
+    """
+
+    try:
+
+        resources = infrastructure.get_resources()
+
+        if not resources:
+
+            return []
+
+        return list(
+            resources
+        )
+
+    except Exception as exc:
+
+        print(
+            "[MONITORING PROVIDER ERROR]",
+            exc
+        )
+
+        return []
+
+
+def start_monitoring_scheduler():
+
+    """
+    Start automatic monitoring.
+
+    Safe against duplicate starts.
+    """
+
+    if monitoring_scheduler.is_running():
+
+        print(
+            "[MONITORING] Scheduler already running"
+        )
+
+        return False
+
+
+    started = monitoring_scheduler.start(
+        _get_monitoring_resources
+    )
+
+
+    if started:
+
+        print(
+            "[MONITORING] Scheduler started"
+        )
+
+        print(
+            "[MONITORING] Interval:",
+            VELES_MONITORING_INTERVAL,
+            "seconds"
+        )
+
+    return started
+
+
+def stop_monitoring_scheduler():
+
+    """
+    Stop automatic monitoring.
+    """
+
+    if monitoring_scheduler.is_running():
+
+        monitoring_scheduler.stop()
+
+        print(
+            "[MONITORING] Scheduler stopped"
+        )
+
+
+# ==========================================
+# AUDIO
+# ==========================================
+
 AUDIO_DIR = (
     Path(__file__).parent /
     "static" /
@@ -268,10 +394,14 @@ def markdown_filter(text):
 
         return ""
 
-    return markdown.render(text)
+    return markdown.render(
+        text
+    )
 
 
-def _generate_answer_audio(text: str):
+def _generate_answer_audio(
+    text: str
+):
 
     try:
 
@@ -283,7 +413,10 @@ def _generate_answer_audio(text: str):
             f"{uuid.uuid4().hex}.wav"
         )
 
-        destination = AUDIO_DIR / filename
+        destination = (
+            AUDIO_DIR /
+            filename
+        )
 
         shutil.move(
             wav_path,
@@ -308,7 +441,9 @@ def _generate_answer_audio(text: str):
 # INFRASTRUCTURE
 # ==========================================
 
-@app.route("/infrastructure")
+@app.route(
+    "/infrastructure"
+)
 def infrastructure_page():
 
     data = infrastructure.get_status()
@@ -335,7 +470,9 @@ def infrastructure_page():
 # DISCOVERY CENTER
 # ==========================================
 
-@app.route("/discovery")
+@app.route(
+    "/discovery"
+)
 def discovery_page():
 
     custom_networks = session.get(
@@ -356,9 +493,11 @@ def discovery_page():
 
         if show_results:
 
-            current_results = _sort_discovery_results(
-                list(
-                    discovery_results
+            current_results = (
+                _sort_discovery_results(
+                    list(
+                        discovery_results
+                    )
                 )
             )
 
@@ -412,6 +551,7 @@ def discovery_scan():
         []
     )
 
+
     # ======================================
     # REMOVE CUSTOM NETWORK
     # ======================================
@@ -439,11 +579,14 @@ def discovery_scan():
             )
         )
 
+
     # ======================================
     # ADD CUSTOM NETWORK
     # ======================================
 
-    if request.form.get("add_custom"):
+    if request.form.get(
+        "add_custom"
+    ):
 
         if custom_network:
 
@@ -454,7 +597,9 @@ def discovery_scan():
                     strict=False
                 )
 
-                network_string = str(network)
+                network_string = str(
+                    network
+                )
 
                 if network_string not in custom_networks:
 
@@ -484,6 +629,7 @@ def discovery_scan():
             )
         )
 
+
     # ======================================
     # START FAST DISCOVERY SCAN
     # ======================================
@@ -495,6 +641,7 @@ def discovery_scan():
     valid_networks = []
 
     seen_networks = set()
+
 
     for network in networks:
 
@@ -515,7 +662,9 @@ def discovery_scan():
 
             continue
 
-        network_string = str(parsed)
+        network_string = str(
+            parsed
+        )
 
         if network_string in seen_networks:
 
@@ -529,10 +678,12 @@ def discovery_scan():
             network_string
         )
 
+
     print(
         "DISCOVERY SELECTED NETWORKS:",
         valid_networks
     )
+
 
     if not valid_networks:
 
@@ -547,19 +698,25 @@ def discovery_scan():
             )
         )
 
+
     with discovery_results_lock:
 
         discovery_results.clear()
+
 
     session[
         "discovery_show_results"
     ] = False
 
+
     scan_id = uuid.uuid4().hex
 
     cancel_event = threading.Event()
 
-    discovery_jobs[scan_id] = {
+
+    discovery_jobs[
+        scan_id
+    ] = {
 
         "running": True,
 
@@ -588,7 +745,9 @@ def discovery_scan():
         "results": [],
 
         "_cancel_event": cancel_event
+
     }
+
 
     def run_scan():
 
@@ -596,11 +755,13 @@ def discovery_scan():
 
         discovered_hosts = set()
 
+
         try:
 
             total_all = 0
 
             checked_all = 0
+
 
             # ----------------------------------
             # CALCULATE TOTAL
@@ -619,9 +780,12 @@ def discovery_scan():
                     )
                 )
 
+
             if cancel_event.is_set():
 
-                discovery_jobs[scan_id].update({
+                discovery_jobs[
+                    scan_id
+                ].update({
 
                     "running": False,
 
@@ -632,11 +796,15 @@ def discovery_scan():
                     "current_network": None,
 
                     "results": []
+
                 })
 
                 return
 
-            discovery_jobs[scan_id].update({
+
+            discovery_jobs[
+                scan_id
+            ].update({
 
                 "total": total_all,
 
@@ -644,10 +812,13 @@ def discovery_scan():
 
                 "found": 0,
 
-                "current_network": valid_networks[0],
+                "current_network":
+                    valid_networks[0],
 
                 "network_index": 0
+
             })
+
 
             # ----------------------------------
             # SCAN NETWORKS
@@ -661,7 +832,10 @@ def discovery_scan():
 
                     break
 
-                discovery_jobs[scan_id].update({
+
+                discovery_jobs[
+                    scan_id
+                ].update({
 
                     "running": True,
 
@@ -672,26 +846,38 @@ def discovery_scan():
                     "current_network": network,
 
                     "network_index": index
+
                 })
 
-                network_checked_start = checked_all
+
+                network_checked_start = (
+                    checked_all
+                )
+
 
                 def progress_callback(
                     progress,
                     network=network,
-                    network_checked_start=network_checked_start
+                    network_checked_start=
+                        network_checked_start
                 ):
 
                     if cancel_event.is_set():
 
-                        discovery_jobs[scan_id].update({
+                        discovery_jobs[
+                            scan_id
+                        ].update({
 
-                            "cancel_requested": True,
+                            "cancel_requested":
+                                True,
 
-                            "cancelled": False
+                            "cancelled":
+                                False
+
                         })
 
                         return
+
 
                     local_checked = progress.get(
                         "checked",
@@ -708,12 +894,16 @@ def discovery_scan():
                         0
                     )
 
+
                     current_checked = (
                         network_checked_start +
                         local_checked
                     )
 
-                    discovery_jobs[scan_id].update({
+
+                    discovery_jobs[
+                        scan_id
+                    ].update({
 
                         "running": True,
 
@@ -721,40 +911,54 @@ def discovery_scan():
 
                         "network": network,
 
-                        "current_network": network,
+                        "current_network":
+                            network,
 
-                        "network_index": index,
+                        "network_index":
+                            index,
 
-                        "network_total": local_total,
+                        "network_total":
+                            local_total,
 
-                        "network_checked": local_checked,
+                        "network_checked":
+                            local_checked,
 
-                        "checked": current_checked,
+                        "checked":
+                            current_checked,
 
-                        "total": total_all,
+                        "total":
+                            total_all,
 
-                        "found": (
-                            len(discovered) +
-                            local_found
-                        )
+                        "found":
+                            (
+                                len(discovered) +
+                                local_found
+                            )
+
                     })
+
 
                 print(
                     "DISCOVERY START:",
                     network
                 )
 
+
                 result = discover_network_hosts(
                     network,
-                    progress_callback=progress_callback,
-                    cancel_event=cancel_event
+                    progress_callback=
+                        progress_callback,
+                    cancel_event=
+                        cancel_event
                 )
+
 
                 print(
                     "DISCOVERY RESULT:",
                     network,
                     len(result)
                 )
+
 
                 # ----------------------------------
                 # MERGE RESULTS
@@ -782,10 +986,12 @@ def discovery_scan():
                         item
                     )
 
+
                 parsed = ipaddress.ip_network(
                     network,
                     strict=False
                 )
+
 
                 network_total = len(
                     list(
@@ -793,10 +999,13 @@ def discovery_scan():
                     )
                 )
 
+
                 if cancel_event.is_set():
 
                     checked_all += (
-                        discovery_jobs[scan_id].get(
+                        discovery_jobs[
+                            scan_id
+                        ].get(
                             "network_checked",
                             0
                         )
@@ -804,7 +1013,10 @@ def discovery_scan():
                         network_checked_start
                     )
 
-                    discovery_jobs[scan_id].update({
+
+                    discovery_jobs[
+                        scan_id
+                    ].update({
 
                         "checked": min(
                             checked_all,
@@ -821,13 +1033,18 @@ def discovery_scan():
                             _sort_discovery_results(
                                 discovered
                             )
+
                     })
 
                     break
 
+
                 checked_all += network_total
 
-                discovery_jobs[scan_id].update({
+
+                discovery_jobs[
+                    scan_id
+                ].update({
 
                     "checked": checked_all,
 
@@ -842,8 +1059,11 @@ def discovery_scan():
                             discovered
                         ),
 
-                    "network_index": index
+                    "network_index":
+                        index
+
                 })
+
 
             # ----------------------------------
             # CANCELLED
@@ -851,7 +1071,9 @@ def discovery_scan():
 
             if cancel_event.is_set():
 
-                discovery_jobs[scan_id].update({
+                discovery_jobs[
+                    scan_id
+                ].update({
 
                     "running": False,
 
@@ -862,7 +1084,9 @@ def discovery_scan():
                     "current_network": None,
 
                     "checked": min(
-                        discovery_jobs[scan_id].get(
+                        discovery_jobs[
+                            scan_id
+                        ].get(
                             "checked",
                             checked_all
                         ),
@@ -879,7 +1103,9 @@ def discovery_scan():
                         _sort_discovery_results(
                             discovered
                         )
+
                 })
+
 
                 with discovery_results_lock:
 
@@ -891,12 +1117,15 @@ def discovery_scan():
                         )
                     )
 
+
                 print(
                     "DISCOVERY CANCELLED:",
                     "networks=",
                     valid_networks,
                     "checked=",
-                    discovery_jobs[scan_id].get(
+                    discovery_jobs[
+                        scan_id
+                    ].get(
                         "checked",
                         checked_all
                     ),
@@ -906,11 +1135,14 @@ def discovery_scan():
 
                 return
 
+
             # ----------------------------------
             # COMPLETE
             # ----------------------------------
 
-            discovery_jobs[scan_id].update({
+            discovery_jobs[
+                scan_id
+            ].update({
 
                 "running": False,
 
@@ -918,27 +1150,30 @@ def discovery_scan():
 
                 "cancel_requested": False,
 
-                "network": valid_networks[-1],
+                "network":
+                    valid_networks[-1],
 
                 "current_network": None,
 
-                "network_index": len(
-                    valid_networks
-                ),
+                "network_index":
+                    len(valid_networks),
 
-                "checked": total_all,
+                "checked":
+                    total_all,
 
-                "total": total_all,
+                "total":
+                    total_all,
 
-                "found": len(
-                    discovered
-                ),
+                "found":
+                    len(discovered),
 
                 "results":
                     _sort_discovery_results(
                         discovered
                     )
+
             })
+
 
             with discovery_results_lock:
 
@@ -950,6 +1185,7 @@ def discovery_scan():
                     )
                 )
 
+
             print(
                 "DISCOVERY COMPLETE:",
                 "networks=",
@@ -958,6 +1194,7 @@ def discovery_scan():
                 len(discovered)
             )
 
+
         except Exception as e:
 
             print(
@@ -965,9 +1202,12 @@ def discovery_scan():
                 e
             )
 
+
             if cancel_event.is_set():
 
-                discovery_jobs[scan_id].update({
+                discovery_jobs[
+                    scan_id
+                ].update({
 
                     "running": False,
 
@@ -980,30 +1220,34 @@ def discovery_scan():
                             discovered
                         ),
 
-                    "found": len(
-                        discovered
-                    )
+                    "found":
+                        len(discovered)
+
                 })
 
             else:
 
-                discovery_jobs[scan_id].update({
+                discovery_jobs[
+                    scan_id
+                ].update({
 
                     "running": False,
 
                     "cancelled": False,
 
-                    "error": str(e),
+                    "error":
+                        str(e),
 
                     "results":
                         _sort_discovery_results(
                             discovered
                         ),
 
-                    "found": len(
-                        discovered
-                    )
+                    "found":
+                        len(discovered)
+
                 })
+
 
             with discovery_results_lock:
 
@@ -1015,12 +1259,14 @@ def discovery_scan():
                     )
                 )
 
+
     thread = threading.Thread(
         target=run_scan,
         daemon=True
     )
 
     thread.start()
+
 
     return redirect(
         url_for(
@@ -1045,6 +1291,7 @@ def discovery_cancel():
         ""
     ).strip()
 
+
     if not scan_id:
 
         flash(
@@ -1058,9 +1305,11 @@ def discovery_cancel():
             )
         )
 
+
     job = discovery_jobs.get(
         scan_id
     )
+
 
     if not job:
 
@@ -1075,9 +1324,11 @@ def discovery_cancel():
             )
         )
 
+
     cancel_event = job.get(
         "_cancel_event"
     )
+
 
     if not cancel_event:
 
@@ -1091,6 +1342,7 @@ def discovery_cancel():
                 "discovery_page"
             )
         )
+
 
     if not job.get(
         "running"
@@ -1118,7 +1370,9 @@ def discovery_cancel():
             )
         )
 
+
     cancel_event.set()
+
 
     job.update({
 
@@ -1126,10 +1380,12 @@ def discovery_cancel():
 
     })
 
+
     print(
         "DISCOVERY CANCEL REQUESTED:",
         scan_id
     )
+
 
     return redirect(
         url_for(
@@ -1152,9 +1408,11 @@ def discovery_status():
         "scan_id"
     )
 
+
     job = discovery_jobs.get(
         scan_id
     )
+
 
     if not job:
 
@@ -1163,6 +1421,7 @@ def discovery_status():
                 "discovery_page"
             )
         )
+
 
     if not job.get(
         "running"
@@ -1181,9 +1440,11 @@ def discovery_status():
                 )
             )
 
+
         session[
             "discovery_show_results"
         ] = True
+
 
         if job.get(
             "cancelled"
@@ -1203,11 +1464,13 @@ def discovery_status():
                 "error"
             )
 
+
         return redirect(
             url_for(
                 "discovery_page"
             )
         )
+
 
     return render_template(
         "discovery_status.html",
@@ -1225,9 +1488,11 @@ def discovery_status_data():
         "scan_id"
     )
 
+
     job = discovery_jobs.get(
         scan_id
     )
+
 
     if not job:
 
@@ -1236,6 +1501,7 @@ def discovery_status_data():
             "error": "SCAN NOT FOUND"
         }, 404
 
+
     public_job = {
 
         key: value
@@ -1243,7 +1509,9 @@ def discovery_status_data():
         for key, value in job.items()
 
         if not key.startswith("_")
+
     }
+
 
     public_job["results"] = (
         _sort_discovery_results(
@@ -1253,6 +1521,7 @@ def discovery_status_data():
             )
         )
     )
+
 
     return public_job
 
@@ -1267,6 +1536,7 @@ def discovery_status_data():
 def discover_infrastructure():
 
     result = infrastructure.discover()
+
 
     return render_template(
         "infrastructure.html",
@@ -1294,10 +1564,12 @@ def discovery_resource_detail():
         ""
     ).strip()
 
+
     print(
         "DISCOVERY RESOURCE DETAIL:",
         host
     )
+
 
     if not host:
 
@@ -1307,7 +1579,9 @@ def discovery_resource_detail():
             )
         )
 
+
     resource = None
+
 
     # --------------------------------------
     # FIND RESOURCE IN CURRENT RESULTS
@@ -1324,6 +1598,7 @@ def discovery_resource_detail():
                 )
             ).strip()
 
+
             if item_host == host:
 
                 resource = dict(
@@ -1331,6 +1606,7 @@ def discovery_resource_detail():
                 )
 
                 break
+
 
     # --------------------------------------
     # FALLBACK: DISCOVERY JOB RESULTS
@@ -1352,6 +1628,7 @@ def discovery_resource_detail():
                     )
                 ).strip()
 
+
                 if item_host == host:
 
                     resource = dict(
@@ -1360,9 +1637,11 @@ def discovery_resource_detail():
 
                     break
 
+
             if resource is not None:
 
                 break
+
 
     # --------------------------------------
     # RESOURCE NOT FOUND
@@ -1375,16 +1654,19 @@ def discovery_resource_detail():
             host
         )
 
+
         flash(
             "DISCOVERED RESOURCE NOT FOUND",
             "error"
         )
+
 
         return redirect(
             url_for(
                 "discovery_page"
             )
         )
+
 
     # --------------------------------------
     # SAFE DEFAULT VALUES
@@ -1445,6 +1727,7 @@ def discovery_resource_detail():
         None
     )
 
+
     # --------------------------------------
     # DEEP SCAN RUNTIME STATE
     # --------------------------------------
@@ -1455,6 +1738,7 @@ def discovery_resource_detail():
             host
         )
 
+
         if deep_job:
 
             resource[
@@ -1464,11 +1748,13 @@ def discovery_resource_detail():
                 "unknown"
             )
 
+
             resource[
                 "deep_scan_error"
             ] = deep_job.get(
                 "error"
             )
+
 
             resource[
                 "deep_scan_started_at"
@@ -1476,11 +1762,13 @@ def discovery_resource_detail():
                 "started_at"
             )
 
+
             resource[
                 "deep_scan_finished_at"
             ] = deep_job.get(
                 "finished_at"
             )
+
 
     # --------------------------------------
     # KEEP DISCOVERY RESULTS ALIVE
@@ -1490,25 +1778,18 @@ def discovery_resource_detail():
         "discovery_show_results"
     ] = True
 
+
     print(
         "DISCOVERY RESOURCE TEMPLATE:",
         "discovery_resource_details.html"
     )
+
 
     print(
         "DISCOVERY RESOURCE DATA:",
         resource
     )
 
-    # --------------------------------------
-    # IMPORTANT:
-    #
-    # THE ACTUAL TEMPLATE FILE IS:
-    #
-    # discovery_resource_details.html
-    #
-    # PLURAL "details"
-    # --------------------------------------
 
     return render_template(
         "discovery_resource_details.html",
@@ -1531,6 +1812,7 @@ def discovery_resource_deep_scan():
         ""
     ).strip()
 
+
     if not host:
 
         flash(
@@ -1543,6 +1825,7 @@ def discovery_resource_deep_scan():
                 "discovery_page"
             )
         )
+
 
     with discovery_results_lock:
 
@@ -1559,6 +1842,7 @@ def discovery_resource_deep_scan():
             ),
             None
         )
+
 
     # --------------------------------------
     # FALLBACK TO JOB RESULTS
@@ -1585,9 +1869,11 @@ def discovery_resource_deep_scan():
                 None
             )
 
+
             if resource is not None:
 
                 break
+
 
     if resource is None:
 
@@ -1602,6 +1888,7 @@ def discovery_resource_deep_scan():
             )
         )
 
+
     # --------------------------------------
     # CHECK EXISTING SCAN
     # --------------------------------------
@@ -1611,6 +1898,7 @@ def discovery_resource_deep_scan():
         existing_job = deep_scan_jobs.get(
             host
         )
+
 
         if (
             existing_job
@@ -1623,6 +1911,7 @@ def discovery_resource_deep_scan():
                 "discovery_show_results"
             ] = True
 
+
             return redirect(
                 url_for(
                     "discovery_resource_detail",
@@ -1630,7 +1919,10 @@ def discovery_resource_deep_scan():
                 )
             )
 
-        deep_scan_jobs[host] = {
+
+        deep_scan_jobs[
+            host
+        ] = {
 
             "status": "scanning",
 
@@ -1643,7 +1935,9 @@ def discovery_resource_deep_scan():
             "finished_at": None,
 
             "error": None
+
         }
+
 
     # --------------------------------------
     # MARK RESOURCE SCANNING
@@ -1665,6 +1959,7 @@ def discovery_resource_deep_scan():
             None
         )
 
+
         if target is not None:
 
             target[
@@ -1680,10 +1975,12 @@ def discovery_resource_deep_scan():
                 None
             )
 
+
     print(
         "DISCOVERY DEEP SCAN START:",
         host
     )
+
 
     # --------------------------------------
     # BACKGROUND WORKER
@@ -1697,14 +1994,17 @@ def discovery_resource_deep_scan():
                 nmap_scan
             )
 
+
             deep_result = nmap_scan(
                 host,
                 timeout=60
             )
 
+
             if deep_result is None:
 
                 deep_result = {}
+
 
             if not isinstance(
                 deep_result,
@@ -1712,8 +2012,10 @@ def discovery_resource_deep_scan():
             ):
 
                 deep_result = {
-                    "scan_result": deep_result
+                    "scan_result":
+                        deep_result
                 }
+
 
             # ----------------------------------
             # UPDATE DISCOVERY RESULT
@@ -1735,6 +2037,7 @@ def discovery_resource_deep_scan():
                     None
                 )
 
+
                 if target is not None:
 
                     for key, value in deep_result.items():
@@ -1743,17 +2046,21 @@ def discovery_resource_deep_scan():
 
                             target[key] = value
 
+
                     target[
                         "deep_scan"
                     ] = True
+
 
                     target[
                         "deep_scan_status"
                     ] = "completed"
 
+
                     target[
                         "deep_scan_error"
                     ] = None
+
 
                     # ----------------------------------
                     # SYNCHRONIZE JOB RESULTS
@@ -1766,6 +2073,7 @@ def discovery_resource_deep_scan():
                             []
                         )
 
+
                         for job_item in results:
 
                             if str(
@@ -1777,23 +2085,28 @@ def discovery_resource_deep_scan():
 
                                 continue
 
+
                             for key, value in deep_result.items():
 
                                 if value is not None:
 
                                     job_item[key] = value
 
+
                             job_item[
                                 "deep_scan"
                             ] = True
+
 
                             job_item[
                                 "deep_scan_status"
                             ] = "completed"
 
+
                             job_item[
                                 "deep_scan_error"
                             ] = None
+
 
             # ----------------------------------
             # RUNTIME STATUS
@@ -1804,6 +2117,7 @@ def discovery_resource_deep_scan():
                 job = deep_scan_jobs.get(
                     host
                 )
+
 
                 if job is not None:
 
@@ -1818,23 +2132,28 @@ def discovery_resource_deep_scan():
                         ),
 
                         "error": None
+
                     })
+
 
             print(
                 "DISCOVERY DEEP SCAN COMPLETE:",
                 host
             )
 
+
             print(
                 "DISCOVERY DEEP SCAN RESULT:",
                 deep_result
             )
+
 
         except Exception as e:
 
             error_text = str(
                 e
             )
+
 
             if "timeout" in error_text.lower():
 
@@ -1844,11 +2163,13 @@ def discovery_resource_deep_scan():
 
                 status = "failed"
 
+
             print(
                 "DISCOVERY DEEP SCAN ERROR:",
                 host,
                 error_text
             )
+
 
             # ----------------------------------
             # UPDATE RESOURCE ERROR
@@ -1870,6 +2191,7 @@ def discovery_resource_deep_scan():
                     None
                 )
 
+
                 if target is not None:
 
                     target[
@@ -1884,12 +2206,14 @@ def discovery_resource_deep_scan():
                         "deep_scan_error"
                     ] = error_text
 
+
                     for job in discovery_jobs.values():
 
                         results = job.get(
                             "results",
                             []
                         )
+
 
                         for job_item in results:
 
@@ -1901,6 +2225,7 @@ def discovery_resource_deep_scan():
                             ).strip() != host:
 
                                 continue
+
 
                             job_item[
                                 "deep_scan"
@@ -1914,6 +2239,7 @@ def discovery_resource_deep_scan():
                                 "deep_scan_error"
                             ] = error_text
 
+
             # ----------------------------------
             # RUNTIME STATUS
             # ----------------------------------
@@ -1923,6 +2249,7 @@ def discovery_resource_deep_scan():
                 job = deep_scan_jobs.get(
                     host
                 )
+
 
                 if job is not None:
 
@@ -1937,18 +2264,23 @@ def discovery_resource_deep_scan():
                         ),
 
                         "error": error_text
+
                     })
+
 
     thread = threading.Thread(
         target=run_deep_scan,
         daemon=True
     )
 
+
     thread.start()
+
 
     session[
         "discovery_show_results"
     ] = True
+
 
     return redirect(
         url_for(
@@ -1972,6 +2304,7 @@ def discovery_resource_deep_scan_status():
         ""
     ).strip()
 
+
     if not host:
 
         return {
@@ -1979,11 +2312,13 @@ def discovery_resource_deep_scan_status():
             "error": "HOST NOT SPECIFIED"
         }, 400
 
+
     with deep_scan_jobs_lock:
 
         job = deep_scan_jobs.get(
             host
         )
+
 
         if not job:
 
@@ -2014,6 +2349,7 @@ def discovery_resource_deep_scan_status():
                 "finished_at"
             )
 
+
     return {
 
         "host": host,
@@ -2025,6 +2361,7 @@ def discovery_resource_deep_scan_status():
         "started_at": started_at,
 
         "finished_at": finished_at
+
     }
 
 
@@ -2042,9 +2379,11 @@ def import_discovered_resources():
         "resource"
     )
 
+
     added = 0
 
     added_hosts = set()
+
 
     for item in resources:
 
@@ -2061,43 +2400,53 @@ def import_discovered_resources():
 
             continue
 
+
         resource = {
 
-            "id": (
-                f"res-{uuid.uuid4().hex[:6]}"
-            ),
+            "id":
+                f"res-{uuid.uuid4().hex[:6]}",
 
-            "type": data.get(
-                "type",
-                "server"
-            ),
+            "type":
+                data.get(
+                    "type",
+                    "server"
+                ),
 
-            "name": data.get(
-                "name"
-            ),
+            "name":
+                data.get(
+                    "name"
+                ),
 
-            "host": data.get(
-                "host"
-            ),
+            "host":
+                data.get(
+                    "host"
+                ),
 
-            "port": data.get(
-                "port",
-                0
-            ),
+            "port":
+                data.get(
+                    "port",
+                    0
+                ),
 
-            "services": data.get(
-                "services",
-                []
-            ),
+            "services":
+                data.get(
+                    "services",
+                    []
+                ),
 
-            "group": "network",
+            "group":
+                "network",
 
-            "status": "registered"
+            "status":
+                "registered"
+
         }
+
 
         infrastructure.add_resource(
             resource
         )
+
 
         if resource.get(
             "host"
@@ -2109,12 +2458,15 @@ def import_discovered_resources():
                 )
             )
 
+
         added += 1
+
 
     print(
         "DISCOVERY IMPORT:",
         added
     )
+
 
     with discovery_results_lock:
 
@@ -2127,7 +2479,9 @@ def import_discovered_resources():
             if discovered.get(
                 "host"
             ) not in added_hosts
+
         ]
+
 
         discovery_results.clear()
 
@@ -2137,16 +2491,19 @@ def import_discovered_resources():
             )
         )
 
+
     session[
         "discovery_show_results"
     ] = bool(
         remaining_results
     )
 
+
     flash(
         "RESOURCE ADDED",
         "success"
     )
+
 
     return redirect(
         url_for(
@@ -2172,6 +2529,7 @@ def resource_group(group):
         "cloud"
     ]
 
+
     if group not in allowed_groups:
 
         return redirect(
@@ -2180,9 +2538,11 @@ def resource_group(group):
             )
         )
 
+
     resources = infrastructure.get_resources(
         group
     )
+
 
     return render_template(
         "resources.html",
@@ -2202,6 +2562,7 @@ def resource_detail(resource_id):
         )
     )
 
+
     return render_template(
         "resource_detail.html",
         resource=resource
@@ -2219,6 +2580,7 @@ def verify_resource(resource_id):
         )
     )
 
+
     if not resource:
 
         return redirect(
@@ -2227,6 +2589,7 @@ def verify_resource(resource_id):
             )
         )
 
+
     infrastructure.resource_registry.update_verification(
         resource_id,
         {
@@ -2234,14 +2597,17 @@ def verify_resource(resource_id):
         }
     )
 
+
     host = resource.get(
         "host"
     )
+
 
     port = resource.get(
         "port",
         22
     )
+
 
     try:
 
@@ -2253,12 +2619,14 @@ def verify_resource(resource_id):
             timeout=3
         ).close()
 
+
         infrastructure.resource_registry.update_verification(
             resource_id,
             {
                 "status": "verified"
             }
         )
+
 
     except Exception as e:
 
@@ -2267,12 +2635,14 @@ def verify_resource(resource_id):
             e
         )
 
+
         infrastructure.resource_registry.update_verification(
             resource_id,
             {
                 "status": "failed"
             }
         )
+
 
     return redirect(
         url_for(
@@ -2297,6 +2667,7 @@ def set_verify_state(
         }
     )
 
+
     return redirect(
         url_for(
             "resource_detail",
@@ -2320,6 +2691,7 @@ def monitor_resource(resource_id):
         )
     )
 
+
     if not resource:
 
         return redirect(
@@ -2327,6 +2699,7 @@ def monitor_resource(resource_id):
                 "infrastructure_page"
             )
         )
+
 
     if request.args.get(
         "check"
@@ -2336,9 +2709,11 @@ def monitor_resource(resource_id):
             resource
         )
 
+
     health = monitoring.get_health(
         resource_id
     )
+
 
     if health is None:
 
@@ -2351,6 +2726,7 @@ def monitor_resource(resource_id):
                 health = item
 
                 break
+
 
     return render_template(
         "resource_monitor.html",
@@ -2371,6 +2747,7 @@ def delete_resource(resource_id):
         )
     )
 
+
     if not resource:
 
         return redirect(
@@ -2379,17 +2756,20 @@ def delete_resource(resource_id):
             )
         )
 
+
     if request.method == "POST":
 
         infrastructure.resource_registry.delete_resource(
             resource_id
         )
 
+
         return redirect(
             url_for(
                 "infrastructure_page"
             )
         )
+
 
     return render_template(
         "delete_resource.html",
@@ -2407,52 +2787,62 @@ def add_resource():
 
         resource = {
 
-            "id": (
-                f"res-{uuid.uuid4().hex[:6]}"
-            ),
+            "id":
+                f"res-{uuid.uuid4().hex[:6]}",
 
-            "type": request.form.get(
-                "type",
-                "server"
-            ),
+            "type":
+                request.form.get(
+                    "type",
+                    "server"
+                ),
 
-            "name": request.form.get(
-                "name",
-                "Unnamed Resource"
-            ),
+            "name":
+                request.form.get(
+                    "name",
+                    "Unnamed Resource"
+                ),
 
-            "host": request.form.get(
-                "host",
-                ""
-            ),
+            "host":
+                request.form.get(
+                    "host",
+                    ""
+                ),
 
-            "port": request.form.get(
-                "port",
-                "22"
-            ),
+            "port":
+                request.form.get(
+                    "port",
+                    "22"
+                ),
 
-            "username": request.form.get(
-                "username",
-                ""
-            ),
+            "username":
+                request.form.get(
+                    "username",
+                    ""
+                ),
 
-            "group": request.form.get(
-                "group",
-                "default"
-            ),
+            "group":
+                request.form.get(
+                    "group",
+                    "default"
+                ),
 
-            "status": "registered"
+            "status":
+                "registered"
+
         }
+
 
         infrastructure.add_resource(
             resource
         )
+
 
         return redirect(
             url_for(
                 "infrastructure_page"
             )
         )
+
 
     return render_template(
         "add_resource.html"
@@ -2463,10 +2853,13 @@ def add_resource():
 # NETWORK
 # ==========================================
 
-@app.route("/network")
+@app.route(
+    "/network"
+)
 def network_view():
 
     data = network.get_status()
+
 
     return render_template(
         "network.html",
@@ -2478,10 +2871,13 @@ def network_view():
 # DELIVERY
 # ==========================================
 
-@app.route("/delivery")
+@app.route(
+    "/delivery"
+)
 def delivery_view():
 
     data = delivery.get_status()
+
 
     return render_template(
         "delivery.html",
@@ -2493,10 +2889,13 @@ def delivery_view():
 # SECURITY
 # ==========================================
 
-@app.route("/security")
+@app.route(
+    "/security"
+)
 def security_view():
 
     report = security.get_report()
+
 
     return render_template(
         "security.html",
@@ -2504,10 +2903,13 @@ def security_view():
     )
 
 
-@app.route("/security/scan")
+@app.route(
+    "/security/scan"
+)
 def security_scan():
 
     security.scan()
+
 
     return redirect(
         url_for(
@@ -2520,11 +2922,16 @@ def security_scan():
 # DASHBOARD
 # ==========================================
 
-@app.route("/")
-@app.route("/dashboard")
+@app.route(
+    "/"
+)
+@app.route(
+    "/dashboard"
+)
 def dashboard_view():
 
     modules = get_modules()
+
 
     return render_template(
         "dashboard.html",
@@ -2546,12 +2953,16 @@ def chat():
         "new"
     ) == "1":
 
-        session["history"] = []
+        session[
+            "history"
+        ] = []
+
 
     history = session.get(
         "history",
         []
     )
+
 
     return render_template(
         "chat.html",
@@ -2573,6 +2984,7 @@ def ask():
         ""
     ).strip()
 
+
     if not question:
 
         return redirect(
@@ -2581,36 +2993,54 @@ def ask():
             )
         )
 
+
     result = ask_veles(
         question
     )
 
-    answer = result["answer"]
+
+    answer = result[
+        "answer"
+    ]
+
 
     history = session.get(
         "history",
         []
     )
 
-    history.append(
-        {
-            "role": "user",
-            "text": question
-        }
-    )
 
     history.append(
         {
-            "role": "assistant",
-            "text": answer
+            "role":
+                "user",
+
+            "text":
+                question
         }
     )
 
-    session["history"] = history
+
+    history.append(
+        {
+            "role":
+                "assistant",
+
+            "text":
+                answer
+        }
+    )
+
+
+    session[
+        "history"
+    ] = history
+
 
     audio_url = _generate_answer_audio(
         answer
     )
+
 
     return render_template(
         "chat.html",
@@ -2629,7 +3059,10 @@ def ask():
 )
 def new_chat():
 
-    session["history"] = []
+    session[
+        "history"
+    ] = []
+
 
     return redirect(
         url_for(
@@ -2649,10 +3082,12 @@ def confirm_memory():
         ""
     ).strip()
 
+
     value = request.form.get(
         "value",
         ""
     ).strip()
+
 
     if key and value:
 
@@ -2660,6 +3095,7 @@ def confirm_memory():
             key,
             value
         )
+
 
     return redirect(
         url_for(
@@ -2672,10 +3108,13 @@ def confirm_memory():
 # MEMORY
 # ==========================================
 
-@app.route("/memory")
+@app.route(
+    "/memory"
+)
 def memory_view():
 
     memories = recall_with_ids()
+
 
     return render_template(
         "memory.html",
@@ -2693,6 +3132,7 @@ def memory_delete(memory_id):
         memory_id
     )
 
+
     return redirect(
         url_for(
             "memory_view"
@@ -2704,10 +3144,13 @@ def memory_delete(memory_id):
 # LOGS
 # ==========================================
 
-@app.route("/logs")
+@app.route(
+    "/logs"
+)
 def logs_view():
 
     entries = []
+
 
     if os.path.exists(
         LOG_FILE
@@ -2719,19 +3162,27 @@ def logs_view():
             encoding="utf-8"
         ) as file:
 
-            lines = file.readlines()[-100:]
+            lines = file.readlines()[
+                -100:
+            ]
 
-        for line in reversed(lines):
+
+        for line in reversed(
+            lines
+        ):
 
             try:
 
                 entries.append(
-                    json.loads(line)
+                    json.loads(
+                        line
+                    )
                 )
 
             except json.JSONDecodeError:
 
                 pass
+
 
     return render_template(
         "logs.html",
@@ -2743,29 +3194,39 @@ def logs_view():
 # MONITORING
 # ==========================================
 
-@app.route("/monitoring")
+@app.route(
+    "/monitoring"
+)
 def monitoring_view():
 
     resources = infrastructure.get_resources()
 
     health = monitoring.get_all_health()
 
+    scheduler = monitoring_scheduler.get_status()
+
+
     return render_template(
         "monitoring.html",
         resources=resources,
         health=health,
-        data=monitoring.get_status()
+        data=monitoring.get_status(),
+        scheduler=scheduler
     )
 
 
-@app.route("/monitoring/check")
+@app.route(
+    "/monitoring/check"
+)
 def monitoring_check():
 
     resources = infrastructure.get_resources()
 
+
     monitoring.check_resources(
         resources
     )
+
 
     return redirect(
         url_for(
@@ -2778,10 +3239,13 @@ def monitoring_check():
 # SYSTEM
 # ==========================================
 
-@app.route("/system")
+@app.route(
+    "/system"
+)
 def system_view():
 
     system = get_system_info()
+
 
     return render_template(
         "system.html",
@@ -2793,10 +3257,13 @@ def system_view():
 # SERVICES
 # ==========================================
 
-@app.route("/services")
+@app.route(
+    "/services"
+)
 def services_view():
 
     services = list_common_services()
+
 
     return render_template(
         "services.html",
@@ -2809,6 +3276,17 @@ def services_view():
 # ==========================================
 
 if __name__ == "__main__":
+
+    # --------------------------------------
+    # START AUTOMATIC MONITORING
+    # --------------------------------------
+
+    start_monitoring_scheduler()
+
+
+    # --------------------------------------
+    # TLS
+    # --------------------------------------
 
     if VELES_TLS:
 
@@ -2823,6 +3301,7 @@ if __name__ == "__main__":
                 "VELES_KEY_FILE"
             )
 
+
         ssl_context = (
             VELES_CERT_FILE,
             VELES_KEY_FILE
@@ -2832,9 +3311,20 @@ if __name__ == "__main__":
 
         ssl_context = None
 
-    app.run(
-        host=VELES_HOST,
-        port=VELES_PORT,
-        debug=False,
-        ssl_context=ssl_context
-    )
+
+    # --------------------------------------
+    # START FLASK
+    # --------------------------------------
+
+    try:
+
+        app.run(
+            host=VELES_HOST,
+            port=VELES_PORT,
+            debug=False,
+            ssl_context=ssl_context
+        )
+
+    finally:
+
+        stop_monitoring_scheduler()

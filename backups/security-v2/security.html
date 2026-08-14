@@ -1,0 +1,1019 @@
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/security.css') }}?v={{ static_version('css/security.css') }}"
+>
+
+{% endblock %}
+
+
+{% block title %}
+
+Veles Security Center
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="security-page">
+
+
+    <!-- ======================================================
+         HEADER
+         ====================================================== -->
+
+    <div class="security-header">
+
+        <h1>
+            🔐 SECURITY CENTER
+        </h1>
+
+        <p>
+            Local security inspection and system security state
+        </p>
+
+        <div class="security-status">
+
+            <span>
+                🔐 SECURITY ACTIVE
+            </span>
+
+            <span>
+                READ-ONLY
+            </span>
+
+            <span>
+                LOCAL INSPECTION
+            </span>
+
+        </div>
+
+        <div class="security-actions">
+
+            <a
+                href="{{ url_for('security_scan') }}"
+                class="security-button"
+            >
+                ▶ RUN SECURITY SCAN
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         SECURITY OVERVIEW
+         ====================================================== -->
+
+    <section class="security-panel">
+
+        <h2>
+            🛡 SECURITY STATUS
+        </h2>
+
+        <div class="security-grid">
+
+
+            <!-- STATUS -->
+
+            <div class="security-card">
+
+                <h3>
+                    STATUS
+                </h3>
+
+                <div class="security-value
+                    {% if report %}
+                        {% if report.status in ['healthy', 'ok'] %}
+                            security-ok
+                        {% elif report.status == 'warning' %}
+                            security-warning
+                        {% elif report.status == 'error' %}
+                            security-error
+                        {% endif %}
+                    {% endif %}
+                ">
+
+                    {% if report %}
+
+                        {{ report.status|upper }}
+
+                    {% else %}
+
+                        NOT SCANNED
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- TOTAL CHECKS -->
+
+            <div class="security-card">
+
+                <h3>
+                    CHECKS
+                </h3>
+
+                <div class="security-value">
+
+                    {% if report %}
+
+                        {{ report.summary.total_checks }}
+
+                    {% else %}
+
+                        0
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- HEALTHY -->
+
+            <div class="security-card">
+
+                <h3>
+                    HEALTHY
+                </h3>
+
+                <div class="security-value security-ok">
+
+                    {% if report %}
+
+                        {{ report.summary.healthy }}
+
+                    {% else %}
+
+                        0
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- WARNINGS -->
+
+            <div class="security-card">
+
+                <h3>
+                    WARNINGS
+                </h3>
+
+                <div class="security-value security-warning">
+
+                    {% if report %}
+
+                        {{ report.summary.warning }}
+
+                    {% else %}
+
+                        0
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- ERRORS -->
+
+            <div class="security-card">
+
+                <h3>
+                    ERRORS
+                </h3>
+
+                <div class="security-value security-error">
+
+                    {% if report %}
+
+                        {{ report.summary.error }}
+
+                    {% else %}
+
+                        0
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- ======================================================
+         SECURITY CHECKS
+         ====================================================== -->
+
+    <section class="security-panel">
+
+        <h2>
+            🔎 SECURITY CHECKS
+        </h2>
+
+
+        {% if report and report.checks %}
+
+
+            <div class="security-check-list">
+
+
+                {% for check in report.checks %}
+
+                <div class="security-check">
+
+
+                    <!-- STATUS ICON -->
+
+                    <div class="security-check-icon">
+
+                        {% if check.status in ["ok", "healthy"] %}
+
+                            🟢
+
+                        {% elif check.status in ["warning", "active", "detected"] %}
+
+                            🟡
+
+                        {% elif check.status in ["error", "failed"] %}
+
+                            🔴
+
+                        {% else %}
+
+                            ⚪
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- CHECK CONTENT -->
+
+                    <div class="security-check-info">
+
+
+                        <div class="security-check-heading">
+
+                            <h3>
+                                {{ check.check_type|replace("_", " ")|upper }}
+                            </h3>
+
+                            <span class="security-check-status
+                                {% if check.status in ['healthy', 'ok'] %}
+                                    security-status-healthy
+                                {% elif check.status in ['warning', 'active', 'detected'] %}
+                                    security-status-warning
+                                {% elif check.status in ['error', 'failed'] %}
+                                    security-status-error
+                                {% else %}
+                                    security-status-unknown
+                                {% endif %}
+                            ">
+
+                                {{ check.status|upper }}
+
+                            </span>
+
+                        </div>
+
+
+                        <div class="security-meta">
+
+
+                            <div>
+
+                                <label>
+                                    MESSAGE
+                                </label>
+
+                                <strong>
+                                    {{ check.message or "—" }}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <label>
+                                    TIMESTAMP
+                                </label>
+
+                                <strong>
+                                    {{ check.timestamp }}
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <!-- ==================================================
+                             SYSTEM
+                             ================================================== -->
+
+                        {% if check.check_type == "system" and check.data %}
+
+                        <div class="security-detail-grid">
+
+                            <div class="security-detail-item">
+
+                                <label>
+                                    HOSTNAME
+                                </label>
+
+                                <strong>
+                                    {{ check.data.hostname }}
+                                </strong>
+
+                            </div>
+
+                            <div class="security-detail-item">
+
+                                <label>
+                                    USER
+                                </label>
+
+                                <strong>
+                                    {{ check.data.user }}
+                                </strong>
+
+                            </div>
+
+                            <div class="security-detail-item">
+
+                                <label>
+                                    UID
+                                </label>
+
+                                <strong>
+                                    {{ check.data.uid }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             USERS
+                             ================================================== -->
+
+                        {% if check.check_type == "users" and check.data %}
+
+                        <details class="security-details">
+
+                            <summary>
+                                VIEW {{ check.data|length }} LOCAL USERS
+                            </summary>
+
+                            <div class="security-table-wrapper">
+
+                                <table class="security-table">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th>
+                                                USERNAME
+                                            </th>
+
+                                            <th>
+                                                UID
+                                            </th>
+
+                                            <th>
+                                                GID
+                                            </th>
+
+                                            <th>
+                                                HOME
+                                            </th>
+
+                                            <th>
+                                                SHELL
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        {% for user in check.data %}
+
+                                        <tr>
+
+                                            <td>
+                                                {{ user.username }}
+                                            </td>
+
+                                            <td>
+                                                {{ user.uid }}
+                                            </td>
+
+                                            <td>
+                                                {{ user.gid }}
+                                            </td>
+
+                                            <td>
+                                                {{ user.home }}
+                                            </td>
+
+                                            <td>
+                                                {{ user.shell }}
+                                            </td>
+
+                                        </tr>
+
+                                        {% endfor %}
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </details>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             PRIVILEGED USERS
+                             ================================================== -->
+
+                        {% if check.check_type == "privileged_users" and check.data %}
+
+                        <details class="security-details">
+
+                            <summary>
+                                VIEW PRIVILEGED USERS
+                            </summary>
+
+                            <div class="security-list">
+
+                                {% for username in check.data %}
+
+                                <div class="security-list-item">
+
+                                    <span>
+                                        {{ username }}
+                                    </span>
+
+                                    <span class="security-badge">
+                                        UID 0
+                                    </span>
+
+                                </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </details>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             LISTENING PORTS
+                             ================================================== -->
+
+                        {% if check.check_type == "listening_ports" and check.data %}
+
+                        <details class="security-details">
+
+                            <summary>
+                                VIEW {{ check.data|length - 1 }} LISTENING SOCKETS
+                            </summary>
+
+                            <div class="security-port-list">
+
+                                {% for line in check.data %}
+
+                                    {% if not loop.first %}
+
+                                    <div class="security-port-row">
+
+                                        {% set parts = line.split() %}
+
+                                        {% if parts|length >= 5 %}
+
+                                            <span class="security-port-protocol">
+                                                {{ parts[0]|upper }}
+                                            </span>
+
+                                            <span class="security-port-state">
+                                                {{ parts[1] }}
+                                            </span>
+
+                                            <span class="security-port-address">
+                                                {{ parts[4] }}
+                                            </span>
+
+                                            {% if parts|length >= 7 %}
+
+                                            <span class="security-port-process">
+                                                {{ parts[6:]|join(" ") }}
+                                            </span>
+
+                                            {% endif %}
+
+                                        {% else %}
+
+                                            <span>
+                                                {{ line }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                    {% endif %}
+
+                                {% endfor %}
+
+                            </div>
+
+                        </details>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             SERVICES
+                             ================================================== -->
+
+                        {% if check.check_type == "services" and check.data %}
+
+                        <details class="security-details">
+
+                            <summary>
+                                VIEW {{ check.data|length }} RUNNING SERVICES
+                            </summary>
+
+                            <div class="security-service-list">
+
+                                {% for service in check.data %}
+
+                                {% set service_parts = service.split() %}
+
+                                <div class="security-service-row">
+
+                                    <span class="security-service-name">
+
+                                        {% if service_parts|length > 0 %}
+
+                                            {{ service_parts[0] }}
+
+                                        {% else %}
+
+                                            {{ service }}
+
+                                        {% endif %}
+
+                                    </span>
+
+                                    <span class="security-service-state">
+                                        RUNNING
+                                    </span>
+
+                                </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </details>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             SSH
+                             ================================================== -->
+
+                        {% if check.check_type == "ssh" %}
+
+                        <div class="security-state-box">
+
+                            <span class="security-state-label">
+                                SSH SERVICE
+                            </span>
+
+                            <strong>
+                                {{ check.data or "UNKNOWN" }}
+                            </strong>
+
+                        </div>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             FIREWALL
+                             ================================================== -->
+
+                        {% if check.check_type == "firewall" and check.data %}
+
+                        <details class="security-details">
+
+                            <summary>
+                                VIEW FIREWALL INSPECTION
+                            </summary>
+
+                            <div class="security-firewall-list">
+
+                                {% for firewall in check.data %}
+
+                                <div class="security-firewall-card">
+
+
+                                    <div class="security-firewall-header">
+
+                                        <strong>
+                                            {{ firewall.name|upper }}
+                                        </strong>
+
+
+                                        {% if firewall.state == "active" %}
+
+                                            <span class="security-status-healthy">
+                                                ACTIVE
+                                            </span>
+
+                                        {% elif firewall.state == "inactive" %}
+
+                                            <span class="security-status-warning">
+                                                INACTIVE
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="security-status-unknown">
+                                                UNKNOWN
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div class="security-firewall-meta">
+
+                                        <div>
+
+                                            <label>
+                                                INSPECTION
+                                            </label>
+
+                                            <strong>
+                                                {{ firewall.inspection|replace("_", " ")|upper }}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                STATUS
+                                            </label>
+
+                                            <strong>
+                                                {{ firewall.status or "—" }}
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            <label>
+                                                RETURN CODE
+                                            </label>
+
+                                            <strong>
+                                                {{ firewall.returncode if firewall.returncode is not none else "—" }}
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </details>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             FILE PERMISSIONS
+                             ================================================== -->
+
+                        {% if check.check_type == "file_permissions" and check.data %}
+
+                        <details class="security-details" open>
+
+                            <summary>
+                                VIEW {{ check.data|length }} FILE PERMISSIONS
+                            </summary>
+
+                            <div class="security-table-wrapper">
+
+                                <table class="security-table">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th>
+                                                PATH
+                                            </th>
+
+                                            <th>
+                                                EXISTS
+                                            </th>
+
+                                            <th>
+                                                MODE
+                                            </th>
+
+                                            <th>
+                                                PERMISSIONS
+                                            </th>
+
+                                            <th>
+                                                OWNER
+                                            </th>
+
+                                            <th>
+                                                GROUP
+                                            </th>
+
+                                            <th>
+                                                EXPECTED
+                                            </th>
+
+                                            <th>
+                                                STATUS
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody>
+
+                                        {% for file in check.data %}
+
+                                        <tr>
+
+                                            <td>
+                                                {{ file.path }}
+                                            </td>
+
+                                            <td>
+
+                                                {% if file.exists %}
+
+                                                    YES
+
+                                                {% else %}
+
+                                                    NO
+
+                                                {% endif %}
+
+                                            </td>
+
+                                            <td>
+                                                {{ file.mode|replace("0o", "") }}
+                                            </td>
+
+                                            <td>
+                                                {{ file.permissions }}
+                                            </td>
+
+                                            <td>
+                                                {{ file.owner }}
+                                            </td>
+
+                                            <td>
+                                                {{ file.group }}
+                                            </td>
+
+                                            <td>
+                                                {{ file.expected }}
+                                            </td>
+
+                                            <td>
+
+                                                {% if file.status in ["healthy", "ok"] %}
+
+                                                    <span class="security-status-healthy">
+                                                        HEALTHY
+                                                    </span>
+
+                                                {% elif file.status == "warning" %}
+
+                                                    <span class="security-status-warning">
+                                                        WARNING
+                                                    </span>
+
+                                                {% elif file.status in ["error", "failed"] %}
+
+                                                    <span class="security-status-error">
+                                                        ERROR
+                                                    </span>
+
+                                                {% else %}
+
+                                                    <span class="security-status-unknown">
+                                                        UNKNOWN
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </td>
+
+                                        </tr>
+
+                                        {% endfor %}
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </details>
+
+                        {% endif %}
+
+
+                        <!-- ==================================================
+                             FALLBACK DETAILS
+                             ================================================== -->
+
+                        {% if check.data
+                              and check.check_type not in [
+                                  "system",
+                                  "users",
+                                  "privileged_users",
+                                  "listening_ports",
+                                  "services",
+                                  "ssh",
+                                  "firewall",
+                                  "file_permissions"
+                              ]
+                        %}
+
+                        <details class="security-details">
+
+                            <summary>
+                                VIEW DETAILS
+                            </summary>
+
+                            <pre>{{ check.data }}</pre>
+
+                        </details>
+
+                        {% endif %}
+
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+
+            </div>
+
+
+        {% else %}
+
+
+            <div class="security-empty">
+
+                ⚠ SECURITY SCAN HAS NOT BEEN EXECUTED YET.
+
+            </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+
+    <!-- ======================================================
+         SYSTEM SECURITY CONTEXT
+         ====================================================== -->
+
+    {% if report %}
+
+    <section class="security-panel">
+
+        <h2>
+            🖥 SYSTEM SECURITY CONTEXT
+        </h2>
+
+
+        {% for check in report.checks %}
+
+
+            {% if check.check_type == "system" %}
+
+
+                <div class="security-system-grid">
+
+
+                    <div class="security-system-item">
+
+                        <label>
+                            HOSTNAME
+                        </label>
+
+                        <strong>
+                            {{ check.data.hostname }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="security-system-item">
+
+                        <label>
+                            USER
+                        </label>
+
+                        <strong>
+                            {{ check.data.user }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="security-system-item">
+
+                        <label>
+                            UID
+                        </label>
+
+                        <strong>
+                            {{ check.data.uid }}
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+            {% endif %}
+
+
+        {% endfor %}
+
+
+    </section>
+
+    {% endif %}
+
+
+</div>
+
+{% endblock %}

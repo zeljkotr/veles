@@ -6,6 +6,10 @@ Veles Operations Center
 {% endblock %}
 
 
+{% block application %}
+OVERVIEW
+{% endblock %}
+
 
 {% block content %}
 
@@ -13,288 +17,317 @@ Veles Operations Center
 <div class="veles-dashboard">
 
 
+    <div class="dashboard-header">
 
-<div class="dashboard-header">
+        <div class="dashboard-header-main">
 
-<h1>
-    ◉ VELES
-</h1>
+            <div class="dashboard-header-mark">
+                ◉
+            </div>
 
-<p>
-    AI centar za operacije i nadzor.
-</p>
+            <div>
 
-</div>
+                <h1>
+                    VELES
+                </h1>
 
+                <p>
+                    AI Operations Control Center
+                </p>
 
+            </div>
 
+        </div>
 
 
-<div class="operations-map">
+        <div class="dashboard-header-status">
 
+            <span class="dashboard-status-dot"></span>
 
+            SYSTEM OPERATIONAL
 
-<div class="floating-clouds">
+        </div>
 
-<div class="cloud-particle cloud-1"></div>
-<div class="cloud-particle cloud-2"></div>
-<div class="cloud-particle cloud-3"></div>
-<div class="cloud-particle cloud-4"></div>
-<div class="cloud-particle cloud-5"></div>
-<div class="cloud-particle cloud-6"></div>
-<div class="cloud-particle cloud-7"></div>
-<div class="cloud-particle cloud-8"></div>
-
-</div>
-
-
-
-
-
-<svg class="connection-lines">
-
-    <line class="data-line" data-target="intelligence"></line>
-    <line class="data-line" data-target="infrastructure"></line>
-    <line class="data-line" data-target="delivery"></line>
-    <line class="data-line" data-target="cloud"></line>
-    <line class="data-line" data-target="security"></line>
-    <line class="data-line" data-target="automation"></line>
-    <line class="data-line" data-target="observability"></line>
-    <line class="data-line" data-target="network"></line>
-    <line class="data-line" data-target="platform"></line>
-    <line class="data-line" data-target="data"></line>
-    <line class="data-line" data-target="testing"></line>
-    <line class="data-line" data-target="access"></line>
-
-</svg>
-
-
-
-
-
-<a href="/chat" class="node intelligence">
-
-🧠<br>
-
-INTELLIGENCE
-
-<div class="node-status">
-{{ modules.intelligence.status }}
-</div>
-
-</a>
-
-
-
-
-
-<a href="/infrastructure" class="node infrastructure">
-
-🖥<br>
-
-INFRASTRUCTURE
-
-<div class="node-status">
-{{ modules.infrastructure.status }}
-</div>
-
-</a>
-
-
-
-
-
-<div class="node delivery"
-     onclick="window.location.href='/delivery'">
-
-
-📦<br>
-
-
-DELIVERY
-
-
-<div class="node-status">
-{{ modules.delivery.status }}
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="node core">
-
-◉<br>
-
-VELES
-
-<div class="node-status">
-CORE ONLINE
-</div>
-
-</div>
-
-
-
-
-
-<div class="node cloud">
-
-☁<br>
-
-CLOUD
-
-<div class="node-status">
-{{ modules.cloud.status }}
-</div>
-
-</div>
-
-
-
-
-
-<div
-    class="node security"
-    onclick="window.location.href='{{ url_for("security_view") }}'"
->
-
-🔐<br>
-
-SECURITY
-
-<div class="node-status">
-{{ modules.security.status }}
-</div>
-
-</div>
-
-
-
-
-
-<div class="node automation">
-
-⚙<br>
-
-AUTOMATION
-
-<div class="node-status">
-{{ modules.automation.status }}
-</div>
-
-</div>
-
-
-
-
-
-<div class="node observability"
-onclick="window.location.href='{{ url_for("monitoring_view") }}'">
-
-
-    📊<br>
-
-
-    MONITORING
-
-
-    <div class="node-status">
-        {{ modules.observability.status }}
     </div>
 
 
-</div>
+    <div class="operations-map">
 
 
+        <div class="operations-map-label">
+            OPERATIONS MAP
+        </div>
 
 
-
-<div class="node network"
-onclick="window.location.href='{{ url_for("network_view") }}'">
-
-🌐<br>
-
-NETWORK
-
-<div class="node-status">
-{{ modules.network.status }}
-</div>
-
-</div>
+        <div class="operations-map-grid"></div>
 
 
+        <div class="floating-clouds">
+
+            <div class="cloud-particle cloud-1"></div>
+            <div class="cloud-particle cloud-2"></div>
+            <div class="cloud-particle cloud-3"></div>
+            <div class="cloud-particle cloud-4"></div>
+            <div class="cloud-particle cloud-5"></div>
+            <div class="cloud-particle cloud-6"></div>
+            <div class="cloud-particle cloud-7"></div>
+            <div class="cloud-particle cloud-8"></div>
+
+        </div>
 
 
+        <svg class="connection-lines">
 
-<div class="node platform">
+            <line class="data-line" data-target="intelligence"></line>
+            <line class="data-line" data-target="infrastructure"></line>
+            <line class="data-line" data-target="delivery"></line>
+            <line class="data-line" data-target="cloud"></line>
+            <line class="data-line" data-target="security"></line>
+            <line class="data-line" data-target="automation"></line>
+            <line class="data-line" data-target="observability"></line>
+            <line class="data-line" data-target="network"></line>
+            <line class="data-line" data-target="platform"></line>
+            <line class="data-line" data-target="data"></line>
+            <line class="data-line" data-target="testing"></line>
+            <line class="data-line" data-target="access"></line>
 
-🏗<br>
-
-PLATFORM
-
-<div class="node-status">
-{{ modules.platform.status }}
-</div>
-
-</div>
-
-
-
-
-
-<div class="node data">
-
-🗄<br>
-
-DATA
-
-<div class="node-status">
-{{ modules.data.status }}
-</div>
-
-</div>
+        </svg>
 
 
+        <a href="/chat" class="node intelligence">
+
+            <span class="node-icon">
+                🧠
+            </span>
+
+            <span class="node-name">
+                INTELLIGENCE
+            </span>
+
+            <div class="node-status">
+                {{ modules.intelligence.status }}
+            </div>
+
+        </a>
 
 
+        <a href="/infrastructure" class="node infrastructure">
 
-<div class="node testing">
+            <span class="node-icon">
+                🖥
+            </span>
 
-🧪<br>
+            <span class="node-name">
+                INFRASTRUCTURE
+            </span>
 
-TESTING
+            <div class="node-status">
+                {{ modules.infrastructure.status }}
+            </div>
 
-<div class="node-status">
-{{ modules.testing.status }}
-</div>
-
-</div>
-
-
-
-
-
-<div class="node access">
-
-🔐<br>
-
-ACCESS
-
-<div class="node-status">
-{{ modules.access.status }}
-</div>
-
-</div>
+        </a>
 
 
+        <div
+            class="node delivery"
+            onclick="window.location.href='/delivery'"
+        >
+
+            <span class="node-icon">
+                📦
+            </span>
+
+            <span class="node-name">
+                DELIVERY
+            </span>
+
+            <div class="node-status">
+                {{ modules.delivery.status }}
+            </div>
+
+        </div>
 
 
+        <div class="node core">
 
-</div>
+            <span class="node-core-symbol">
+                ◉
+            </span>
+
+            <span class="node-name">
+                VELES
+            </span>
+
+            <div class="node-status">
+                CORE ONLINE
+            </div>
+
+        </div>
+
+
+        <div class="node cloud">
+
+            <span class="node-icon">
+                ☁
+            </span>
+
+            <span class="node-name">
+                CLOUD
+            </span>
+
+            <div class="node-status">
+                {{ modules.cloud.status }}
+            </div>
+
+        </div>
+
+
+        <div
+            class="node security"
+            onclick="window.location.href='{{ url_for("security_view") }}'"
+        >
+
+            <span class="node-icon">
+                🔐
+            </span>
+
+            <span class="node-name">
+                SECURITY
+            </span>
+
+            <div class="node-status">
+                {{ modules.security.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node automation">
+
+            <span class="node-icon">
+                ⚙
+            </span>
+
+            <span class="node-name">
+                AUTOMATION
+            </span>
+
+            <div class="node-status">
+                {{ modules.automation.status }}
+            </div>
+
+        </div>
+
+
+        <div
+            class="node observability"
+            onclick="window.location.href='{{ url_for("monitoring_view") }}'"
+        >
+
+            <span class="node-icon">
+                📊
+            </span>
+
+            <span class="node-name">
+                MONITORING
+            </span>
+
+            <div class="node-status">
+                {{ modules.observability.status }}
+            </div>
+
+        </div>
+
+
+        <div
+            class="node network"
+            onclick="window.location.href='{{ url_for("network_view") }}'"
+        >
+
+            <span class="node-icon">
+                🌐
+            </span>
+
+            <span class="node-name">
+                NETWORK
+            </span>
+
+            <div class="node-status">
+                {{ modules.network.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node platform">
+
+            <span class="node-icon">
+                🏗
+            </span>
+
+            <span class="node-name">
+                PLATFORM
+            </span>
+
+            <div class="node-status">
+                {{ modules.platform.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node data">
+
+            <span class="node-icon">
+                🗄
+            </span>
+
+            <span class="node-name">
+                DATA
+            </span>
+
+            <div class="node-status">
+                {{ modules.data.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node testing">
+
+            <span class="node-icon">
+                🧪
+            </span>
+
+            <span class="node-name">
+                TESTING
+            </span>
+
+            <div class="node-status">
+                {{ modules.testing.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node access">
+
+            <span class="node-icon">
+                🔐
+            </span>
+
+            <span class="node-name">
+                ACCESS
+            </span>
+
+            <div class="node-status">
+                {{ modules.access.status }}
+            </div>
+
+        </div>
+
+
+    </div>
 
 
 </div>

@@ -5,6 +5,19 @@ Centralni registar svih infrastrukturnih resursa.
 
 Storage:
 PostgreSQL (primary)
+
+Discovery resources:
+--------------------
+
+Resources created from Discovery use the
+"Discovered-<host>" naming convention.
+
+For discovered resources, the host is the
+unique identity. A discovered host must not
+be registered again with another resource type.
+
+Manually created resources keep the existing
+type + name + host duplicate protection.
 """
 
 from veles.database.connection import get_session
@@ -19,16 +32,32 @@ class ResourceRegistry:
         pass
 
 
-    def add_resource(self, resource):
+    def add_resource(
+        self,
+        resource
+    ):
 
         """
         Dodavanje resursa u PostgreSQL bazu.
 
-        Sprečava duplikate po:
-            type + name + host
+        Discovery resources:
+            - unique by host when name starts
+              with "Discovered-"
+
+        Other resources:
+            - duplicate protection remains:
+              type + name + host
 
         Vraća postojeći resource ako već postoji.
         """
+
+        if not isinstance(
+            resource,
+            dict
+        ):
+
+            return None
+
 
         session = get_session()
 
@@ -48,6 +77,50 @@ class ResourceRegistry:
                 "host"
             )
 
+
+            # =================================================
+            # DISCOVERY DUPLICATE PROTECTION
+            # =================================================
+
+            is_discovered = (
+
+                isinstance(
+                    resource_name,
+                    str
+                )
+
+                and resource_name.startswith(
+                    "Discovered-"
+                )
+
+                and resource_host
+
+            )
+
+
+            if is_discovered:
+
+                existing = session.query(
+                    Resource
+                ).filter(
+                    Resource.host == resource_host,
+                    Resource.name.like(
+                        "Discovered-%"
+                    )
+                ).first()
+
+
+                if existing:
+
+                    return self._to_dict(
+                        existing
+                    )
+
+
+            # =================================================
+            # NORMAL RESOURCE DUPLICATE PROTECTION
+            # =================================================
+
             existing = session.query(
                 Resource
             ).filter(
@@ -56,15 +129,26 @@ class ResourceRegistry:
                 Resource.host == resource_host
             ).first()
 
+
             if existing:
 
                 return self._to_dict(
                     existing
                 )
 
+
+            # =================================================
+            # CREATE IDENTITY
+            # =================================================
+
             resource["identity"] = IdentityService.create(
                 resource
             )
+
+
+            # =================================================
+            # CREATE DATABASE RESOURCE
+            # =================================================
 
             db_resource = Resource(
 
@@ -97,26 +181,34 @@ class ResourceRegistry:
 
             )
 
+
             session.add(
                 db_resource
             )
 
+
             session.commit()
+
 
             session.refresh(
                 db_resource
             )
 
+
             return self._to_dict(
                 db_resource
             )
+
 
         finally:
 
             session.close()
 
 
-    def get_resources(self, group=None):
+    def get_resources(
+        self,
+        group=None
+    ):
 
         session = get_session()
 
@@ -126,25 +218,37 @@ class ResourceRegistry:
                 Resource
             )
 
+
             if group:
 
                 query = query.filter(
                     Resource.type == group.rstrip("s")
                 )
 
+
             resources = query.all()
 
+
             return [
-                self._to_dict(item)
+
+                self._to_dict(
+                    item
+                )
+
                 for item in resources
+
             ]
+
 
         finally:
 
             session.close()
 
 
-    def get_resource(self, resource_id):
+    def get_resource(
+        self,
+        resource_id
+    ):
 
         session = get_session()
 
@@ -155,6 +259,7 @@ class ResourceRegistry:
             ).filter(
                 Resource.id == resource_id
             ).first()
+
 
             if resource:
 
@@ -162,14 +267,20 @@ class ResourceRegistry:
                     resource
                 )
 
+
             return None
+
 
         finally:
 
             session.close()
 
 
-    def update_resource(self, resource_id, data):
+    def update_resource(
+        self,
+        resource_id,
+        data
+    ):
 
         session = get_session()
 
@@ -181,9 +292,11 @@ class ResourceRegistry:
                 Resource.id == resource_id
             ).first()
 
+
             if not resource:
 
                 return None
+
 
             for key, value in data.items():
 
@@ -198,22 +311,29 @@ class ResourceRegistry:
                         value
                     )
 
+
             session.commit()
+
 
             session.refresh(
                 resource
             )
 
+
             return self._to_dict(
                 resource
             )
+
 
         finally:
 
             session.close()
 
 
-    def delete_resource(self, resource_id):
+    def delete_resource(
+        self,
+        resource_id
+    ):
 
         session = get_session()
 
@@ -225,17 +345,22 @@ class ResourceRegistry:
                 Resource.id == resource_id
             ).first()
 
+
             if not resource:
 
                 return False
+
 
             session.delete(
                 resource
             )
 
+
             session.commit()
 
+
             return True
+
 
         finally:
 
@@ -249,14 +374,20 @@ class ResourceRegistry:
     ):
 
         self.update_resource(
+
             resource_id,
+
             {
                 "verification": verification
             }
+
         )
 
 
-    def _to_dict(self, item):
+    def _to_dict(
+        self,
+        item
+    ):
 
         """
         SQLAlchemy model -> dict

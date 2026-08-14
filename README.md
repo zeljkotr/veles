@@ -1,414 +1,459 @@
 # VELES — AI Operations Center
 
-**VELES** is an AI-powered Operations Center for **DevOps, SRE and infrastructure operations**.
+VELES is an AI-powered Operations Center for DevOps, SRE and infrastructure operations.
 
-VELES is being built as a unified operational environment where infrastructure can be discovered, registered, verified, monitored and eventually operated through AI-assisted workflows.
+The goal of VELES is to provide a single operational environment for:
 
-The long-term goal is to move beyond traditional infrastructure tooling toward an **AI-native Operations Center** capable of observing infrastructure, understanding operational state, planning actions, executing controlled operations, verifying results and reporting outcomes.
+- Infrastructure
+- Discovery
+- Monitoring
+- Network Operations
+- Security
+- Delivery
+- Automation
+- Cloud Operations
+- Platform Operations
+- Data Operations
+- Testing
+- AI-assisted Operations
 
-> **VELES is not just a dashboard, chatbot, monitoring tool or automation script. It is being built as an AI Operations Center.**
-
----
-
-## Vision
-
-Traditional infrastructure operations require engineers to move between many separate systems:
-
-```text
-Monitoring
-SSH
-Cloud Consoles
-Network Tools
-Deployment Systems
-Logs
-Databases
-Security Tools
-Automation Scripts
-AI Assistants
-```
-
-VELES aims to bring these operational concerns into one environment:
-
-```text
-                    ┌─────────────────────┐
-                    │       VELES         │
-                    │                     │
-                    │  SEE               │
-                    │  UNDERSTAND        │
-                    │  PLAN              │
-                    │  ACT               │
-                    │  VERIFY            │
-                    │  REPORT            │
-                    └──────────┬──────────┘
-                               │
-             ┌─────────────────┼─────────────────┐
-             ▼                 ▼                 ▼
-       Infrastructure       AI Core          Operations
-             │                 │                 │
-             └─────────────────┼─────────────────┘
-                               ▼
-                         Real Operations
-```
-
-The immediate priority is building a **stable operational foundation** on top of which deeper AI reasoning and automation can be developed.
+VELES is being built as an AI-native Operations Center, not simply as a dashboard, chatbot, monitoring tool or automation script.
 
 ---
 
-# Current Operational Model
+# Vision
 
-The core VELES model is:
+VELES is designed around a continuous operational lifecycle:
 
-```text
-Observe
-   ↓
-Understand
-   ↓
-Plan
-   ↓
-Execute
-   ↓
-Verify
-   ↓
-Report
-```
+OBSERVE
+↓
+UNDERSTAND
+↓
+PLAN
+↓
+EXECUTE
+↓
+VERIFY
+↓
+REPORT
+↓
+OBSERVE
 
-Not every stage is fully autonomous today.
+The long-term goal is for VELES to understand infrastructure state, provide operational context, assist engineers with decisions, execute approved actions and verify the results.
 
-The current implementation focuses on building the infrastructure, resource, discovery, verification, monitoring and AI foundations required to support this model safely.
+---
+
+# Current Module Status
+
+| Module | Current State | Status |
+|---|---|---|
+| 🧠 Intelligence | AI / Chat + Ollama integration | 🟡 Developing |
+| 🖥 Infrastructure | Resource Registry + PostgreSQL + Resources + Discovery integration | 🟢 Highly Developed |
+| 🔎 Discovery | Network discovery → Hosts → Ports / Services → Add Resource | 🟢 Functional |
+| 📊 Monitoring | Monitoring Center + Scheduler + Health Checks + Automatic Cycles | 🟢 Functional / Phase 1 |
+| 🌐 Network | Basic Network module | 🟡 Basic |
+| 🚚 Delivery | Basic Delivery module | 🟡 Basic |
+| 🔐 Security | Local Security / read-only inspection | 🟡 Phase 1 |
+| ☁ Cloud | No full module yet | 🔴 Planned |
+| ⚙ Automation | No full module yet | 🔴 Planned |
+| 🧩 Platform | No full module yet | 🔴 Planned |
+| 💾 Data | No full module yet | 🔴 Planned |
+| 🧪 Testing | No full module yet | 🔴 Planned |
+
+### Status Legend
+
+- 🟢 Functional / actively usable
+- 🟡 Development in progress
+- 🔴 Planned
 
 ---
 
 # Architecture
 
-VELES currently consists of several major layers:
-
-```text
-                         ┌──────────────────────┐
-                         │      VELES Web UI    │
-                         │                      │
-                         │ Dashboard            │
-                         │ Chat                 │
-                         │ Infrastructure       │
-                         │ Discovery            │
-                         │ Monitoring           │
-                         │ System / Services    │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │      VELES Core      │
-                         │                      │
-                         │ Brain                │
-                         │ Planner              │
-                         │ Executor             │
-                         │ Reporter             │
-                         │ Autonomous           │
-                         │ Identity             │
-                         └──────────┬───────────┘
-                                    │
-                 ┌──────────────────┼──────────────────┐
-                 │                  │                  │
-                 ▼                  ▼                  ▼
-          ┌────────────┐     ┌────────────┐     ┌────────────┐
-          │   Ollama   │     │ PostgreSQL │     │  Modules   │
-          │ Local AI   │     │ Operational│     │ Operations │
-          │            │     │   State    │     │            │
-          └────────────┘     └────────────┘     └──────┬─────┘
-                                                       │
-                              ┌────────────────────────┼──────────────┐
-                              ▼                        ▼              ▼
-                       Infrastructure             Discovery       Monitoring
-```
-
----
-
-# AI Core
-
-The AI Core is the intelligence foundation of VELES.
-
-Current core components include:
-
-* Brain
-* Planner
-* Executor
-* Reporter
-* Autonomous operations
-* Identity
-* Operational context
-* Memory
-
-The architecture is designed around the idea that AI should eventually understand the operational environment rather than function as an isolated chatbot.
-
----
-
-# Local AI
-
-VELES supports local LLM inference through **Ollama**.
-
 ```text
 VELES
-  │
-  ▼
-AI Core
-  │
-  ▼
-Ollama
-  │
-  ▼
-Local LLM
-```
-
-Local AI provides a foundation for keeping infrastructure context and operational data inside the VELES environment.
-
-Potential uses include:
-
-* Infrastructure analysis
-* Troubleshooting
-* Operational planning
-* Incident analysis
-* Resource understanding
-* Command generation
-* Operational explanations
-* AI-assisted automation
-
----
-
-# AI Chat
-
-VELES includes an operational AI Chat interface.
-
-The purpose is to connect the operator with the VELES intelligence layer and, progressively, with the operational context managed by VELES.
-
-```text
-Operator
-   │
-   ▼
-VELES Chat
-   │
-   ▼
-AI Core
-   │
-   ├── Memory
-   ├── Infrastructure
-   ├── Discovery
-   └── Operational Context
-   │
-   ▼
-Planner
-   │
-   ▼
-Executor
-   │
-   ▼
-Reporter
-```
-
-The long-term goal is for the AI to reason about real infrastructure rather than provide generic answers disconnected from the environment.
-
----
-
-# Memory
-
-VELES includes a Memory foundation for maintaining operational context.
-
-The Memory layer is intended to support continuity across:
-
-* AI interactions
-* Infrastructure knowledge
-* Resources
-* Operational events
-* Previous actions
-* System knowledge
-* Operational decisions
-
-Memory is part of the foundation for future context-aware AI operations.
-
----
-
-# Infrastructure
-
-Infrastructure is currently one of the most developed areas of VELES.
-
-The Infrastructure module provides the central operational resource model.
-
-Current capabilities include:
-
-* Resource Registry
-* Resource inventory
-* Resource identity
-* Resource verification
-* Resource status
-* Infrastructure services
-* Discovery integration
-
-Resources are stored in **PostgreSQL** rather than a simple JSON inventory.
-
-A resource can contain:
-
-```text
-Resource
-├── ID
-├── Type
-├── Name
-├── Host
-├── Port
-├── Username
-├── Group
-├── Status
-├── Verification
-├── Trust
-├── Identity
-├── Policy
-└── Actions
-```
-
----
-
-# Resource Registry
-
-The Resource Registry is the persistent inventory of managed VELES resources.
-
-The registry was migrated from a JSON-based implementation to PostgreSQL.
-
-This provides a stronger foundation for:
-
-* Persistent resource state
-* Resource identity
-* Verification
-* Trust information
-* Policies
-* Actions
-* Future automation
-
-The resource model is intentionally generic so VELES can operate in different environments.
-
----
-
-# Resource Identity
-
-Managed resources can receive a VELES identity.
-
-Identity information can include:
-
-* Internal UUID
-* Version
-* Creation timestamp
-* Hostname
-* Network identity
-* Tailscale identity
-* Resource-specific identity information
-
-The purpose is to provide a reliable identity layer for future operational reasoning and automation.
-
----
-
-# Verification
-
-VELES has an explicit resource verification lifecycle.
-
-```text
-never_checked
-      │
-      ▼
-   checking
-    /    \
-   ▼      ▼
-verified  failed
-```
-
-Verification allows VELES to distinguish between:
-
-* A resource known to the registry
-* A reachable resource
-* A verified resource
-* A resource whose verification failed
-
-This is an important foundation for safe operational actions.
-
----
-
-# Discovery Center
-
-Discovery is intentionally separated from Infrastructure.
-
-The Discovery Center allows VELES to inspect an environment before resources are imported into the managed infrastructure registry.
-
-```text
-Network
-   ↓
-Discovery
-   ↓
-Detected Hosts
-   ↓
-Operator Review
-   ↓
-ADD RESOURCE
-   ↓
-Infrastructure Registry
-```
-
-Discovery can identify:
-
-* IP addresses
-* Hostnames
-* Operating systems when available
-* Services
-* Open ports
-* Network targets
-
-Common infrastructure services include:
-
-```text
-SSH      22
-WinRM    5985
-WinRM    5986
-RDP      3389
-SMB      445
-```
-
-## Human-controlled discovery
-
-Discovery does **not** automatically add discovered resources.
-
-The intended workflow is:
-
-> **VELES sees the infrastructure. The operator decides what becomes a managed resource.**
-
-This separation is an important design principle of VELES.
+│
+├── Intelligence
+│   └── AI / Ollama
+│
+├── Infrastructure
+│   └── Resource Registry
+│       └── PostgreSQL
+│
+├── Discovery
+│
+├── Monitoring
+│   └── Monitoring Scheduler
+│
+├── Network
+│
+├── Delivery
+│
+├── Security
+│
+├── Cloud
+│
+├── Automation
+│
+├── Platform
+│
+├── Data
+│
+└── Testing
+cat >> README.md <<'EOF'
 
 ---
 
 # Monitoring
 
-Monitoring is currently under active development.
+Monitoring is currently in its first functional phase.
 
-The current Monitoring foundation includes:
+The Monitoring Center provides centralized resource health information.
 
-* Health checks
-* Resource health
-* Connectivity checks
-* Health result storage
-* Monitoring UI
+Current capabilities include:
 
-Conceptually:
+- Resource health checks
+- Health status
+- Ping checks
+- Response time
+- Health messages
+- Check counts
+- Last check information
+- Automatic monitoring cycles
+- Monitoring scheduler
+- Configurable check interval
+- Monitoring statistics
+- Automatic UI refresh
+- Next-check countdown
+- Resource monitoring status
 
-```text
-Resource
-   │
-   ▼
-Health Check
-   │
-   ▼
-Health Result
-   │
-   ▼
-Resource Health
-   │
-   ├── VELES UI
-   └── AI Context
-```
+Current architecture:
 
-The long-term objective is to make monitoring one of the primary sources of operational context for the AI Core.
+MonitoringScheduler
+
+↓
+
+MonitoringService
+
+↓
+
+check_resources()
+
+↓
+
+ResourceHealth
+
+↓
+
+Monitoring UI
+
+The current automatic check interval is:
+
+60 seconds
+
+Health status priority:
+
+CRITICAL
+↓
+WARNING
+↓
+UNKNOWN
+↓
+HEALTHY
+
+Current monitoring models include:
+
+- HealthCheckResult
+- ResourceHealth
+- MonitoringTarget
+
+Persistent long-term monitoring history in PostgreSQL is planned for a later phase.
+
+---
+
+# Monitoring Scheduler
+
+The Monitoring Scheduler provides automatic periodic monitoring.
+
+It tracks:
+
+- Last check time
+- Next check time
+- Check count
+- Last resource count
+- Healthy resources
+- Warning resources
+- Critical resources
+- Unknown resources
+
+Operational cycle:
+
+MonitoringScheduler
+
+↓
+
+Wait
+
+↓
+
+Check Resources
+
+↓
+
+Collect Health Results
+
+↓
+
+Update Monitoring State
+
+↓
+
+Update UI
+
+↓
+
+Wait
+
+↓
+
+Next Cycle
+
+Example:
+
+[MONITORING] Check cycle: 19 resources
+
+[MONITORING] Check cycle complete:
+healthy=19 warning=0 critical=0 unknown=0
+
+[MONITORING] Waiting 60 seconds...
+
+---
+
+# Security
+
+Security is currently in its first phase.
+
+The current direction is a read-only local security inspection layer.
+
+The principle is:
+
+> VELES should observe and report security state before it performs security-changing operations.
+
+Current direction includes:
+
+- Local security inspection
+- System security information
+- Read-only checks
+- Security status reporting
+
+Future Security capabilities are expected to include:
+
+- Security posture
+- Identity
+- Access
+- Configuration inspection
+- Security events
+- Resource security state
+- Security automation
+
+---
+
+# Intelligence
+
+The Intelligence module connects VELES with local AI capabilities.
+
+VELES currently supports local LLM operation through Ollama.
+
+Architecture:
+
+VELES
+
+↓
+
+AI Core
+
+↓
+
+Ollama
+
+↓
+
+Local LLM
+
+The AI layer is intended to become aware of operational context such as:
+
+- Infrastructure
+- Resources
+- Discovery
+- Monitoring
+- Memory
+- Operational events
+
+The long-term objective is AI-assisted operational reasoning rather than generic chatbot functionality.
+
+---
+
+# AI Chat
+
+VELES provides an AI Chat interface inside the Operations Center.
+
+The intended operational direction is:
+
+Operator
+
+↓
+
+VELES Chat
+
+↓
+
+AI Intelligence
+
+↓
+
+Operational Context
+
+↓
+
+Analysis / Planning
+
+↓
+
+Approved Action
+
+↓
+
+Verification
+
+↓
+
+Report
+
+AI operations are intended to remain controlled and observable.
+
+---
+
+# Network
+
+The Network module currently provides a basic foundation for network operations.
+
+Its long-term purpose is to connect:
+
+- Network resources
+- Discovery
+- Infrastructure
+- Monitoring
+- Security
+- AI analysis
+
+into a common operational model.
+
+---
+
+# Delivery
+
+Delivery currently provides a basic foundation for deployment-oriented operations.
+
+The long-term workflow is:
+
+Source
+
+↓
+
+Build
+
+↓
+
+Test
+
+↓
+
+Deploy
+
+↓
+
+Verify
+
+↓
+
+Monitor
+
+The module is currently in an early development stage.
+
+---
+
+# Planned Modules
+
+The following modules are part of the VELES architecture but are not yet implemented as full operational modules.
+
+## Cloud
+
+Planned areas:
+
+- Cloud resources
+- Compute
+- Networking
+- Storage
+- Cloud services
+- Cloud operations
+- Cloud automation
+
+## Automation
+
+Planned areas:
+
+- Operational workflows
+- Approved execution
+- Automation policies
+- Verification
+- Remediation
+- Repeatable operations
+
+## Platform
+
+Planned areas:
+
+- Containers
+- Platform services
+- Application platforms
+- Infrastructure platforms
+- Service operations
+
+## Data
+
+Planned areas:
+
+- Data infrastructure
+- Databases
+- Data services
+- Operational data visibility
+- Data operations
+
+## Testing
+
+Testing will become part of the complete operational lifecycle:
+
+Develop
+
+↓
+
+Build
+
+↓
+
+Test
+
+↓
+
+Deploy
+
+↓
+
+Verify
+
+↓
+
+Monitor
 
 ---
 
@@ -416,213 +461,69 @@ The long-term objective is to make monitoring one of the primary sources of oper
 
 VELES provides a Flask-based web Operations Center.
 
-Current operational areas include:
+Current areas include:
 
-* Dashboard
-* AI Chat
-* Memory
-* Logs
-* System
-* Services
-* Infrastructure
-* Discovery
-* Monitoring
+- Dashboard
+- AI Chat
+- Memory
+- Logs
+- System
+- Services
+- Infrastructure
+- Discovery
+- Monitoring
+- Delivery
 
-Additional operational domains are planned as the platform develops.
+The UI follows a common VELES visual language.
 
-The UI follows a consistent VELES visual language and is designed as a single Operations Center rather than a collection of unrelated pages.
-
----
-
-# Dashboard
-
-The Dashboard provides the central operational overview.
-
-It is intended to surface:
-
-* Infrastructure state
-* Managed resources
-* Services
-* System information
-* Operational information
-* AI capabilities
-
-The Dashboard acts as the entry point into the VELES Operations Center.
+The goal is to provide one coherent Operations Center instead of a collection of unrelated interfaces.
 
 ---
 
 # PostgreSQL
 
-PostgreSQL is the primary application database used by VELES.
+VELES uses PostgreSQL as its application database.
 
-It currently provides persistent storage for operational state including managed resources and associated metadata.
+The Resource Registry uses PostgreSQL for persistent resource management.
 
-The Resource Registry migration from JSON to PostgreSQL is an important architectural step toward making VELES a persistent operational platform.
+The database provides the foundation for:
 
-Example resource fields include:
+- Managed resources
+- Resource metadata
+- Verification state
+- Operational state
+- Future persistent monitoring history
+- Future operational events
 
-```text
-id
-type
-name
-host
-port
-username
-group
-status
-created_at
-verification
-trust
-identity
-policy
-actions
-```
-
----
-
-# Delivery
-
-**Delivery is a planned operational domain of VELES and is currently under development.**
-
-The intended future lifecycle is:
-
-```text
-Source
-  ↓
-Build
-  ↓
-Test
-  ↓
-Deploy
-  ↓
-Verify
-  ↓
-Monitor
-```
-
-The goal is to bring delivery operations into the same operational context as infrastructure, monitoring and AI.
-
-Delivery should not become an isolated deployment system. It is intended to become part of the wider VELES operational lifecycle.
-
----
-
-# Future Operational Domains
-
-VELES is designed to grow beyond its current Infrastructure, Discovery and Monitoring foundations.
-
-Planned operational domains include:
-
-```text
-Infrastructure
-Discovery
-Monitoring
-Delivery
-Cloud
-Security
-Automation
-Network
-Platform
-Data
-Testing
-```
-
-These domains are part of the long-term architecture and will be implemented incrementally.
-
-They should share a common VELES operational model rather than becoming isolated tools.
-
----
-
-# Automation
-
-Automation is a major long-term objective.
-
-The intended model is:
-
-```text
-AI / Operator
-      │
-      ▼
-    Plan
-      │
-      ▼
-Policy / Approval
-      │
-      ▼
-  Execution
-      │
-      ▼
- Verification
-      │
-      ▼
-   Reporting
-```
-
-Automation should be:
-
-* Observable
-* Controlled
-* Policy-aware
-* Verifiable
-* Auditable
-
-VELES is not intended to blindly execute AI-generated infrastructure changes.
-
----
-
-# Safety and Control
-
-AI-assisted operations should remain controlled.
-
-The intended operational lifecycle is:
-
-```text
-Observation
-    ↓
-Analysis
-    ↓
-Plan
-    ↓
-Policy / Approval
-    ↓
-Execution
-    ↓
-Verification
-    ↓
-Report
-```
-
-This provides the foundation for future autonomous operations without removing operator control.
+Credentials and environment-specific database configuration must never be hardcoded into the source code.
 
 ---
 
 # Environment Independence
 
-VELES is designed as a **generic infrastructure operations platform**.
+VELES is designed to be deployable into different environments.
 
-Environment-specific information must not be hardcoded into the application.
+The application must not hardcode:
 
-This includes:
+- IP addresses
+- Hostnames
+- Servers
+- Credentials
+- Network interfaces
+- Local inventory
+- Cloud resources
+- User-specific infrastructure
 
-* IP addresses
-* Hostnames
-* Servers
-* Local inventory
-* Cloud resources
-* Credentials
-* Network targets
-* User-specific infrastructure
+Environment-specific information should come from:
 
-Such information should come dynamically from:
+- Configuration
+- Discovery
+- Resource Registry
+- PostgreSQL
+- Runtime environment
+- External integrations
 
-* Configuration
-* Discovery
-* Resource Registry
-* Database
-* Runtime environment
-* External integrations
-* Secret management
-
-This allows VELES to be cloned and deployed into different environments without modifying application source code.
+This is a core architectural principle of VELES.
 
 ---
 
@@ -630,425 +531,208 @@ This allows VELES to be cloned and deployed into different environments without 
 
 Current core technologies include:
 
-```text
-Python
-Flask
-PostgreSQL
-SQLAlchemy
-Ollama
-PyTorch
-Piper TTS
-Linux
-Git
-```
+- Python
+- Flask
+- PostgreSQL
+- SQLAlchemy
+- Ollama
+- PyTorch
+- Piper TTS
+- Linux
+- Git
 
-The project is designed to integrate with common DevOps, SRE, infrastructure and platform technologies as development progresses.
+Additional technologies may be introduced as individual modules evolve.
 
 ---
 
-# Voice Operations
-
-VELES also has a voice interface direction based on Piper TTS.
-
-The long-term objective is to provide a native voice interface for interacting with VELES.
-
-```text
-Operator
-    │
-    ▼
-  VELES
-    │
-    ├── AI / LLM
-    │
-    └── TTS
-         │
-         ▼
-      Spoken AI
-```
-
-Voice is intended to become another interface to the same VELES operational intelligence.
-
-It is not a separate product from the Operations Center.
-
----
-
-# Development Philosophy
+# Development Principles
 
 VELES follows several core principles.
 
-### Generic
+## Generic
 
 VELES should work in different environments without hardcoded infrastructure.
 
-### Modular
+## Modular
 
-Operational domains should remain separated while sharing a common operational model.
+Operational domains remain separated into modules while sharing common operational concepts.
 
-### Observable
+## Observable
 
 System state and operations should be visible.
 
-### Verifiable
+## Verifiable
 
 Operations should be verified rather than assuming success.
 
-### AI-assisted
+## Controlled
 
-AI should help operators understand and operate infrastructure.
+Automation and AI actions must respect operational boundaries.
 
-### Controlled
+## Incremental
 
-Automation should respect operational boundaries and policy.
+Stable functionality should be preserved while new functionality is introduced.
 
-### Incremental
+## Reusable
 
-Stable functionality should be preserved while new capabilities are introduced.
+Existing working architecture, UI patterns and backend services should be reused rather than creating unnecessary parallel implementations.
 
-### Reusable
+## No Hardcoding
 
-Existing stable UI and backend patterns should be reused instead of creating unnecessary parallel implementations.
+Environment-specific values must never be hardcoded into the project.
+
+This includes:
+
+- IP addresses
+- Hostnames
+- Credentials
+- Network interfaces
+- User-specific infrastructure
+
+## Backend Stability
+
+Existing stable backend architecture should not be changed without a clear reason.
+
+## CLI and Web
+
+CLI and Web interfaces should remain aligned with the same underlying services and operational models.
 
 ---
 
-# Repository Structure
+# Operational Safety
 
-A simplified structure:
+VELES is designed around controlled operations.
 
-```text
+The intended lifecycle is:
+
+Observation
+
+↓
+
+Analysis
+
+↓
+
+Plan
+
+↓
+
+Policy / Approval
+
+↓
+
+Execution
+
+↓
+
+Verification
+
+↓
+
+Report
+
+The long-term objective is to support increasingly autonomous operations while keeping execution observable, controlled and verifiable.
+
+---
+
+# Development Workflow
+
+VELES development follows an incremental approach.
+
+Before major changes:
+
+1. Check the current Git state.
+2. Understand the existing architecture.
+3. Preserve working modules.
+4. Change only the required components.
+5. Test the affected functionality.
+6. Restart the systemd service.
+7. Verify service status and logs.
+8. Commit only the intended changes.
+
+VELES runs as a systemd service.
+
+The application should be managed through:
+
+systemctl
+
+and not by manually starting the Flask application in production.
+
+Example:
+
+sudo systemctl restart veles
+
+sudo systemctl status veles --no-pager
+
+sudo journalctl -u veles -n 30 --no-pager
+
+---
+
+# Project Structure
+
+The project is organized around modular operational services.
+
+Core areas include:
+
 veles/
-│
-├── core/
-│   ├── brain.py
-│   ├── planner.py
-│   ├── executor.py
-│   ├── reporter.py
-│   ├── autonomous.py
-│   └── identity.py
-│
+
 ├── modules/
+
 │   ├── infrastructure/
+
 │   ├── monitoring/
+
+│   ├── network/
+
+│   ├── delivery/
+
 │   └── ...
-│
+
 ├── web/
+
 │   ├── templates/
-│   └── static/
-│
-├── requirements.txt
+
+│   ├── static/
+
+│   └── app.py
+
 └── ...
-```
 
-The repository structure is expected to evolve as VELES grows.
-
----
-
-# Development Status
-
-## Working / Foundation
-
-* Web Operations Center
-* Dashboard
-* AI Chat
-* Memory foundation
-* Logs
-* System
-* Services
-* Infrastructure
-* PostgreSQL Resource Registry
-* Resource Identity
-* Resource Verification
-* Discovery
-* Discovery → operator-controlled resource import
-* Monitoring foundation
-* Local AI integration
-* Piper TTS integration
-
-## Building
-
-* Advanced Monitoring
-* Delivery
-* Deeper AI operational context
-* Operational reasoning
-* Expanded resource operations
-* AI-assisted operational workflows
-
-## Planned
-
-* Advanced Delivery workflows
-* Cloud operations
-* Security operations
-* Automation engine
-* Network operations
-* Platform operations
-* Data operations
-* Testing operations
-* Policy-driven execution
-* Approval workflows
-* Automated remediation
-* Continuous verification
-* Autonomous operational loops
-* Multi-resource reasoning
-* Incident response automation
-* Full voice-operated VELES
+Modules should remain logically separated while sharing common infrastructure and service patterns.
 
 ---
 
-# Roadmap
+# Operational Model
 
-## Phase 1 — Operations Foundation
+VELES is designed to gradually evolve from observation toward controlled autonomous operations.
 
-Build the stable operational foundation.
+The operational model is:
 
-* Web Operations Center
-* Dashboard
-* AI Chat
-* Memory
-* Logs
-* System
-* Services
-* Infrastructure Registry
-* PostgreSQL
-* Discovery
-* Resource Identity
-* Resource Verification
+OBSERVE
 
-**Status: Foundation established and actively evolving.**
+↓
 
----
+UNDERSTAND
 
-## Phase 2 — Operational Intelligence
+↓
 
-Expand the connection between AI and operational state.
+PLAN
 
-* AI Core
-* Brain
-* Planner
-* Executor
-* Reporter
-* Local LLM integration
-* Infrastructure context
-* Operational reasoning
-* Incident analysis
-* AI-assisted remediation
+↓
 
-**Status: In progress.**
+APPROVE
 
----
+↓
 
-## Phase 3 — Operations
+EXECUTE
 
-Expand the operational domains.
+↓
 
-* Advanced Monitoring
-* Delivery workflows
-* Automation
-* Network operations
-* Security operations
-* Cloud operations
+VERIFY
 
-**Status: Building / planned incrementally.**
+↓
 
----
+REPORT
 
-## Phase 4 — Autonomous Operations
+This model is intended to become the foundation for future AI-assisted and automated operations.
 
-Move from AI assistance toward controlled autonomous operations.
-
-* Policy-driven execution
-* Approval workflows
-* Automated remediation
-* Continuous verification
-* Autonomous operational loops
-* Multi-resource reasoning
-* Incident response automation
-
-**Status: Future direction.**
-
----
-
-## Phase 5 — Voice Operations
-
-Extend VELES through voice interaction.
-
-* Piper integration
-* Serbian TTS
-* Training pipeline
-* Final voice model
-* Voice interface
-* Voice-controlled operations
-
-**Status: Development direction.**
-
----
-
-# Long-Term Architecture
-
-The long-term VELES architecture is intended to converge toward:
-
-```text
-                         ┌───────────────────────┐
-                         │        VELES          │
-                         │  AI Operations Center │
-                         └───────────┬───────────┘
-                                     │
-              ┌──────────────────────┼──────────────────────┐
-              │                      │                      │
-              ▼                      ▼                      ▼
-       Infrastructure            AI Core               Operations
-              │                      │                      │
-       ┌──────┼──────┐               │          ┌───────────┼───────────┐
-       ▼      ▼      ▼               ▼          ▼           ▼           ▼
-    Hosts   Network  Cloud        Reasoning  Monitor     Delivery   Automation
-       │      │      │               │          │           │           │
-       └──────┴──────┴───────────────┼──────────┴───────────┴───────────┘
-                                     │
-                                     ▼
-                              Operational State
-                                     │
-                                     ▼
-                              Observe → Act → Verify
-```
-
-The architecture is intentionally being built incrementally.
-
----
-
-# What VELES Is Becoming
-
-VELES is evolving toward a system that can continuously connect:
-
-```text
-Infrastructure
-       +
-Discovery
-       +
-Identity
-       +
-Verification
-       +
-Monitoring
-       +
-Memory
-       +
-AI Reasoning
-       +
-Delivery
-       +
-Automation
-```
-
-The objective is not to build independent tools for each category.
-
-The objective is to build **one operational system that understands the relationships between them**.
-
----
-
-# Vision
-
-The long-term vision is an Operations Center where an engineer can ask:
-
-```text
-What is happening?
-        ↓
-Why is it happening?
-        ↓
-What is affected?
-        ↓
-What are my options?
-        ↓
-What should we do?
-        ↓
-Execute the approved action.
-        ↓
-Did it work?
-        ↓
-What changed?
-```
-
-VELES should progressively turn these questions into an operational feedback loop.
-
-```text
-                 ┌───────────────┐
-                 │    OBSERVE    │
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │   UNDERSTAND  │
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │     PLAN      │
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │    EXECUTE    │
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │    VERIFY     │
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │    REPORT     │
-                 └───────┬───────┘
-                         │
-                         └──────────────► OBSERVE
-```
-
----
-
-# Project Direction
-
-The direction of VELES is:
-
-**AI + Infrastructure + Operations + Automation + Voice**
-
-The immediate priority is not to claim autonomous infrastructure management before the underlying systems are ready.
-
-The priority is to build the operational foundation correctly:
-
-```text
-Stable Foundation
-       ↓
-Operational Context
-       ↓
-AI Understanding
-       ↓
-Controlled Actions
-       ↓
-Verification
-       ↓
-Automation
-       ↓
-Autonomous Operations
-```
-
-That foundation is what will allow VELES to evolve from an AI-assisted Operations Center into a genuinely **AI-native Operations Center**.
-
----
-
-# Status
-
-VELES is an actively developed project.
-
-The project is currently focused on strengthening the operational foundation around:
-
-* Infrastructure
-* Resource Registry
-* Discovery
-* Identity
-* Verification
-* Monitoring
-* AI Core
-* Local AI
-* Web Operations Center
-* PostgreSQL
-
-The next stages expand these foundations into deeper operational intelligence, delivery, automation and eventually controlled autonomous operations.
-
-> **VELES is being built as an AI Operations Center for real infrastructure operations.**

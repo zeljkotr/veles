@@ -1,131 +1,243 @@
 """
 VELES Monitoring Checks
 
-Basic health checks:
+Health checks:
 - ping
 - port
 - http
 """
 
 import socket
+import subprocess
 import time
 
-from urllib.request import urlopen
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 
+DEFAULT_PING_TIMEOUT = 3
+DEFAULT_PORT_TIMEOUT = 3
+DEFAULT_HTTP_TIMEOUT = 5
 
-def check_ping(host: str, timeout: int = 3):
+
+def check_ping(
+    host: str,
+    timeout: int = DEFAULT_PING_TIMEOUT
+):
     """
-    Basic network reachability check.
+    Check whether a host is reachable.
+
+    Uses the system ping command so this is an actual
+    network reachability test rather than DNS resolution.
     """
 
-    start = time.time()
+    if not host:
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": "Host is not configured"
+        }
+
+    start = time.perf_counter()
 
     try:
 
-        socket.gethostbyname(host)
+        result = subprocess.run(
+            [
+                "ping",
+                "-c",
+                "1",
+                "-W",
+                str(timeout),
+                str(host)
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout + 1,
+            check=False
+        )
 
-        response = (
-            time.time() - start
+        elapsed = (
+            time.perf_counter() - start
         ) * 1000
 
+        if result.returncode == 0:
+
+            return {
+                "status": "online",
+                "response_time_ms": round(
+                    elapsed,
+                    2
+                ),
+                "message": "Host reachable"
+            }
 
         return {
-            "status": "online",
+            "status": "offline",
             "response_time_ms": round(
-                response,
+                elapsed,
                 2
             ),
-            "message": "Host reachable"
+            "message": "Host unreachable"
         }
 
-
-    except Exception as e:
+    except subprocess.TimeoutExpired:
 
         return {
             "status": "offline",
             "response_time_ms": None,
-            "message": str(e)
+            "message": "Ping timeout"
         }
 
+    except FileNotFoundError:
+
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": "ping command not available"
+        }
+
+    except Exception as exc:
+
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": str(exc)
+        }
 
 
 def check_port(
     host: str,
     port: int,
-    timeout: int = 3
+    timeout: int = DEFAULT_PORT_TIMEOUT
 ):
     """
-    TCP port availability check.
+    Check TCP port availability.
     """
 
-    start = time.time()
+    if not host:
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": "Host is not configured"
+        }
+
+    if not port:
+
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": "Port is not configured"
+        }
+
+    start = time.perf_counter()
+
+    sock = None
 
     try:
 
         sock = socket.create_connection(
             (
-                host,
+                str(host),
                 int(port)
             ),
             timeout=timeout
         )
 
-        sock.close()
-
-
-        response = (
-            time.time() - start
+        elapsed = (
+            time.perf_counter() - start
         ) * 1000
-
 
         return {
             "status": "online",
             "response_time_ms": round(
-                response,
+                elapsed,
                 2
             ),
             "message": f"Port {port} open"
         }
 
-
-    except Exception as e:
+    except socket.timeout:
 
         return {
             "status": "offline",
             "response_time_ms": None,
-            "message": str(e)
+            "message": f"Port {port} connection timeout"
         }
 
+    except OSError as exc:
+
+        return {
+            "status": "offline",
+            "response_time_ms": None,
+            "message": str(exc)
+        }
+
+    except Exception as exc:
+
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": str(exc)
+        }
+
+    finally:
+
+        if sock is not None:
+
+            try:
+                sock.close()
+            except Exception:
+                pass
 
 
 def check_http(
     url: str,
-    timeout: int = 5
+    timeout: int = DEFAULT_HTTP_TIMEOUT
 ):
     """
-    HTTP availability check.
+    Check HTTP or HTTPS availability.
+
+    HTTP 2xx/3xx and HTTP error responses such as 404
+    still prove that the HTTP service is reachable.
     """
 
-    start = time.time()
+    if not url:
 
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": "URL is not configured"
+        }
+
+    start = time.perf_counter()
 
     try:
 
-        response = urlopen(
+        request = Request(
             url,
+            method="GET"
+        )
+
+        response = urlopen(
+            request,
             timeout=timeout
         )
 
-
-        code = response.status
-
-
         elapsed = (
-            time.time() - start
+            time.perf_counter() - start
         ) * 1000
 
+        code = getattr(
+            response,
+            "status",
+            response.getcode()
+        )
+
+        try:
+            response.close()
+        except Exception:
+            pass
 
         return {
             "status": "online",
@@ -136,15 +248,44 @@ def check_http(
             "message": f"HTTP {code}"
         }
 
+    except HTTPError as exc:
 
-    except URLError as e:
+        elapsed = (
+            time.perf_counter() - start
+        ) * 1000
+
+        return {
+            "status": "online",
+            "response_time_ms": round(
+                elapsed,
+                2
+            ),
+            "message": f"HTTP {exc.code}"
+        }
+
+    except URLError as exc:
 
         return {
             "status": "offline",
             "response_time_ms": None,
-            "message": str(e)
+            "message": str(exc.reason)
         }
 
+    except TimeoutError:
+
+        return {
+            "status": "offline",
+            "response_time_ms": None,
+            "message": "HTTP request timeout"
+        }
+
+    except Exception as exc:
+
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": str(exc)
+        }
 
 
 def run_check(
@@ -155,34 +296,51 @@ def run_check(
     Universal monitoring dispatcher.
     """
 
-    if check_type == "ping":
+    if not isinstance(target, dict):
 
-        return check_ping(
-            target["host"]
-        )
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": "Invalid monitoring target"
+        }
 
+    check_type = str(
+        check_type or ""
+    ).strip().lower()
 
-    if check_type == "port":
+    try:
 
-        return check_port(
-            target["host"],
-            target.get(
-                "port",
-                0
+        if check_type == "ping":
+
+            return check_ping(
+                target.get("host")
             )
-        )
 
+        if check_type == "port":
 
-    if check_type == "http":
+            return check_port(
+                target.get("host"),
+                target.get("port")
+            )
 
-        return check_http(
-            target["url"]
-        )
+        if check_type == "http":
 
+            return check_http(
+                target.get("url")
+            )
 
-    return {
-        "status": "unknown",
-        "message": (
-            f"Unknown check: {check_type}"
-        )
-    }
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": (
+                f"Unknown check: {check_type}"
+            )
+        }
+
+    except Exception as exc:
+
+        return {
+            "status": "unknown",
+            "response_time_ms": None,
+            "message": str(exc)
+        }
