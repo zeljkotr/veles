@@ -94,58 +94,28 @@ OVERVIEW
         </svg>
 
 
-        <a href="/chat" class="node intelligence">
+        {% for key, module in modules.items() %}
 
-            <span class="node-icon">
-                🧠
-            </span>
-
-            <span class="node-name">
-                INTELLIGENCE
-            </span>
-
-            <div class="node-status">
-                {{ modules.intelligence.status }}
-            </div>
-
-        </a>
-
-
-        <a href="/infrastructure" class="node infrastructure">
-
-            <span class="node-icon">
-                🖥
-            </span>
-
-            <span class="node-name">
-                INFRASTRUCTURE
-            </span>
-
-            <div class="node-status">
-                {{ modules.infrastructure.status }}
-            </div>
-
-        </a>
-
-
-        <div
-            class="node delivery"
-            onclick="window.location.href='/delivery'"
+        <a
+            href="{{ module.entry }}"
+            class="node {{ key }}"
         >
 
             <span class="node-icon">
-                📦
+                {{ module.icon }}
             </span>
 
             <span class="node-name">
-                DELIVERY
+                {{ module.name|upper }}
             </span>
 
             <div class="node-status">
-                {{ modules.delivery.status }}
+                {{ module.status }}
             </div>
 
-        </div>
+        </a>
+
+        {% endfor %}
 
 
         <div class="node core">
@@ -160,168 +130,6 @@ OVERVIEW
 
             <div class="node-status">
                 CORE ONLINE
-            </div>
-
-        </div>
-
-
-        <div class="node cloud">
-
-            <span class="node-icon">
-                ☁
-            </span>
-
-            <span class="node-name">
-                CLOUD
-            </span>
-
-            <div class="node-status">
-                {{ modules.cloud.status }}
-            </div>
-
-        </div>
-
-
-        <div
-            class="node security"
-            onclick="window.location.href='{{ url_for("security_view") }}'"
-        >
-
-            <span class="node-icon">
-                🔐
-            </span>
-
-            <span class="node-name">
-                SECURITY
-            </span>
-
-            <div class="node-status">
-                {{ modules.security.status }}
-            </div>
-
-        </div>
-
-
-        <div class="node automation">
-
-            <span class="node-icon">
-                ⚙
-            </span>
-
-            <span class="node-name">
-                AUTOMATION
-            </span>
-
-            <div class="node-status">
-                {{ modules.automation.status }}
-            </div>
-
-        </div>
-
-
-        <div
-            class="node observability"
-            onclick="window.location.href='{{ url_for("monitoring_view") }}'"
-        >
-
-            <span class="node-icon">
-                📊
-            </span>
-
-            <span class="node-name">
-                MONITORING
-            </span>
-
-            <div class="node-status">
-                {{ modules.observability.status }}
-            </div>
-
-        </div>
-
-
-        <div
-            class="node network"
-            onclick="window.location.href='{{ url_for("network_view") }}'"
-        >
-
-            <span class="node-icon">
-                🌐
-            </span>
-
-            <span class="node-name">
-                NETWORK
-            </span>
-
-            <div class="node-status">
-                {{ modules.network.status }}
-            </div>
-
-        </div>
-
-
-        <div class="node platform">
-
-            <span class="node-icon">
-                🏗
-            </span>
-
-            <span class="node-name">
-                PLATFORM
-            </span>
-
-            <div class="node-status">
-                {{ modules.platform.status }}
-            </div>
-
-        </div>
-
-
-        <div class="node data">
-
-            <span class="node-icon">
-                🗄
-            </span>
-
-            <span class="node-name">
-                DATA
-            </span>
-
-            <div class="node-status">
-                {{ modules.data.status }}
-            </div>
-
-        </div>
-
-
-        <div class="node testing">
-
-            <span class="node-icon">
-                🧪
-            </span>
-
-            <span class="node-name">
-                TESTING
-            </span>
-
-            <div class="node-status">
-                {{ modules.testing.status }}
-            </div>
-
-        </div>
-
-
-        <div class="node access">
-
-            <span class="node-icon">
-                🔐
-            </span>
-
-            <span class="node-name">
-                ACCESS
-            </span>
-
-            <div class="node-status">
-                {{ modules.access.status }}
             </div>
 
         </div>

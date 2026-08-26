@@ -79,7 +79,7 @@ from veles.system.system_info import get_system_info
 from veles.system.services import list_common_services
 
 
-from veles.modules.registry import get_modules
+from veles.modules.registry import get_modules, get_module
 
 
 from veles.modules.infrastructure.service import infrastructure
@@ -2936,6 +2936,31 @@ def dashboard_view():
     return render_template(
         "dashboard.html",
         modules=modules
+    )
+
+
+
+# ==========================================
+# MODULE ENTRY
+# ==========================================
+
+@app.route(
+    "/module/<name>"
+)
+def module_entry(name):
+
+    module = get_module(name)
+
+    if not module:
+        return redirect(
+            url_for(
+                "dashboard_view"
+            )
+        )
+
+    return render_template(
+        "module.html",
+        module=module
     )
 
 

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="module-page">
+
+    <div class="module-header">
+
+        <div class="module-icon">
+            {{ module.icon }}
+        </div>
+
+        <div class="module-heading">
+
+            <div class="module-kicker">
+                VELES MODULE
+            </div>
+
+            <h1>
+                {{ module.name }}
+            </h1>
+
+            <p>
+                {{ module.description }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="module-status">
+
+        <span
+            class="status-dot
+            {% if module.status == 'online' %}
+                online
+            {% else %}
+                planned
+            {% endif %}"
+        ></span>
+
+        <span>
+            {{ module.status|upper }}
+        </span>
+
+    </div>
+
+
+    {% if module.status == "planned" %}
+
+    <section class="module-placeholder">
+
+        <div class="module-placeholder-label">
+            MODULE STATUS
+        </div>
+
+        <h2>
+            Module Planned
+        </h2>
+
+        <p>
+            This VELES operational module is defined in the
+            central module registry and is not yet implemented.
+        </p>
+
+        <div class="module-placeholder-state">
+            PLANNED
+        </div>
+
+    </section>
+
+
+    {% else %}
+
+    <section class="module-placeholder">
+
+        <div class="module-placeholder-label">
+            MODULE STATUS
+        </div>
+
+        <h2>
+            Module Runtime
+        </h2>
+
+        <p>
+            This module has an active VELES runtime entry.
+        </p>
+
+        <div class="module-placeholder-state">
+            ONLINE
+        </div>
+
+    </section>
+
+    {% endif %}
+
+
+</div>
+
+{% endblock %}

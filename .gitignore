@@ -81,4 +81,4 @@ dist/
 Thumbs.db
 
 # Legacy local distribution data
-veles/database/resources.json
+veles/database/resources.json*.pyc

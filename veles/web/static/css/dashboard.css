@@ -6,16 +6,22 @@ VELES OS OVERVIEW APPLICATION
 */
 
 
+/*
+=========================================================
+DASHBOARD ROOT
+=========================================================
+*/
+
 .veles-dashboard {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
 
-    width:100%;
+    display: flex;
+    flex-direction: column;
 
-    min-height:100%;
-
-    display:flex;
-
-    flex-direction:column;
-
+    overflow: hidden;
 }
 
 
@@ -25,127 +31,107 @@ DASHBOARD HEADER
 =========================================================
 */
 
-
 .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    display:flex;
+    flex: 0 0 74px;
 
-    align-items:center;
+    width: 100%;
+    min-width: 0;
+    height: 74px;
 
-    justify-content:space-between;
-
-    flex-shrink:0;
-
-    min-height:74px;
-
-    margin-bottom:14px;
-
-    padding:0 4px;
-
+    margin: 0 0 14px 0;
+    padding: 0 4px;
 }
 
 
 .dashboard-header-main {
+    display: flex;
+    align-items: center;
 
-    display:flex;
+    min-width: 0;
 
-    align-items:center;
-
-    gap:14px;
-
+    gap: 14px;
 }
 
 
 .dashboard-header-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    display:flex;
+    flex: 0 0 42px;
 
-    align-items:center;
+    width: 42px;
+    height: 42px;
 
-    justify-content:center;
+    border: 1px solid rgba(217,164,65,.45);
+    border-radius: 10px;
 
-    width:42px;
+    background: rgba(217,164,65,.07);
 
-    height:42px;
+    color: var(--gold);
 
-    border:1px solid rgba(217,164,65,.45);
-
-    border-radius:10px;
-
-    background:
-        rgba(217,164,65,.07);
-
-    color:var(--gold);
-
-    font-size:20px;
-
+    font-size: 20px;
 }
 
 
 .dashboard-header h1 {
+    margin: 0;
 
-    margin:0;
+    color: var(--gold);
 
-    color:var(--gold);
+    font-size: 26px;
+    font-weight: 800;
 
-    font-size:26px;
-
-    font-weight:800;
-
-    letter-spacing:3px;
-
-    line-height:1;
-
+    letter-spacing: 3px;
+    line-height: 1;
 }
 
 
 .dashboard-header p {
+    margin: 6px 0 0;
 
-    margin:6px 0 0;
+    color: var(--muted);
 
-    color:var(--muted);
+    font-size: 12px;
+    font-weight: 600;
 
-    font-size:12px;
-
-    font-weight:600;
-
-    letter-spacing:.7px;
-
+    letter-spacing: .7px;
 }
 
 
 .dashboard-header-status {
+    display: flex;
+    align-items: center;
 
-    display:flex;
+    flex-shrink: 0;
 
-    align-items:center;
+    gap: 8px;
 
-    gap:8px;
+    color: var(--green);
 
-    color:var(--green);
+    font-size: 10px;
+    font-weight: 800;
 
-    font-size:10px;
-
-    font-weight:800;
-
-    letter-spacing:1.4px;
-
+    letter-spacing: 1.4px;
 }
 
 
 .dashboard-status-dot {
+    width: 7px;
+    height: 7px;
 
-    width:7px;
+    flex: 0 0 7px;
 
-    height:7px;
+    border-radius: 50%;
 
-    border-radius:50%;
-
-    background:var(--green);
+    background: var(--green);
 
     box-shadow:
         0 0 8px rgba(85,214,107,.55);
-
 }
 
 
@@ -155,39 +141,33 @@ OPERATIONS MAP
 =========================================================
 */
 
-
 .operations-map {
+    position: relative;
 
-    position:relative;
+    flex: 1 1 auto;
 
-    width:100%;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
 
-    min-height:640px;
+    height: auto;
 
-    height:calc(100vh - 190px);
+    overflow: hidden;
 
-    max-height:760px;
-
-    overflow:hidden;
-
-    border:1px solid var(--border);
-
-    border-radius:18px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
 
     background:
-
         radial-gradient(
             circle at 50% 50%,
             rgba(217,164,65,.045),
             transparent 32%
         ),
-
         linear-gradient(
             180deg,
             #10171f 0%,
             #0b1016 100%
         );
-
 }
 
 
@@ -197,46 +177,38 @@ MAP LABEL
 =========================================================
 */
 
-
 .operations-map-label {
+    position: absolute;
 
-    position:absolute;
+    top: 18px;
+    left: 20px;
 
-    top:18px;
+    z-index: 5;
 
-    left:20px;
+    color: #627081;
 
-    z-index:5;
+    font-size: 9px;
+    font-weight: 800;
 
-    color:#627081;
-
-    font-size:9px;
-
-    font-weight:800;
-
-    letter-spacing:2px;
-
+    letter-spacing: 2px;
 }
 
 
 .operations-map-label::before {
+    content: "";
 
-    content:"";
+    display: inline-block;
 
-    display:inline-block;
+    width: 5px;
+    height: 5px;
 
-    width:5px;
+    margin-right: 7px;
 
-    height:5px;
+    vertical-align: middle;
 
-    margin-right:7px;
+    border-radius: 50%;
 
-    vertical-align:middle;
-
-    border-radius:50%;
-
-    background:var(--gold);
-
+    background: var(--gold);
 }
 
 
@@ -246,32 +218,29 @@ SUBTLE GRID
 =========================================================
 */
 
-
 .operations-map-grid {
+    position: absolute;
 
-    position:absolute;
+    inset: 0;
 
-    inset:0;
+    z-index: 0;
 
-    pointer-events:none;
+    pointer-events: none;
 
-    opacity:.28;
+    opacity: .28;
 
     background-image:
-
         linear-gradient(
             rgba(255,255,255,.025) 1px,
             transparent 1px
         ),
-
         linear-gradient(
             90deg,
             rgba(255,255,255,.025) 1px,
             transparent 1px
         );
 
-    background-size:40px 40px;
-
+    background-size: 40px 40px;
 }
 
 
@@ -281,56 +250,49 @@ CENTRAL FIELD
 =========================================================
 */
 
-
 .operations-map::before {
+    content: "";
 
-    content:"";
+    position: absolute;
 
-    position:absolute;
+    left: 50%;
+    top: 50%;
 
-    left:50%;
+    width: min(460px, 55%);
+    height: min(460px, 75%);
 
-    top:50%;
+    transform: translate(-50%, -50%);
 
-    width:460px;
+    border: 1px solid rgba(217,164,65,.08);
 
-    height:460px;
+    border-radius: 50%;
 
-    transform:
-        translate(-50%, -50%);
+    pointer-events: none;
 
-    border:1px solid rgba(217,164,65,.08);
-
-    border-radius:50%;
-
-    pointer-events:none;
-
+    z-index: 0;
 }
 
 
 .operations-map::after {
+    content: "";
 
-    content:"";
+    position: absolute;
 
-    position:absolute;
+    left: 50%;
+    top: 50%;
 
-    left:50%;
+    width: min(620px, 75%);
+    height: min(620px, 90%);
 
-    top:50%;
+    transform: translate(-50%, -50%);
 
-    width:620px;
+    border: 1px solid rgba(217,164,65,.035);
 
-    height:620px;
+    border-radius: 50%;
 
-    transform:
-        translate(-50%, -50%);
+    pointer-events: none;
 
-    border:1px solid rgba(217,164,65,.035);
-
-    border-radius:50%;
-
-    pointer-events:none;
-
+    z-index: 0;
 }
 
 
@@ -340,39 +302,32 @@ CONNECTION LAYER
 =========================================================
 */
 
-
 .connection-lines {
+    position: absolute;
 
-    position:absolute;
+    inset: 0;
 
-    top:0;
+    width: 100%;
+    height: 100%;
 
-    left:0;
+    overflow: visible;
 
-    width:100%;
+    pointer-events: none;
 
-    height:100%;
-
-    overflow:visible;
-
-    pointer-events:none;
-
-    z-index:1;
-
+    z-index: 1;
 }
 
 
 .data-line {
+    stroke: var(--gold);
 
-    stroke:var(--gold);
+    stroke-width: 1.5;
 
-    stroke-width:1.5;
+    opacity: .38;
 
-    opacity:.38;
+    stroke-linecap: round;
 
-    stroke-linecap:round;
-
-    stroke-dasharray:7 18;
+    stroke-dasharray: 7 18;
 
     filter:
         drop-shadow(
@@ -382,47 +337,32 @@ CONNECTION LAYER
     animation:
         flow 3s linear infinite,
         linePulse 5s ease-in-out infinite;
-
 }
 
 
 @keyframes flow {
-
     from {
-
-        stroke-dashoffset:0;
-
+        stroke-dashoffset: 0;
     }
 
     to {
-
-        stroke-dashoffset:-25;
-
+        stroke-dashoffset: -25;
     }
-
 }
 
 
 @keyframes linePulse {
-
     0% {
-
-        opacity:.25;
-
+        opacity: .25;
     }
 
     50% {
-
-        opacity:.55;
-
+        opacity: .55;
     }
 
     100% {
-
-        opacity:.25;
-
+        opacity: .25;
     }
-
 }
 
 
@@ -432,10 +372,8 @@ DATA PACKETS
 =========================================================
 */
 
-
 .data-packet {
-
-    fill:var(--gold);
+    fill: var(--gold);
 
     filter:
         drop-shadow(
@@ -444,30 +382,21 @@ DATA PACKETS
 
     animation:
         packetGlow 2s ease-in-out infinite;
-
 }
 
 
 @keyframes packetGlow {
-
     0% {
-
-        opacity:.35;
-
+        opacity: .35;
     }
 
     50% {
-
-        opacity:.9;
-
+        opacity: .9;
     }
 
     100% {
-
-        opacity:.35;
-
+        opacity: .35;
     }
-
 }
 
 
@@ -477,21 +406,16 @@ MODULE NODES
 =========================================================
 */
 
-
 .node {
+    position: absolute;
 
-    position:absolute;
+    width: 116px;
+    height: 116px;
 
-    width:116px;
-
-    height:116px;
-
-    border:1px solid rgba(217,164,65,.55);
-
-    border-radius:50%;
+    border: 1px solid rgba(217,164,65,.55);
+    border-radius: 50%;
 
     background:
-
         radial-gradient(
             circle at 35% 28%,
             #26333f 0%,
@@ -499,58 +423,49 @@ MODULE NODES
             #0e141b 100%
         );
 
-    display:flex;
+    display: flex;
 
-    justify-content:center;
+    justify-content: center;
+    align-items: center;
 
-    align-items:center;
+    flex-direction: column;
 
-    flex-direction:column;
+    gap: 3px;
 
-    gap:3px;
+    padding: 10px;
 
-    padding:10px;
+    text-align: center;
 
-    text-align:center;
+    color: var(--text);
 
-    color:var(--text);
+    font-size: 11px;
+    font-weight: 700;
 
-    font-size:11px;
+    letter-spacing: .3px;
 
-    font-weight:700;
+    cursor: pointer;
 
-    letter-spacing:.3px;
+    z-index: 2;
 
-    cursor:pointer;
-
-    z-index:2;
-
-    text-decoration:none;
+    text-decoration: none;
 
     transition:
-
         transform .2s ease,
-
         border-color .2s ease,
-
         background .2s ease,
-
         box-shadow .2s ease;
 
     box-shadow:
         0 8px 25px rgba(0,0,0,.25);
-
 }
 
 
 .node:hover {
+    transform: scale(1.08);
 
-    transform:scale(1.08);
-
-    border-color:var(--gold);
+    border-color: var(--gold);
 
     background:
-
         radial-gradient(
             circle at 35% 28%,
             #303e4b 0%,
@@ -559,60 +474,49 @@ MODULE NODES
         );
 
     box-shadow:
-
         0 12px 32px rgba(0,0,0,.4),
-
         0 0 22px rgba(217,164,65,.22);
-
 }
 
 
 .node-icon {
+    display: block;
 
-    display:block;
+    margin-bottom: 2px;
 
-    margin-bottom:2px;
+    font-size: 22px;
 
-    font-size:22px;
+    line-height: 1;
 
-    line-height:1;
-
-    filter:saturate(.7);
-
+    filter: saturate(.7);
 }
 
 
 .node-name {
+    display: block;
 
-    display:block;
+    color: #dce3e9;
 
-    color:#dce3e9;
+    font-size: 10px;
+    font-weight: 800;
 
-    font-size:10px;
+    line-height: 1.2;
 
-    font-weight:800;
-
-    line-height:1.2;
-
-    letter-spacing:.45px;
-
+    letter-spacing: .45px;
 }
 
 
 .node-status {
+    margin-top: 4px;
 
-    margin-top:4px;
+    color: var(--green);
 
-    color:var(--green);
+    font-size: 8px;
+    font-weight: 700;
 
-    font-size:8px;
+    letter-spacing: .5px;
 
-    font-weight:700;
-
-    letter-spacing:.5px;
-
-    text-transform:uppercase;
-
+    text-transform: uppercase;
 }
 
 
@@ -622,22 +526,17 @@ VELES CORE
 =========================================================
 */
 
-
 .core {
-
-    left:50%;
-
-    top:50%;
+    left: 50%;
+    top: 50%;
 
     transform:
         translate(-50%, -50%);
 
-    width:170px;
-
-    height:170px;
+    width: 170px;
+    height: 170px;
 
     background:
-
         radial-gradient(
             circle at 35% 28%,
             #fff0ad 0%,
@@ -645,148 +544,119 @@ VELES CORE
             #b98222 100%
         );
 
-    border:2px solid var(--gold2);
+    border: 2px solid var(--gold2);
 
-    color:#101317;
+    color: #101317;
 
     box-shadow:
-
         0 0 35px rgba(217,164,65,.32),
-
         0 0 90px rgba(217,164,65,.10);
 
     animation:
         corePulse 4s ease-in-out infinite;
-
 }
 
 
 .core:hover {
-
     transform:
         translate(-50%, -50%)
         scale(1.08);
-
 }
 
 
 .node-core-symbol {
+    display: block;
 
-    display:block;
+    font-size: 27px;
 
-    font-size:27px;
+    line-height: 1;
 
-    line-height:1;
-
-    font-weight:900;
-
+    font-weight: 900;
 }
 
 
 .core .node-name {
+    color: #17120a;
 
-    color:#17120a;
+    font-size: 16px;
 
-    font-size:16px;
-
-    letter-spacing:2px;
-
+    letter-spacing: 2px;
 }
 
 
 .core .node-status {
+    color: #493712;
 
-    color:#493712;
-
-    font-size:9px;
-
+    font-size: 9px;
 }
 
 
 .core::before {
+    content: "";
 
-    content:"";
+    position: absolute;
 
-    position:absolute;
+    inset: -12px;
 
-    inset:-12px;
+    border: 1px solid rgba(217,164,65,.45);
 
-    border:1px solid rgba(217,164,65,.45);
+    border-radius: 50%;
 
-    border-radius:50%;
-
-    pointer-events:none;
+    pointer-events: none;
 
     animation:
         coreRing 7s linear infinite;
-
 }
 
 
 .core::after {
+    content: "";
 
-    content:"";
+    position: absolute;
 
-    position:absolute;
+    inset: -26px;
 
-    inset:-26px;
+    border: 1px solid rgba(217,164,65,.12);
 
-    border:1px solid rgba(217,164,65,.12);
+    border-radius: 50%;
 
-    border-radius:50%;
-
-    pointer-events:none;
-
+    pointer-events: none;
 }
 
 
 @keyframes corePulse {
-
     0% {
-
         box-shadow:
             0 0 30px rgba(217,164,65,.25),
             0 0 70px rgba(217,164,65,.08);
-
     }
 
     50% {
-
         box-shadow:
             0 0 48px rgba(217,164,65,.38),
             0 0 95px rgba(217,164,65,.13);
-
     }
 
     100% {
-
         box-shadow:
             0 0 30px rgba(217,164,65,.25),
             0 0 70px rgba(217,164,65,.08);
-
     }
-
 }
 
 
 @keyframes coreRing {
-
     from {
-
         transform:
             rotate(0deg)
             scale(1);
-
     }
 
     to {
-
         transform:
             rotate(360deg)
             scale(1.04);
-
     }
-
 }
 
 
@@ -796,124 +666,101 @@ MODULE POSITIONS
 =========================================================
 */
 
-
 .intelligence {
-
-    left:50%;
-
-    top:42px;
+    left: 50%;
+    top: 42px;
 
     transform:
         translateX(-50%);
-
 }
 
 
 .intelligence:hover {
-
     transform:
         translateX(-50%)
         scale(1.08);
-
 }
 
 
 .infrastructure {
-
-    left:7%;
-
-    top:210px;
-
+    left: 7%;
+    top: 210px;
 }
 
 
 .delivery {
-
-    left:27%;
-
-    top:105px;
-
+    left: 27%;
+    top: 105px;
 }
 
 
 .cloud {
-
-    right:27%;
-
-    top:105px;
-
+    right: 27%;
+    top: 105px;
 }
 
 
 .security {
-
-    right:7%;
-
-    top:210px;
-
+    right: 7%;
+    top: 210px;
 }
 
 
 .automation {
-
-    left:17%;
-
-    bottom:72px;
-
+    left: 17%;
+    bottom: 72px;
 }
 
 
 .observability {
-
-    left:37%;
-
-    bottom:18px;
-
+    left: 37%;
+    bottom: 18px;
 }
 
 
 .network {
-
-    right:37%;
-
-    bottom:18px;
-
+    right: 37%;
+    bottom: 18px;
 }
 
 
 .platform {
-
-    right:17%;
-
-    bottom:72px;
-
+    right: 17%;
+    bottom: 72px;
 }
 
 
 .data {
-
-    left:27%;
-
-    bottom:145px;
-
+    left: 27%;
+    bottom: 145px;
 }
 
 
 .testing {
-
-    right:27%;
-
-    bottom:145px;
-
+    right: 27%;
+    bottom: 145px;
 }
 
 
 .access {
+    right: 4%;
+    bottom: 18px;
+}
 
-    right:4%;
 
-    bottom:18px;
+/*
+=========================================================
+MODULE STATUS
+=========================================================
+*/
 
+.node.planned {
+    opacity: .65;
+}
+
+
+.node.planned:hover {
+    opacity: .85;
 }
 
 
@@ -923,440 +770,323 @@ FLOATING DATA PARTICLES
 =========================================================
 */
 
-
 .cloud-particle {
+    position: absolute;
 
-    position:absolute;
+    width: 3px;
+    height: 3px;
 
-    width:3px;
+    background: var(--gold);
 
-    height:3px;
+    border-radius: 50%;
 
-    background:var(--gold);
-
-    border-radius:50%;
-
-    opacity:.3;
+    opacity: .3;
 
     box-shadow:
         0 0 8px rgba(217,164,65,.45);
 
     animation:
         cloudMove 18s linear infinite;
-
 }
 
 
 @keyframes cloudMove {
-
     from {
-
         transform:
             translateY(50px);
 
-        opacity:0;
-
+        opacity: 0;
     }
 
     50% {
-
-        opacity:.5;
-
+        opacity: .5;
     }
 
     to {
-
         transform:
             translateY(-600px);
 
-        opacity:0;
-
+        opacity: 0;
     }
-
 }
 
 
 .cloud-1 {
-
-    left:10%;
-
-    bottom:-20px;
-
-    animation-delay:0s;
-
+    left: 10%;
+    bottom: -20px;
+    animation-delay: 0s;
 }
 
 
 .cloud-2 {
-
-    left:25%;
-
-    bottom:-50px;
-
-    animation-delay:3s;
-
+    left: 25%;
+    bottom: -50px;
+    animation-delay: 3s;
 }
 
 
 .cloud-3 {
-
-    left:40%;
-
-    bottom:-30px;
-
-    animation-delay:6s;
-
+    left: 40%;
+    bottom: -30px;
+    animation-delay: 6s;
 }
 
 
 .cloud-4 {
-
-    left:55%;
-
-    bottom:-60px;
-
-    animation-delay:2s;
-
+    left: 55%;
+    bottom: -60px;
+    animation-delay: 2s;
 }
 
 
 .cloud-5 {
-
-    left:70%;
-
-    bottom:-40px;
-
-    animation-delay:5s;
-
+    left: 70%;
+    bottom: -40px;
+    animation-delay: 5s;
 }
 
 
 .cloud-6 {
-
-    left:85%;
-
-    bottom:-20px;
-
-    animation-delay:8s;
-
+    left: 85%;
+    bottom: -20px;
+    animation-delay: 8s;
 }
 
 
 .cloud-7 {
-
-    left:60%;
-
-    bottom:-70px;
-
-    animation-delay:10s;
-
+    left: 60%;
+    bottom: -70px;
+    animation-delay: 10s;
 }
 
 
 .cloud-8 {
-
-    left:35%;
-
-    bottom:-80px;
-
-    animation-delay:12s;
-
+    left: 35%;
+    bottom: -80px;
+    animation-delay: 12s;
 }
 
 
 /*
 =========================================================
-RESPONSIVE
+DESKTOP SCALING
 =========================================================
 */
 
-
-@media (max-width:1100px) {
+@media (max-width: 1100px) {
 
     .node {
-
-        width:100px;
-
-        height:100px;
-
+        width: 96px;
+        height: 96px;
     }
-
 
     .core {
-
-        width:150px;
-
-        height:150px;
-
+        width: 145px;
+        height: 145px;
     }
-
 
     .infrastructure {
-
-        left:4%;
-
+        left: 3%;
     }
-
 
     .security {
-
-        right:4%;
-
+        right: 3%;
     }
-
-}
-
-
-@media (max-width:900px) {
-
-    .dashboard-header {
-
-        min-height:64px;
-
-    }
-
-
-    .dashboard-header h1 {
-
-        font-size:22px;
-
-    }
-
-
-    .dashboard-header-status {
-
-        font-size:9px;
-
-    }
-
-
-    .operations-map {
-
-        min-height:600px;
-
-    }
-
-
-    .node {
-
-        width:82px;
-
-        height:82px;
-
-        padding:7px;
-
-    }
-
-
-    .node-icon {
-
-        font-size:17px;
-
-    }
-
-
-    .node-name {
-
-        font-size:8px;
-
-    }
-
-
-    .node-status {
-
-        font-size:7px;
-
-    }
-
-
-    .core {
-
-        width:120px;
-
-        height:120px;
-
-    }
-
-
-    .core .node-core-symbol {
-
-        font-size:21px;
-
-    }
-
-
-    .core .node-name {
-
-        font-size:13px;
-
-    }
-
-}
-
-
-@media (max-width:700px) {
-
-    .dashboard-header {
-
-        align-items:flex-start;
-
-        flex-direction:column;
-
-        gap:10px;
-
-        padding:3px 2px 10px;
-
-    }
-
-
-    .dashboard-header-status {
-
-        display:none;
-
-    }
-
-
-    .operations-map {
-
-        min-height:560px;
-
-        height:560px;
-
-        border-radius:14px;
-
-    }
-
-
-    .operations-map-label {
-
-        top:12px;
-
-        left:14px;
-
-    }
-
-
-    .node {
-
-        width:70px;
-
-        height:70px;
-
-    }
-
-
-    .core {
-
-        width:100px;
-
-        height:100px;
-
-    }
-
-
-    .intelligence {
-
-        top:38px;
-
-    }
-
-
-    .infrastructure {
-
-        left:2%;
-
-        top:185px;
-
-    }
-
 
     .delivery {
-
-        left:24%;
-
-        top:92px;
-
+        left: 25%;
     }
-
 
     .cloud {
-
-        right:24%;
-
-        top:92px;
-
+        right: 25%;
     }
-
-
-    .security {
-
-        right:2%;
-
-        top:185px;
-
-    }
-
 
     .automation {
-
-        left:10%;
-
-        bottom:65px;
-
+        left: 12%;
     }
-
-
-    .observability {
-
-        left:29%;
-
-        bottom:15px;
-
-    }
-
-
-    .network {
-
-        right:29%;
-
-        bottom:15px;
-
-    }
-
 
     .platform {
-
-        right:10%;
-
-        bottom:65px;
-
+        right: 12%;
     }
-
 
     .data {
-
-        left:22%;
-
-        bottom:125px;
-
+        left: 22%;
     }
-
 
     .testing {
+        right: 22%;
+    }
+}
 
-        right:22%;
 
-        bottom:125px;
+/*
+=========================================================
+SMALL DESKTOP / LAPTOP
+=========================================================
+*/
 
+@media (max-width: 900px) {
+
+    .dashboard-header {
+        flex-basis: 64px;
+        height: 64px;
     }
 
+    .dashboard-header h1 {
+        font-size: 22px;
+    }
+
+    .dashboard-header-status {
+        font-size: 9px;
+    }
+
+    .node {
+        width: 82px;
+        height: 82px;
+        padding: 7px;
+    }
+
+    .node-icon {
+        font-size: 17px;
+    }
+
+    .node-name {
+        font-size: 8px;
+    }
+
+    .node-status {
+        font-size: 7px;
+    }
+
+    .core {
+        width: 120px;
+        height: 120px;
+    }
+
+    .core .node-core-symbol {
+        font-size: 21px;
+    }
+
+    .core .node-name {
+        font-size: 13px;
+    }
+}
+
+
+/*
+=========================================================
+MOBILE
+=========================================================
+*/
+
+@media (max-width: 700px) {
+
+    .veles-dashboard {
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+    }
+
+    .dashboard-header {
+        flex: 0 0 auto;
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+        height: auto;
+
+        padding: 3px 2px 10px;
+
+        margin-bottom: 10px;
+    }
+
+    .dashboard-header-status {
+        display: none;
+    }
+
+    .operations-map {
+        flex: 0 0 560px;
+
+        height: 560px;
+        min-height: 560px;
+
+        border-radius: 14px;
+    }
+
+    .operations-map-label {
+        top: 12px;
+        left: 14px;
+    }
+
+    .node {
+        width: 70px;
+        height: 70px;
+    }
+
+    .core {
+        width: 100px;
+        height: 100px;
+    }
+
+    .intelligence {
+        top: 38px;
+    }
+
+    .infrastructure {
+        left: 2%;
+        top: 185px;
+    }
+
+    .delivery {
+        left: 24%;
+        top: 92px;
+    }
+
+    .cloud {
+        right: 24%;
+        top: 92px;
+    }
+
+    .security {
+        right: 2%;
+        top: 185px;
+    }
+
+    .automation {
+        left: 10%;
+        bottom: 65px;
+    }
+
+    .observability {
+        left: 29%;
+        bottom: 15px;
+    }
+
+    .network {
+        right: 29%;
+        bottom: 15px;
+    }
+
+    .platform {
+        right: 10%;
+        bottom: 65px;
+    }
+
+    .data {
+        left: 22%;
+        bottom: 125px;
+    }
+
+    .testing {
+        right: 22%;
+        bottom: 125px;
+    }
 
     .access {
-
-        right:1%;
-
-        bottom:15px;
-
+        right: 1%;
+        bottom: 15px;
     }
-
 }
