@@ -1,4 +1,6 @@
-cat > /home/zeljko/veles/veles/web/templates/base.html <<'EOF'
+cd ~/veles
+
+cat > veles/web/templates/base.html <<'EOF'
 <!DOCTYPE html>
 <html lang="sr">
 
@@ -89,113 +91,6 @@ Veles Operating System
 
 {% block extra_css %}
 {% endblock %}
-
-<style>
-    /* POWER MENU - VELES STYLE */
-    .power-control {
-        position: relative;
-        display: inline-block;
-        margin-left: 12px;
-    }
-
-    .power-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 38px;
-        height: 38px;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        color: var(--muted);
-        font-size: 18px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .power-button:hover {
-        background: rgba(217, 164, 65, 0.08);
-        border-color: var(--gold);
-        color: var(--gold);
-    }
-
-    .power-menu {
-        position: absolute;
-        top: calc(100% + 8px);
-        right: 0;
-        min-width: 180px;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 6px;
-        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-4px);
-        transition: all 0.2s ease;
-        z-index: 1000;
-    }
-
-    .power-menu[aria-hidden="false"] {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-    }
-
-    .power-menu-title {
-        padding: 6px 12px 4px 12px;
-        color: var(--muted);
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 1.5px;
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 4px;
-    }
-
-    .power-menu-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        padding: 8px 12px;
-        background: transparent;
-        border: none;
-        border-radius: 6px;
-        color: var(--text);
-        font-family: inherit;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.15s ease;
-    }
-
-    .power-menu-item:hover {
-        background: rgba(255, 255, 255, 0.04);
-    }
-
-    .power-menu-item .power-menu-icon {
-        font-size: 16px;
-        width: 20px;
-        text-align: center;
-        color: var(--muted);
-    }
-
-    .power-reboot:hover {
-        color: var(--green);
-    }
-
-    .power-reboot:hover .power-menu-icon {
-        color: var(--green);
-    }
-
-    .power-shutdown:hover {
-        color: #f87171;
-    }
-
-    .power-shutdown:hover .power-menu-icon {
-        color: #f87171;
-    }
-</style>
 
 </head>
 
@@ -472,7 +367,6 @@ Veles Operating System
                         type="button"
                         class="power-menu-item power-reboot"
                         id="power-reboot"
-                        onclick="if(confirm('Restart?')){fetch('/system/reboot',{method:'POST'}).then(()=>alert('Restarting...')).catch(()=>alert('Error'))}"
                     >
                         <span class="power-menu-icon">
                             ↻
@@ -488,7 +382,6 @@ Veles Operating System
                         type="button"
                         class="power-menu-item power-shutdown"
                         id="power-shutdown"
-                        onclick="if(confirm('Shutdown?')){fetch('/system/shutdown',{method:'POST'}).then(()=>alert('Shutting down...')).catch(()=>alert('Error'))}"
                     >
                         <span class="power-menu-icon">
                             ⏻
@@ -553,29 +446,6 @@ Veles Operating System
 {% block extra_js %}
 {% endblock %}
 
-<script>
-    // Power menu toggle
-    document.addEventListener('DOMContentLoaded', function() {
-        const powerButton = document.getElementById('power-button');
-        const powerMenu = document.getElementById('power-menu');
-
-        if (powerButton && powerMenu) {
-            powerButton.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const isOpen = powerMenu.getAttribute('aria-hidden') === 'false';
-                powerMenu.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
-                powerButton.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!powerButton.contains(e.target) && !powerMenu.contains(e.target)) {
-                    powerMenu.setAttribute('aria-hidden', 'true');
-                    powerButton.setAttribute('aria-expanded', 'false');
-                }
-            });
-        }
-    });
-</script>
 
 </body>
 

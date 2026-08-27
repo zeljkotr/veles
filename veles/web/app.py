@@ -3300,6 +3300,38 @@ def services_view():
 # START
 # ==========================================
 
+# =========================================================
+# SYSTEM POWER ENDPOINTS
+# =========================================================
+
+@app.route('/system/reboot', methods=['POST'])
+def system_reboot():
+    """Restartuje sistem"""
+    import subprocess
+    import os
+    try:
+        if os.geteuid() != 0:
+            subprocess.Popen(['sudo', '/usr/bin/systemctl', 'reboot'])
+        else:
+            subprocess.Popen(['/usr/bin/systemctl', 'reboot'])
+        return {'status': 'ok', 'message': 'System rebooting...'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route('/system/shutdown', methods=['POST'])
+def system_shutdown():
+    """Gasii sistem"""
+    import subprocess
+    import os
+    try:
+        if os.geteuid() != 0:
+            subprocess.Popen(['sudo', '/usr/bin/systemctl', 'poweroff'])
+        else:
+            subprocess.Popen(['/usr/bin/systemctl', 'poweroff'])
+        return {'status': 'ok', 'message': 'System shutting down...'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
 if __name__ == "__main__":
 
     # --------------------------------------
@@ -3353,3 +3385,58 @@ if __name__ == "__main__":
     finally:
 
         stop_monitoring_scheduler()
+# =========================================================
+# SYSTEM POWER ENDPOINTS
+# =========================================================
+
+@app.route('/system/reboot', methods=['POST'])
+def system_reboot():
+    """Restartuje sistem"""
+    import subprocess
+    import os
+    try:
+        if os.geteuid() != 0:
+            subprocess.Popen(['sudo', '/usr/bin/systemctl', 'reboot'])
+        else:
+            subprocess.Popen(['/usr/bin/systemctl', 'reboot'])
+        return {'status': 'ok', 'message': 'System rebooting...'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route('/system/shutdown', methods=['POST'])
+def system_shutdown():
+    """Gasii sistem"""
+    import subprocess
+    import os
+    try:
+        if os.geteuid() != 0:
+            subprocess.Popen(['sudo', '/usr/bin/systemctl', 'poweroff'])
+        else:
+            subprocess.Popen(['/usr/bin/systemctl', 'poweroff'])
+        return {'status': 'ok', 'message': 'System shutting down...'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+
+# =========================================================
+# SYSTEM POWER ENDPOINTS
+# =========================================================
+
+@app.route('/system/reboot', methods=['POST'])
+def system_reboot():
+    import subprocess
+    try:
+        subprocess.Popen(['sudo', '/usr/bin/systemctl', 'reboot'])
+        return {'status': 'ok', 'message': 'System rebooting...'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
+@app.route('/system/shutdown', methods=['POST'])
+def system_shutdown():
+    import subprocess
+    try:
+        subprocess.Popen(['sudo', '/usr/bin/systemctl', 'poweroff'])
+        return {'status': 'ok', 'message': 'System shutting down...'}, 200
+    except Exception as e:
+        return {'status': 'error', 'message': str(e)}, 500
+
