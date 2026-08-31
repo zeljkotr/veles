@@ -2,161 +2,265 @@
 
 
 {% block title %}
-Veles Discovery Center
+VELES Delivery
 {% endblock %}
 
 
 {% block extra_css %}
 
-<link
-    rel="stylesheet"
-    href="{{ url_for(
-        'static',
-        filename='css/infrastructure.css',
-        v='20260813'
-    ) }}"
->
+<style>
+
+    .delivery-header {
+        margin-bottom: 30px;
+    }
+
+    .delivery-header h1 {
+        margin-bottom: 8px;
+    }
+
+    .delivery-header p {
+        opacity: 0.75;
+    }
+
+    .delivery-grid {
+        display: grid;
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(220px, 1fr)
+        );
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .delivery-stat {
+        padding: 22px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .delivery-stat-label {
+        font-size: 13px;
+        opacity: 0.65;
+        margin-bottom: 8px;
+    }
+
+    .delivery-stat-value {
+        font-size: 32px;
+        font-weight: 700;
+    }
+
+    .pipeline-card {
+        padding: 24px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pipeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 18px;
+    }
+
+    .pipeline-title {
+        margin: 0 0 6px 0;
+    }
+
+    .pipeline-description {
+        margin: 0;
+        opacity: 0.7;
+    }
+
+    .pipeline-status {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .pipeline-status.active {
+        background: rgba(0, 180, 80, 0.15);
+    }
+
+    .pipeline-status.disabled {
+        background: rgba(180, 180, 180, 0.15);
+    }
+
+    .pipeline-meta {
+        display: grid;
+        grid-template-columns: repeat(
+            auto-fit,
+            minmax(160px, 1fr)
+        );
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .pipeline-meta-item {
+        padding: 12px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.12);
+    }
+
+    .pipeline-meta-label {
+        display: block;
+        font-size: 11px;
+        opacity: 0.55;
+        margin-bottom: 5px;
+    }
+
+    .pipeline-meta-value {
+        display: block;
+        word-break: break-word;
+    }
+
+    .steps-title {
+        margin-bottom: 12px;
+    }
+
+    .step-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .step-item {
+        display: grid;
+        grid-template-columns: 45px 1fr auto;
+        align-items: center;
+        gap: 15px;
+        padding: 14px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.12);
+    }
+
+    .step-position {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        font-weight: 700;
+    }
+
+    .step-name {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .step-type {
+        font-size: 12px;
+        opacity: 0.6;
+    }
+
+    .step-configuration {
+        font-family: monospace;
+        font-size: 12px;
+        opacity: 0.7;
+        text-align: right;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .empty-state {
+        padding: 50px 20px;
+        text-align: center;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+    }
+
+    .empty-state h2 {
+        margin-bottom: 8px;
+    }
+
+    .empty-state p {
+        opacity: 0.65;
+    }
+
+</style>
 
 {% endblock %}
 
 
 {% block content %}
 
-<header class="infra-header">
+<header class="delivery-header">
 
     <h1>
-        🔎 DISCOVERY CENTER
+        🚀 VELES DELIVERY
     </h1>
 
     <p>
-        Network Resource Discovery
+        Pipeline deployment and delivery management
     </p>
 
 </header>
 
 
-<!-- DISCOVERY TARGETS -->
+<!-- DELIVERY STATUS -->
 
-<section class="inventory-panel">
+<section class="delivery-grid">
 
-    <h2>
-        🌐 DISCOVERY TARGETS
-    </h2>
+    <div class="delivery-stat">
 
-    <div class="resource-list">
+        <div class="delivery-stat-label">
+            STATUS
+        </div>
 
-        {% for target in targets %}
-
-            <div class="resource-item">
-
-                <div class="resource-icon">
-                    🌐
-                </div>
-
-                <div class="resource-info">
-
-                    <h2>
-                        {{ target.interface }}
-                    </h2>
-
-                    <div class="resource-meta">
-
-                        <div>
-
-                            <label>
-                                NETWORK
-                            </label>
-
-                            <strong>
-                                {{ target.network or "Unavailable" }}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                    {% if target.scannable and target.network %}
-
-                        <input
-                            type="checkbox"
-                            name="network"
-                            value="{{ target.network }}"
-                            checked
-                            form="scan-form"
-                        >
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
-        {% endfor %}
+        <div class="delivery-stat-value">
+            {% if data.status == "ready" %}
+                🟢 READY
+            {% else %}
+                🔴 {{ data.status | upper }}
+            {% endif %}
+        </div>
 
     </div>
 
-</section>
+
+    <div class="delivery-stat">
+
+        <div class="delivery-stat-label">
+            PIPELINES
+        </div>
+
+        <div class="delivery-stat-value">
+            {{ data.pipelines }}
+        </div>
+
+    </div>
 
 
-<!-- CUSTOM NETWORK -->
+    <div class="delivery-stat">
 
-<section class="inventory-panel">
+        <div class="delivery-stat-label">
+            DEPLOYMENTS
+        </div>
 
-    <h2>
-        CUSTOM NETWORK
-    </h2>
+        <div class="delivery-stat-value">
+            {{ data.deployments }}
+        </div>
 
-    <div class="resource-list">
+    </div>
 
-        <div class="resource-item">
 
-            <div class="resource-icon">
-                🌐
-            </div>
+    <div class="delivery-stat">
 
-            <div class="resource-info">
+        <div class="delivery-stat-label">
+            TARGETS
+        </div>
 
-                <h2>
-                    ADD NETWORK
-                </h2>
-
-                <div class="resource-meta">
-
-                    <div>
-
-                        <label>
-                            CIDR NETWORK
-                        </label>
-
-                        <form
-                            method="POST"
-                            action="{{ url_for('discovery_scan') }}"
-                        >
-
-                            <input
-                                type="text"
-                                name="custom_network"
-                                placeholder="192.168.50.0/24"
-                                autocomplete="off"
-                            >
-
-                            <button
-                                class="add-button"
-                                type="submit"
-                                name="add_custom"
-                                value="1"
-                            >
-                                ➕ ADD
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                </div>
-
-            </div>
-
+        <div class="delivery-stat-value">
+            {{ data.targets }}
         </div>
 
     </div>
@@ -164,200 +268,236 @@ Veles Discovery Center
 </section>
 
 
-<!-- START SCAN -->
+<!-- PIPELINES -->
 
-<section class="inventory-panel">
-
-    <form
-        id="scan-form"
-        method="POST"
-        action="{{ url_for('discovery_scan') }}"
-    >
-
-        <button
-            class="scan-button"
-            type="submit"
-        >
-            🚀 START SCAN
-        </button>
-
-    </form>
-
-</section>
-
-
-{% if discovered %}
-
-<!-- DISCOVERED RESOURCES -->
-
-<section class="inventory-panel">
+<section>
 
     <h2>
-        🖥 DISCOVERED RESOURCES
+        📦 PIPELINES
     </h2>
 
-    <div class="resource-list">
 
-        {% for device in discovered %}
+    {% if data.pipeline_list %}
 
-            <div class="resource-item">
+        {% for pipeline in data.pipeline_list %}
 
-                <div class="resource-icon">
-                    🖥
-                </div>
+            <article class="pipeline-card">
 
-                <div class="resource-info">
+                <div class="pipeline-header">
 
-                    <h2>
-                        {{ device.name }}
-                    </h2>
+                    <div>
 
-                    <div class="resource-meta">
+                        <h2 class="pipeline-title">
+                            {{ pipeline.name }}
+                        </h2>
 
-                        <div>
+                        {% if pipeline.description %}
 
-                            <label>
-                                STATUS
-                            </label>
+                            <p class="pipeline-description">
+                                {{ pipeline.description }}
+                            </p>
 
-                            <strong>
-                                🟢 {{ device.status }}
-                            </strong>
-
-                        </div>
-
-                        <div>
-
-                            <label>
-                                TYPE
-                            </label>
-
-                            <strong>
-                                {{ device.type }}
-                            </strong>
-
-                        </div>
-
-                        <div>
-
-                            <label>
-                                HOST
-                            </label>
-
-                            <strong>
-                                {{ device.host }}
-                            </strong>
-
-                        </div>
-
-                        <div>
-
-                            <label>
-                                PORT
-                            </label>
-
-                            <strong>
-                                {{ device.port or "-" }}
-                            </strong>
-
-                        </div>
+                        {% endif %}
 
                     </div>
 
 
-                    {% if device.services %}
+                    <div
+                        class="pipeline-status
+                        {% if pipeline.status %}
+                            {{ pipeline.status }}
+                        {% endif %}"
+                    >
 
-                        <div class="resource-meta">
-
-                            <div>
-
-                                <label>
-                                    SERVICES
-                                </label>
-
-                                {% for service in device.services %}
-
-                                    <strong>
-                                        🟢 {{ service.service }} : {{ service.port }}
-                                    </strong>
-
-                                {% endfor %}
-
-                            </div>
-
-                        </div>
-
-                    {% else %}
-
-                        <div class="resource-meta">
-
-                            <div>
-
-                                <label>
-                                    SERVICES
-                                </label>
-
-                                <strong>
-                                    ⚪ UNKNOWN
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-                    {% endif %}
-
-
-                    <!-- ACTIONS -->
-
-                    <div class="action-row">
-
-                        <a
-                            class="infra-button"
-                            href="{{ url_for(
-                                'discovery_resource_detail',
-                                host=device.host
-                            ) }}"
-                        >
-                            🔎 DETAILS
-                        </a>
-
-
-                        <form
-                            method="POST"
-                            action="{{ url_for(
-                                'import_discovered_resources'
-                            ) }}"
-                        >
-
-                            <input
-                                type="hidden"
-                                name="resource"
-                                value='{{ device | tojson }}'
-                            >
-
-                            <button
-                                class="infra-button"
-                                type="submit"
-                            >
-                                ➕ ADD RESOURCE
-                            </button>
-
-                        </form>
+                        {{ pipeline.status or "unknown" }}
 
                     </div>
 
                 </div>
 
-            </div>
+
+                <!-- PIPELINE METADATA -->
+
+                <div class="pipeline-meta">
+
+                    <div class="pipeline-meta-item">
+
+                        <span class="pipeline-meta-label">
+                            ID
+                        </span>
+
+                        <span class="pipeline-meta-value">
+                            {{ pipeline.id }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="pipeline-meta-item">
+
+                        <span class="pipeline-meta-label">
+                            TRIGGER
+                        </span>
+
+                        <span class="pipeline-meta-value">
+                            {{ pipeline.trigger or "-" }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="pipeline-meta-item">
+
+                        <span class="pipeline-meta-label">
+                            TARGET SELECTOR
+                        </span>
+
+                        <span class="pipeline-meta-value">
+                            {{ pipeline.target_selector or "-" }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="pipeline-meta-item">
+
+                        <span class="pipeline-meta-label">
+                            STEPS
+                        </span>
+
+                        <span class="pipeline-meta-value">
+                            {{ pipeline.steps | length }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PIPELINE STEPS -->
+
+                <h3 class="steps-title">
+                    PIPELINE STEPS
+                </h3>
+
+
+                {% if pipeline.steps %}
+
+                    <div class="step-list">
+
+                        {% for step in pipeline.steps %}
+
+                            <div class="step-item">
+
+                                <div class="step-position">
+                                    {{ step.position }}
+                                </div>
+
+
+                                <div>
+
+                                    <div class="step-name">
+                                        {{ step.name }}
+                                    </div>
+
+                                    <div class="step-type">
+                                        {{ step.type }}
+                                    </div>
+
+                                </div>
+
+
+                                <div class="step-configuration">
+
+                                    {{ step.configuration or "{}" }}
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% else %}
+
+                    <p>
+                        No steps configured.
+                    </p>
+
+                {% endif %}
+
+            </article>
 
         {% endfor %}
 
-    </div>
+    {% else %}
+
+        <div class="empty-state">
+
+            <h2>
+                📭 NO PIPELINES
+            </h2>
+
+            <p>
+                No delivery pipelines are currently configured.
+            </p>
+
+        </div>
+
+    {% endif %}
 
 </section>
 
-{% endif %}
+
+<!-- DELIVERY TARGETS -->
+
+<section>
+
+    <h2>
+        🎯 DELIVERY TARGETS
+    </h2>
+
+
+    {% if data.target_list %}
+
+        <div class="delivery-grid">
+
+            {% for target in data.target_list %}
+
+                <div class="delivery-stat">
+
+                    <div class="delivery-stat-label">
+                        TARGET
+                    </div>
+
+                    <div class="delivery-stat-value">
+                        {{ target.name or target.host or target.type or "Unknown" }}
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <h2>
+                🎯 NO TARGETS
+            </h2>
+
+            <p>
+                No delivery targets are currently available.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</section>
 
 
 {% endblock %}
