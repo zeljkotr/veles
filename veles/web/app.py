@@ -2917,6 +2917,23 @@ def create_delivery_pipeline():
     )
 
 
+@app.route(
+    "/delivery/pipeline/<int:pipeline_id>/delete",
+    methods=["POST"]
+)
+def delete_delivery_pipeline(pipeline_id):
+
+    delivery.delete_pipeline(
+        pipeline_id
+    )
+
+    return redirect(
+        url_for(
+            "delivery_view"
+        )
+    )
+
+
 # ==========================================
 # SECURITY
 # ==========================================

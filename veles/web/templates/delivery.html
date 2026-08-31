@@ -319,6 +319,17 @@ VELES Delivery
 
                     </div>
 
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('delete_delivery_pipeline', pipeline_id=pipeline.id) }}"
+                        onsubmit="return confirm('Delete this pipeline?');"
+                    >
+                        <button type="submit">
+                            Delete
+                        </button>
+                    </form>
+
                 </div>
 
 
