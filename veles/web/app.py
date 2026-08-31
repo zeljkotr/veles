@@ -2885,6 +2885,38 @@ def delivery_view():
     )
 
 
+@app.route(
+    "/delivery/pipeline/create",
+    methods=["GET", "POST"]
+)
+def create_delivery_pipeline():
+
+    if request.method == "POST":
+
+        delivery.create_pipeline(
+            name=request.form.get(
+                "name",
+                ""
+            ).strip(),
+
+            description=request.form.get(
+                "description",
+                ""
+            ).strip() or None
+        )
+
+        return redirect(
+            url_for(
+                "delivery_view"
+            )
+        )
+
+
+    return render_template(
+        "delivery_pipeline_create.html"
+    )
+
+
 # ==========================================
 # SECURITY
 # ==========================================

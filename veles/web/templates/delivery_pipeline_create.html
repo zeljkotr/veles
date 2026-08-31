@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Create Pipeline
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .pipeline-create-header {
+        margin-bottom: 30px;
+    }
+
+    .pipeline-create-header h1 {
+        margin-bottom: 8px;
+    }
+
+    .pipeline-create-header p {
+        opacity: 0.75;
+    }
+
+    .pipeline-create-card {
+        max-width: 760px;
+        padding: 28px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.15);
+        color: inherit;
+        font: inherit;
+    }
+
+    .form-group textarea {
+        min-height: 140px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+    }
+
+    .form-actions button,
+    .form-actions a {
+        padding: 11px 18px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<header class="pipeline-create-header">
+
+    <h1>
+        🚀 CREATE PIPELINE
+    </h1>
+
+    <p>
+        Create a new delivery pipeline
+    </p>
+
+</header>
+
+
+<section class="pipeline-create-card">
+
+    <form
+        method="POST"
+        action="{{ url_for('create_delivery_pipeline') }}"
+    >
+
+        <div class="form-group">
+
+            <label for="name">
+                Pipeline Name
+            </label>
+
+            <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                autofocus
+                placeholder="Enter pipeline name"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="description">
+                Description
+            </label>
+
+            <textarea
+                id="description"
+                name="description"
+                placeholder="Enter pipeline description (optional)"
+            ></textarea>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button type="submit">
+                Create Pipeline
+            </button>
+
+            <a href="{{ url_for('delivery_view') }}">
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</section>
+
+{% endblock %}
