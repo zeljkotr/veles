@@ -298,13 +298,20 @@ class SecurityService:
         if not results:
             return "unknown"
 
-        error_count = sum(
-            1
+        has_error = any(
+            result.status == "error"
             for result in results
-            if result.status == "error"
         )
 
-        if error_count:
+        if has_error:
+            return "error"
+
+        has_warning = any(
+            result.status == "warning"
+            for result in results
+        )
+
+        if has_warning:
             return "warning"
 
         return "healthy"

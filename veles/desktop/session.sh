@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-cd /home/zeljko/veles
+cd /opt/veles
 
 if [ -f /etc/veles/veles.env ]; then
     set -a
@@ -9,8 +9,8 @@ if [ -f /etc/veles/veles.env ]; then
     set +a
 fi
 
-/home/zeljko/veles/venv/bin/python -m veles.web.app &
+/opt/veles/venv/bin/python -m veles.web.app &
 
-/usr/bin/python3 /home/zeljko/veles/veles/desktop/shell.py &
+/opt/veles/venv/bin/python /opt/veles/veles/desktop/shell.py &
 
 exec dbus-run-session /usr/bin/labwc

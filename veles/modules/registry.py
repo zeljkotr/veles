@@ -41,9 +41,9 @@ MODULES = {
     "security": {
         "name": "Security",
         "icon": "🔐",
-        "status": "planned",
+        "status": "online",
         "description": "Security operations",
-        "entry": "/module/security",
+        "entry": "/security",
     },
 
     "automation": {
