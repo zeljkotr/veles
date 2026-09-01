@@ -25,7 +25,7 @@ MODULES = {
     "delivery": {
         "name": "Delivery",
         "icon": "📦",
-        "status": "planned",
+        "status": "online",
         "description": "CI/CD and deployment",
         "entry": "/module/delivery",
     },

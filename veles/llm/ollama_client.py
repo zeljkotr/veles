@@ -13,7 +13,7 @@ import re
 import requests
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "qwen2.5:7b"
+MODEL = "qwen3:8b"
 
 
 def call_ollama(prompt: str, temperature: float = 0.2, num_predict: int = 200) -> str:
@@ -24,6 +24,7 @@ def call_ollama(prompt: str, temperature: float = 0.2, num_predict: int = 200) -
             "model": MODEL,
             "prompt": prompt,
             "stream": False,
+            "think": False,
             "options": {
                 "temperature": temperature,
                 "num_predict": num_predict,

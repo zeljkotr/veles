@@ -175,6 +175,22 @@ class ResourceRegistry:
                     "registered"
                 ),
 
+                verification={
+                    **(
+                        resource.get("verification")
+                        or {}
+                    ),
+                    "os": resource.get("os"),
+                    "ports": resource.get(
+                        "ports",
+                        []
+                    ),
+                    "services": resource.get(
+                        "services",
+                        []
+                    )
+                },
+
                 identity=resource.get(
                     "identity"
                 )
@@ -421,6 +437,21 @@ class ResourceRegistry:
 
             "verification":
                 item.verification or {},
+
+            "os":
+                (item.verification or {}).get("os"),
+
+            "ports":
+                (item.verification or {}).get(
+                    "ports",
+                    []
+                ),
+
+            "services":
+                (item.verification or {}).get(
+                    "services",
+                    []
+                ),
 
             "trust":
                 item.trust or "unknown",

@@ -1,34 +1,56 @@
+"""
+VELES Language Filter
+
+Cleans and validates AI responses before they are returned
+to the VELES user interface.
+"""
+
 import re
 
 
-CYRILLIC_PATTERN = re.compile(
-    r"[\u0400-\u04FF]"
-)
+def clean_response(text: str) -> str:
+    """
+    Clean an AI response for presentation in VELES.
+    """
+
+    if not text:
+        return ""
+
+    text = str(text).strip()
+
+    # Remove Markdown code fences.
+    text = re.sub(r"```[a-zA-Z0-9_+-]*\s*", "", text)
+    text = text.replace("```", "")
+
+    # Remove Markdown headings.
+    text = re.sub(r"^\s{0,3}#{1,6}\s+", "", text, flags=re.MULTILINE)
+
+    # Remove Markdown emphasis markers.
+    text = text.replace("**", "")
+    text = text.replace("__", "")
+    text = text.replace("*", "")
+    text = text.replace("_", "")
+
+    # Remove inline code markers.
+    text = text.replace("`", "")
+
+    # Normalize excessive blank lines.
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    return text.strip()
 
 
-def contains_cyrillic(text):
+def validate_serbian(text: str) -> bool:
+    """
+    Validate that the response contains usable text.
+    """
 
-    return bool(
-        CYRILLIC_PATTERN.search(text)
-    )
+    if not text or not text.strip():
+        return False
 
+    normalized = re.sub(r"\s+", "", text)
 
-def clean_response(text):
-
-    text = text.strip()
-
-    text = re.sub(
-        r"[ ]{2,}",
-        " ",
-        text
-    )
-
-    return text
-
-
-def validate_serbian(text):
-
-    if contains_cyrillic(text):
+    if not normalized:
         return False
 
     return True

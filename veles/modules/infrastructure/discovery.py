@@ -1391,13 +1391,9 @@ def classify_device(
     if ports.intersection({
         22,
         3389,
+        445,
         5985,
         5986
-    }) and ports.intersection({
-        80,
-        443,
-        8080,
-        8443
     }):
 
         return "server"

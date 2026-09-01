@@ -926,9 +926,13 @@ SUBTLE SIDE GRID
 
     flex:1;
 
+    min-height:0;
+
     padding:25px;
 
     overflow-y:auto;
+
+    scroll-behavior:auto;
 
 }
 

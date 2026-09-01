@@ -42,7 +42,7 @@ Veles AI Chat
 
 
 
-    <div class="chat-window card" id="chat-window">
+    <div class="chat-window card" id="chat-window" {% if latest_answer %}data-scroll-bottom="true"{% endif %}>
 
 
         {% if history %}
@@ -234,7 +234,10 @@ Veles AI Chat
 <!-- Veles thinking overlay -->
 
 
-<div id="thinking-overlay">
+<div
+    id="thinking-overlay"
+    {% if latest_answer %}style="display:none;"{% endif %}
+>
 
 
     <div class="thinking-box">

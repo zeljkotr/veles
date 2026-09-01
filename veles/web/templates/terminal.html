@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+
+{% block title %}
+VELES Terminal
+{% endblock %}
+
+{% block application %}
+TERMINAL
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='vendor/xterm/xterm.css') }}"
+>
+
+<style>
+
+.terminal-page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 82px);
+    min-height: 500px;
+}
+
+.terminal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.terminal-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+}
+
+.terminal-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.terminal-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(80, 200, 120, 0.6);
+}
+
+.terminal-container {
+    flex: 1;
+    min-height: 0;
+    padding: 14px;
+    background: #050505;
+    overflow: hidden;
+}
+
+#veles-terminal {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    background: #050505;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.terminal-disconnected {
+    color: #f87171;
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="terminal-page">
+
+    <div class="terminal-header">
+
+        <div class="terminal-title">
+            VELES TERMINAL
+        </div>
+
+        <div class="terminal-status">
+
+            <span
+                id="terminal-status-dot"
+                class="terminal-status-dot"
+            ></span>
+
+            <span id="terminal-status">
+                CONNECTING
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="terminal-container">
+
+        <div
+            id="veles-terminal"
+            aria-label="VELES Terminal"
+        ></div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<script src="{{ url_for('static', filename='vendor/xterm/xterm.js') }}"></script>
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const container =
+        document.getElementById(
+            "veles-terminal"
+        );
+
+
+    const status =
+        document.getElementById(
+            "terminal-status"
+        );
+
+
+    let socket = null;
+
+
+    const terminal =
+        new Terminal({
+
+            cursorBlink: true,
+
+            cursorStyle: "block",
+
+            fontFamily:
+                '"DejaVu Sans Mono", "Liberation Mono", monospace',
+
+            fontSize: 14,
+
+            lineHeight: 1.2,
+
+            theme: {
+
+                background: "#050505",
+
+                foreground: "#e5e7eb",
+
+                cursor: "#e5e7eb",
+
+                selectionBackground:
+                    "rgba(217, 164, 65, 0.35)"
+
+            },
+
+            scrollback: 5000,
+
+            convertEol: false,
+
+            disableStdin: false
+
+        });
+
+
+    terminal.open(
+        container
+    );
+
+
+    function setStatus(
+        text,
+        connected
+    ) {
+
+        status.textContent =
+            text;
+
+        if (connected) {
+
+            status.classList.remove(
+                "terminal-disconnected"
+            );
+
+        } else {
+
+            status.classList.add(
+                "terminal-disconnected"
+            );
+
+        }
+
+    }
+
+
+    function sendData(
+        data
+    ) {
+
+        if (
+            !socket ||
+            socket.readyState !== WebSocket.OPEN
+        ) {
+
+            return;
+
+        }
+
+
+        if (!data) {
+
+            return;
+
+        }
+
+
+        socket.send(
+            data
+        );
+
+    }
+
+
+    function sendResize() {
+
+        if (
+            !socket ||
+            socket.readyState !== WebSocket.OPEN
+        ) {
+
+            return;
+
+        }
+
+
+        const rows =
+            Math.max(
+                10,
+                terminal.rows
+            );
+
+
+        const cols =
+            Math.max(
+                40,
+                terminal.cols
+            );
+
+
+        socket.send(
+            "__VELES_RESIZE__:" +
+            rows +
+            ":" +
+            cols
+        );
+
+    }
+
+
+    function fitTerminal() {
+
+        terminal.resize(
+            Math.max(
+                40,
+                Math.floor(
+                    container.clientWidth /
+                    8.4
+                )
+            ),
+            Math.max(
+                10,
+                Math.floor(
+                    container.clientHeight /
+                    17
+                )
+            )
+        );
+
+
+        sendResize();
+
+    }
+
+
+    terminal.onData(
+        function (data) {
+
+            sendData(
+                data
+            );
+
+        }
+    );
+
+
+    terminal.onResize(
+        function (size) {
+
+            if (
+                !socket ||
+                socket.readyState !== WebSocket.OPEN
+            ) {
+
+                return;
+
+            }
+
+
+            socket.send(
+                "__VELES_RESIZE__:" +
+                size.rows +
+                ":" +
+                size.cols
+            );
+
+        }
+    );
+
+
+    function connect() {
+
+        const protocol =
+            window.location.protocol === "https:"
+                ? "wss:"
+                : "ws:";
+
+
+        const url =
+            protocol +
+            "//" +
+            window.location.host +
+            "/ws/terminal";
+
+
+        setStatus(
+            "CONNECTING",
+            false
+        );
+
+
+        socket =
+            new WebSocket(
+                url
+            );
+
+
+        socket.onopen =
+            function () {
+
+                setStatus(
+                    "ONLINE",
+                    true
+                );
+
+
+                fitTerminal();
+
+
+                terminal.focus();
+
+            };
+
+
+        socket.onmessage =
+            function (event) {
+
+                if (
+                    typeof event.data === "string"
+                ) {
+
+                    terminal.write(
+                        event.data
+                    );
+
+                }
+
+            };
+
+
+        socket.onerror =
+            function () {
+
+                setStatus(
+                    "ERROR",
+                    false
+                );
+
+            };
+
+
+        socket.onclose =
+            function () {
+
+                setStatus(
+                    "DISCONNECTED",
+                    false
+                );
+
+            };
+
+    }
+
+
+    container.addEventListener(
+        "click",
+        function () {
+
+            terminal.focus();
+
+        }
+    );
+
+
+    window.addEventListener(
+        "resize",
+        function () {
+
+            fitTerminal();
+
+        }
+    );
+
+
+    connect();
+
+})();
+
+</script>
+
+{% endblock %}

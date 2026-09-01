@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 
-
 {% block title %}
 VELES Delivery
 {% endblock %}
-
 
 {% block extra_css %}
 
@@ -15,19 +13,18 @@ VELES Delivery
     }
 
     .delivery-header h1 {
-        margin-bottom: 8px;
+        margin: 0 0 8px 0;
+        color: var(--text);
     }
 
     .delivery-header p {
-        opacity: 0.75;
+        margin: 0;
+        color: var(--muted);
     }
 
     .delivery-grid {
         display: grid;
-        grid-template-columns: repeat(
-            auto-fit,
-            minmax(220px, 1fr)
-        );
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 20px;
         margin-bottom: 30px;
     }
@@ -35,27 +32,103 @@ VELES Delivery
     .delivery-stat {
         padding: 22px;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--panel);
+        border: 1px solid var(--border);
     }
 
     .delivery-stat-label {
-        font-size: 13px;
-        opacity: 0.65;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        color: var(--muted);
         margin-bottom: 8px;
     }
 
     .delivery-stat-value {
-        font-size: 32px;
+        font-size: 30px;
         font-weight: 700;
+        color: var(--text);
+        word-break: break-word;
+    }
+
+    .delivery-section {
+        margin-bottom: 32px;
+    }
+
+    .delivery-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 18px;
+    }
+
+    .delivery-section-header h2 {
+        margin: 0;
+    }
+
+    .delivery-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .delivery-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 7px 14px;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        background: var(--panel2);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease;
+    }
+
+    .delivery-action:hover {
+        border-color: var(--gold);
+        color: var(--gold2);
+        background: rgba(217, 164, 65, 0.08);
+    }
+
+    .delivery-action-primary {
+        border-color: var(--gold);
+        background: var(--gold);
+        color: #0b0f14;
+    }
+
+    .delivery-action-primary:hover {
+        background: var(--gold2);
+        border-color: var(--gold2);
+        color: #0b0f14;
+    }
+
+    .delivery-action-danger {
+        color: #f87171;
+    }
+
+    .delivery-action-danger:hover {
+        border-color: #f87171;
+        color: #fca5a5;
+        background: rgba(248, 113, 113, 0.08);
     }
 
     .pipeline-card {
         padding: 24px;
         margin-bottom: 20px;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: var(--panel);
+        border: 1px solid var(--border);
     }
 
     .pipeline-header {
@@ -63,64 +136,92 @@ VELES Delivery
         justify-content: space-between;
         align-items: flex-start;
         gap: 20px;
-        margin-bottom: 18px;
+        margin-bottom: 20px;
+    }
+
+    .pipeline-header-main {
+        min-width: 0;
+        flex: 1;
     }
 
     .pipeline-title {
         margin: 0 0 6px 0;
+        color: var(--text);
     }
 
     .pipeline-description {
         margin: 0;
-        opacity: 0.7;
+        color: var(--muted);
+    }
+
+    .pipeline-header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
     .pipeline-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         padding: 6px 12px;
         border-radius: 20px;
-        font-size: 12px;
+        border: 1px solid var(--border);
+        background: var(--panel2);
+        color: var(--muted);
+        font-size: 11px;
         font-weight: 700;
+        letter-spacing: 0.8px;
         text-transform: uppercase;
+        white-space: nowrap;
     }
 
     .pipeline-status.active {
-        background: rgba(0, 180, 80, 0.15);
+        border-color: rgba(85, 214, 107, 0.35);
+        background: rgba(85, 214, 107, 0.10);
+        color: var(--green);
     }
 
     .pipeline-status.disabled {
-        background: rgba(180, 180, 180, 0.15);
+        color: var(--muted);
     }
 
     .pipeline-meta {
         display: grid;
-        grid-template-columns: repeat(
-            auto-fit,
-            minmax(160px, 1fr)
-        );
-        gap: 15px;
-        margin-bottom: 22px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
     }
 
     .pipeline-meta-item {
-        padding: 12px;
+        padding: 13px;
         border-radius: 8px;
-        background: rgba(0, 0, 0, 0.12);
+        background: var(--panel2);
+        border: 1px solid var(--border);
     }
 
     .pipeline-meta-label {
         display: block;
-        font-size: 11px;
-        opacity: 0.55;
-        margin-bottom: 5px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 6px;
     }
 
     .pipeline-meta-value {
         display: block;
+        color: var(--text);
         word-break: break-word;
     }
 
     .steps-title {
-        margin-bottom: 12px;
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: var(--text);
+        letter-spacing: 0.5px;
     }
 
     .step-list {
@@ -136,7 +237,8 @@ VELES Delivery
         gap: 15px;
         padding: 14px;
         border-radius: 8px;
-        background: rgba(0, 0, 0, 0.12);
+        background: var(--panel2);
+        border: 1px solid var(--border);
     }
 
     .step-position {
@@ -146,50 +248,131 @@ VELES Delivery
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(217, 164, 65, 0.10);
+        border: 1px solid rgba(217, 164, 65, 0.25);
+        color: var(--gold2);
         font-weight: 700;
     }
 
     .step-name {
         font-weight: 600;
+        color: var(--text);
         margin-bottom: 4px;
     }
 
     .step-type {
-        font-size: 12px;
-        opacity: 0.6;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .step-configuration {
         font-family: monospace;
         font-size: 12px;
-        opacity: 0.7;
+        color: var(--muted);
         text-align: right;
         max-width: 300px;
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .empty-state {
         padding: 50px 20px;
         text-align: center;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px dashed rgba(255, 255, 255, 0.12);
+        background: var(--panel);
+        border: 1px dashed var(--border);
     }
 
     .empty-state h2 {
-        margin-bottom: 8px;
+        margin: 0 0 8px 0;
+        color: var(--text);
     }
 
     .empty-state p {
-        opacity: 0.65;
+        margin: 0;
+        color: var(--muted);
+    }
+
+    .target-card {
+        padding: 22px;
+        border-radius: 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        box-sizing: border-box;
+    }
+
+    .target-name {
+        margin: 0 0 18px 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text);
+        word-break: break-word;
+    }
+
+    .target-actions {
+        margin-top: auto;
+        padding-top: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .target-field {
+        margin-top: 14px;
+    }
+
+    .target-field-label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: var(--muted);
+    }
+
+    .target-field-value {
+        display: block;
+        color: var(--text);
+        word-break: break-word;
+    }
+
+    @media (max-width: 760px) {
+
+        .pipeline-header {
+            flex-direction: column;
+        }
+
+        .pipeline-header-right {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .step-item {
+            grid-template-columns: 40px 1fr;
+        }
+
+        .step-configuration {
+            grid-column: 2;
+            text-align: left;
+            max-width: 100%;
+        }
+
+        .delivery-section-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
     }
 
 </style>
 
 {% endblock %}
-
 
 {% block content %}
 
@@ -205,9 +388,6 @@ VELES Delivery
 
 </header>
 
-
-<!-- DELIVERY STATUS -->
-
 <section class="delivery-grid">
 
     <div class="delivery-stat">
@@ -217,15 +397,24 @@ VELES Delivery
         </div>
 
         <div class="delivery-stat-value">
+
             {% if data.status == "ready" %}
-                🟢 READY
+
+                <span style="color: var(--green);">
+                    READY
+                </span>
+
             {% else %}
-                🔴 {{ data.status | upper }}
+
+                <span style="color: #f87171;">
+                    {{ data.status | upper }}
+                </span>
+
             {% endif %}
+
         </div>
 
     </div>
-
 
     <div class="delivery-stat">
 
@@ -239,7 +428,6 @@ VELES Delivery
 
     </div>
 
-
     <div class="delivery-stat">
 
         <div class="delivery-stat-label">
@@ -251,7 +439,6 @@ VELES Delivery
         </div>
 
     </div>
-
 
     <div class="delivery-stat">
 
@@ -267,21 +454,22 @@ VELES Delivery
 
 </section>
 
+<section class="delivery-section">
 
-<!-- PIPELINES -->
+    <div class="delivery-section-header">
 
-<section>
+        <h2>
+            📦 PIPELINES
+        </h2>
 
-    <h2>
-        📦 PIPELINES
-    </h2>
-
-    <p>
-        <a href="{{ url_for('create_delivery_pipeline') }}">
-            ➕ Create Pipeline
+        <a
+            class="delivery-action delivery-action-primary"
+            href="{{ url_for('create_delivery_pipeline') }}"
+        >
+            + CREATE PIPELINE
         </a>
-    </p>
 
+    </div>
 
     {% if data.pipeline_list %}
 
@@ -291,7 +479,7 @@ VELES Delivery
 
                 <div class="pipeline-header">
 
-                    <div>
+                    <div class="pipeline-header-main">
 
                         <h2 class="pipeline-title">
                             {{ pipeline.name }}
@@ -307,33 +495,52 @@ VELES Delivery
 
                     </div>
 
+                    <div class="pipeline-header-right">
 
-                    <div
-                        class="pipeline-status
-                        {% if pipeline.status %}
-                            {{ pipeline.status }}
-                        {% endif %}"
-                    >
+                        <div
+                            class="pipeline-status
+                            {% if pipeline.status %}
+                                {{ pipeline.status }}
+                            {% endif %}"
+                        >
+                            {{ pipeline.status or "unknown" }}
+                        </div>
 
-                        {{ pipeline.status or "unknown" }}
+                        <div class="delivery-actions">
+
+                            <a
+                                class="delivery-action"
+                                href="{{ url_for(
+                                    'edit_delivery_pipeline',
+                                    pipeline_id=pipeline.id
+                                ) }}"
+                            >
+                                EDIT
+                            </a>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'delete_delivery_pipeline',
+                                    pipeline_id=pipeline.id
+                                ) }}"
+                                onsubmit="return confirm('Delete this pipeline?');"
+                            >
+
+                                <button
+                                    type="submit"
+                                    class="delivery-action delivery-action-danger"
+                                >
+                                    DELETE
+                                </button>
+
+                            </form>
+
+                        </div>
 
                     </div>
 
-
-                    <form
-                        method="POST"
-                        action="{{ url_for('delete_delivery_pipeline', pipeline_id=pipeline.id) }}"
-                        onsubmit="return confirm('Delete this pipeline?');"
-                    >
-                        <button type="submit">
-                            Delete
-                        </button>
-                    </form>
-
                 </div>
-
-
-                <!-- PIPELINE METADATA -->
 
                 <div class="pipeline-meta">
 
@@ -349,7 +556,6 @@ VELES Delivery
 
                     </div>
 
-
                     <div class="pipeline-meta-item">
 
                         <span class="pipeline-meta-label">
@@ -362,7 +568,6 @@ VELES Delivery
 
                     </div>
 
-
                     <div class="pipeline-meta-item">
 
                         <span class="pipeline-meta-label">
@@ -374,7 +579,6 @@ VELES Delivery
                         </span>
 
                     </div>
-
 
                     <div class="pipeline-meta-item">
 
@@ -390,13 +594,9 @@ VELES Delivery
 
                 </div>
 
-
-                <!-- PIPELINE STEPS -->
-
                 <h3 class="steps-title">
                     PIPELINE STEPS
                 </h3>
-
 
                 {% if pipeline.steps %}
 
@@ -410,7 +610,6 @@ VELES Delivery
                                     {{ step.position }}
                                 </div>
 
-
                                 <div>
 
                                     <div class="step-name">
@@ -423,11 +622,8 @@ VELES Delivery
 
                                 </div>
 
-
                                 <div class="step-configuration">
-
                                     {{ step.configuration or "{}" }}
-
                                 </div>
 
                             </div>
@@ -438,7 +634,7 @@ VELES Delivery
 
                 {% else %}
 
-                    <p>
+                    <p class="pipeline-description">
                         No steps configured.
                     </p>
 
@@ -466,15 +662,15 @@ VELES Delivery
 
 </section>
 
+<section class="delivery-section">
 
-<!-- DELIVERY TARGETS -->
+    <div class="delivery-section-header">
 
-<section>
+        <h2>
+            🎯 DELIVERY TARGETS
+        </h2>
 
-    <h2>
-        🎯 DELIVERY TARGETS
-    </h2>
-
+    </div>
 
     {% if data.target_list %}
 
@@ -482,14 +678,85 @@ VELES Delivery
 
             {% for target in data.target_list %}
 
-                <div class="delivery-stat">
+                <div class="target-card">
 
-                    <div class="delivery-stat-label">
-                        TARGET
-                    </div>
-
-                    <div class="delivery-stat-value">
+                    <h3 class="target-name">
                         {{ target.name or target.host or target.type or "Unknown" }}
+                    </h3>
+
+                    {% if target.host %}
+
+                        <div class="target-field">
+
+                            <span class="target-field-label">
+                                HOST
+                            </span>
+
+                            <span class="target-field-value">
+                                {{ target.host }}
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                    {% if target.type %}
+
+                        <div class="target-field">
+
+                            <span class="target-field-label">
+                                TYPE
+                            </span>
+
+                            <span class="target-field-value">
+                                {{ target.type }}
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                    {% if target.os %}
+
+                        <div class="target-field">
+
+                            <span class="target-field-label">
+                                OS
+                            </span>
+
+                            <span class="target-field-value">
+                                {{ target.os }}
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                    {% if target.ports %}
+
+                        <div class="target-field">
+
+                            <span class="target-field-label">
+                                PORTS
+                            </span>
+
+                            <span class="target-field-value">
+                                {{ target.ports | join(", ") }}
+                            </span>
+
+                        </div>
+
+                    {% endif %}
+
+                    <div class="target-actions">
+
+                        <a
+                            href="{{ url_for('create_delivery_pipeline', resource_id=target.id) }}"
+                            class="delivery-action delivery-action-primary"
+                        >
+                            ADD TO PIPELINE
+                        </a>
+
                     </div>
 
                 </div>
@@ -515,6 +782,5 @@ VELES Delivery
     {% endif %}
 
 </section>
-
 
 {% endblock %}

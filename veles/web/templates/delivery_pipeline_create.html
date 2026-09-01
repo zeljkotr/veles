@@ -41,15 +41,26 @@ Create Pipeline
     }
 
     .form-group input,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group select {
         width: 100%;
         box-sizing: border-box;
         padding: 12px 14px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(0, 0, 0, 0.15);
-        color: inherit;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--text);
         font: inherit;
+    }
+
+    .form-group select {
+        min-height: 46px;
+        cursor: pointer;
+    }
+
+    .form-group select option {
+        background: var(--panel);
+        color: var(--text);
     }
 
     .form-group textarea {
@@ -59,18 +70,56 @@ Create Pipeline
 
     .form-actions {
         display: flex;
-        gap: 12px;
+        gap: 16px;
         margin-top: 28px;
+        flex-wrap: wrap;
     }
 
-    .form-actions button,
-    .form-actions a {
-        padding: 11px 18px;
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        font: inherit;
+    .veles-action {
+        font-family: "Segoe UI",
+            Arial,
+            sans-serif;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 240px;
+        min-width: 240px;
+        min-height: 58px;
+        height: 58px;
+        padding: 0 22px;
+        box-sizing: border-box;
+        background: var(--panel2);
+        border: 2px solid var(--gold);
+        border-radius: 10px;
+        color: var(--gold2);
         text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 1.3px;
         cursor: pointer;
+        transition: .25s ease;
+        box-shadow: 0 0 18px rgba(
+                217,
+                164,
+                65,
+                .18
+            );
+        flex: 0 0 auto;
+    }
+
+    .veles-action:hover {
+        background: var(--panel);
+        box-shadow: 0 0 24px rgba(
+                217,
+                164,
+                65,
+                .30
+            );
+        transform: translateY(-1px);
+    }
+
+    .veles-action:active {
+        transform: translateY(0);
     }
 
 </style>
@@ -133,14 +182,52 @@ Create Pipeline
         </div>
 
 
+        <div class="form-group">
+
+            <label for="resource_id">
+                Deployment Target
+            </label>
+
+            <select
+                id="resource_id"
+                name="resource_id"
+                required
+            >
+
+                <option value="">
+                    Select a target
+                </option>
+
+                {% for target in targets %}
+
+                    <option
+                        value="{{ target.id }}"
+                        {% if target.id|string == selected_resource_id|string %}selected{% endif %}
+                    >
+                        {{ target.name }} — {{ target.host }} — {{ target.type }}
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
         <div class="form-actions">
 
-            <button type="submit">
-                Create Pipeline
+            <button
+                type="submit"
+                class="veles-action"
+            >
+                CREATE PIPELINE
             </button>
 
-            <a href="{{ url_for('delivery_view') }}">
-                Cancel
+            <a
+                href="{{ url_for('delivery_view') }}"
+                class="veles-action"
+            >
+                CANCEL
             </a>
 
         </div>

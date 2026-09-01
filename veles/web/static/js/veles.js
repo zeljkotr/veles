@@ -113,6 +113,53 @@ document.addEventListener(
 
 
         /*
+        AUTO-SCROLL CHAT
+        */
+
+        const chatWindow =
+            document.getElementById(
+                "chat-window"
+            );
+
+
+        function scrollChatToBottom() {
+
+            if (!chatWindow) {
+                return;
+            }
+
+            chatWindow.scrollTop =
+                chatWindow.scrollHeight;
+
+        }
+
+
+        if (chatWindow) {
+
+            setTimeout(
+                scrollChatToBottom,
+                0
+            );
+
+            setTimeout(
+                scrollChatToBottom,
+                50
+            );
+
+            setTimeout(
+                scrollChatToBottom,
+                150
+            );
+
+            setTimeout(
+                scrollChatToBottom,
+                300
+            );
+
+        }
+
+
+        /*
         NOVI RAZGOVOR
         */
 

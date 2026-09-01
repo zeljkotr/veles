@@ -319,6 +319,22 @@ Veles Operating System
 
             </a>
 
+
+            <a
+                href="{{ url_for('terminal') }}"
+                class="{% if request.endpoint == 'terminal' %}active{% endif %}"
+            >
+
+                <span class="main-menu-icon">
+                    ▸_
+                </span>
+
+                <span class="main-menu-label">
+                    Terminal
+                </span>
+
+            </a>
+
         </div>
 
 

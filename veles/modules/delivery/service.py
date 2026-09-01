@@ -20,19 +20,7 @@ class DeliveryService:
 
     def get_targets(self):
 
-        resources = self.resource_registry.get_resources()
-
-        target_types = {
-            "server",
-            "container",
-            "agent"
-        }
-
-        return [
-            resource
-            for resource in resources
-            if resource.get("type") in target_types
-        ]
+        return self.resource_registry.get_resources()
 
     def get_pipelines(self):
 
@@ -156,6 +144,59 @@ class DeliveryService:
             )
 
             session.add(pipeline)
+            session.commit()
+            session.refresh(pipeline)
+
+            return self.get_pipeline(pipeline.id)
+
+        except Exception:
+
+            session.rollback()
+            raise
+
+        finally:
+
+            session.close()
+
+    def update_pipeline(
+        self,
+        pipeline_id,
+        name,
+        description=None,
+        status=None,
+        trigger=None,
+        target_selector=None,
+        configuration=None
+    ):
+
+        session = get_session()
+
+        try:
+
+            pipeline = (
+                session.query(Pipeline)
+                .filter(Pipeline.id == pipeline_id)
+                .first()
+            )
+
+            if pipeline is None:
+                return False
+
+            pipeline.name = name
+            pipeline.description = description
+
+            if status is not None:
+                pipeline.status = status
+
+            if trigger is not None:
+                pipeline.trigger = trigger
+
+            if target_selector is not None:
+                pipeline.target_selector = target_selector
+
+            if configuration is not None:
+                pipeline.configuration = configuration
+
             session.commit()
             session.refresh(pipeline)
 
