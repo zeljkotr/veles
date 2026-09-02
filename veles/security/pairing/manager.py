@@ -1,0 +1,288 @@
+from __future__ import annotations
+
+from threading import RLock
+
+from ..runtime.registry import SecurityDeviceRegistry
+from .models import PairingRecord, PairingState
+from .store import PairingStore
+
+
+class PairingError(RuntimeError):
+    """
+    Base exception for pairing failures.
+    """
+
+
+class DeviceNotFoundError(PairingError):
+    """
+    Raised when the requested device is not connected.
+    """
+
+
+class PairingManager:
+    """
+    Hardware-independent Security Device pairing manager.
+
+    Pairing is explicit.
+
+    A device must:
+        1. exist in the runtime registry
+        2. enter PAIRING state
+        3. be explicitly confirmed
+        4. become PAIRED
+
+    The manager does not perform cryptography and does not
+    modify or format the physical Security Device.
+    """
+
+    def __init__(
+        self,
+        registry: SecurityDeviceRegistry,
+        store: PairingStore | None = None,
+    ) -> None:
+        self.registry = registry
+        self.store = store or PairingStore()
+
+        self._lock = RLock()
+        self._records = self.store.load()
+
+    def get_state(
+        self,
+        device_id: str,
+    ) -> PairingState:
+        """
+        Return persistent pairing state.
+
+        Unknown devices are UNPAIRED.
+        """
+
+        with self._lock:
+            record = self._records.get(device_id)
+
+            if record is None:
+                return PairingState.UNPAIRED
+
+            return record.state
+
+    def is_paired(
+        self,
+        device_id: str,
+    ) -> bool:
+        return (
+            self.get_state(device_id)
+            == PairingState.PAIRED
+        )
+
+    def is_pairing(
+        self,
+        device_id: str,
+    ) -> bool:
+        return (
+            self.get_state(device_id)
+            == PairingState.PAIRING
+        )
+
+    def require_bound_device(
+        self,
+        device_id: str,
+    ):
+        """
+        Require the currently registered device to match
+        the persistently paired identity.
+        """
+
+        with self._lock:
+            record = self._records.get(device_id)
+
+            if (
+                record is None
+                or record.state != PairingState.PAIRED
+            ):
+                raise PairingError(
+                    f"Security Device is not paired: {device_id}"
+                )
+
+            device = self.registry.get(device_id)
+
+            if device is None:
+                raise DeviceNotFoundError(
+                    f"Security Device is not connected: {device_id}"
+                )
+
+            if not device.is_connected():
+                raise DeviceNotFoundError(
+                    f"Security Device is not connected: {device_id}"
+                )
+
+            identity = device.get_info().identity
+
+            if identity.device_id != record.device_id:
+                raise PairingError(
+                    "Security Device identity does not match "
+                    "the paired identity"
+                )
+
+            if (
+                identity.identity_version
+                != record.identity_version
+            ):
+                raise PairingError(
+                    "Security Device identity version does not "
+                    "match the paired identity"
+                )
+
+            if identity.provider != record.provider:
+                raise PairingError(
+                    "Security Device provider does not match "
+                    "the paired identity"
+                )
+
+            return device
+
+    def begin_pairing(
+        self,
+        device_id: str,
+    ) -> PairingRecord:
+        """
+        Start explicit pairing for a currently connected device.
+        """
+
+        with self._lock:
+            device = self.registry.get(device_id)
+
+            if device is None:
+                raise DeviceNotFoundError(
+                    f"Security Device is not connected: {device_id}"
+                )
+
+            info = device.get_info()
+            identity = info.identity
+
+            current = self._records.get(device_id)
+
+            if (
+                current is not None
+                and current.state == PairingState.PAIRED
+            ):
+                raise PairingError(
+                    f"Security Device is already paired: {device_id}"
+                )
+
+            record = PairingRecord(
+                device_id=identity.device_id,
+                identity_version=(
+                    identity.identity_version
+                ),
+                provider=identity.provider,
+                state=PairingState.PAIRING,
+            )
+
+            self._records[device_id] = record
+            self.store.save(self._records)
+
+            return record
+
+    def confirm_pairing(
+        self,
+        device_id: str,
+    ) -> PairingRecord:
+        """
+        Explicitly confirm a pairing operation.
+
+        A device cannot jump directly from UNPAIRED to PAIRED.
+        """
+
+        with self._lock:
+            device = self.registry.get(device_id)
+
+            if device is None:
+                raise DeviceNotFoundError(
+                    f"Security Device is not connected: {device_id}"
+                )
+
+            current = self._records.get(device_id)
+
+            if current is None:
+                raise PairingError(
+                    "Pairing has not been started"
+                )
+
+            if current.state != PairingState.PAIRING:
+                raise PairingError(
+                    f"Invalid pairing state: {current.state.value}"
+                )
+
+            info = device.get_info()
+            identity = info.identity
+
+            if identity.device_id != current.device_id:
+                raise PairingError(
+                    "Security Device identity changed during pairing"
+                )
+
+            if (
+                identity.identity_version
+                != current.identity_version
+            ):
+                raise PairingError(
+                    "Security Device identity version changed"
+                )
+
+            if identity.provider != current.provider:
+                raise PairingError(
+                    "Security Device provider changed"
+                )
+
+            record = PairingRecord(
+                device_id=current.device_id,
+                identity_version=(
+                    current.identity_version
+                ),
+                provider=current.provider,
+                state=PairingState.PAIRED,
+            )
+
+            self._records[device_id] = record
+            self.store.save(self._records)
+
+            return record
+
+    def unpair(
+        self,
+        device_id: str,
+    ) -> bool:
+        """
+        Remove persistent pairing.
+
+        Returns True if a pairing record existed.
+        """
+
+        with self._lock:
+            existed = device_id in self._records
+
+            if not existed:
+                return False
+
+            del self._records[device_id]
+            self.store.save(self._records)
+
+            return True
+
+    def get_record(
+        self,
+        device_id: str,
+    ) -> PairingRecord | None:
+        with self._lock:
+            return self._records.get(device_id)
+
+    def all_records(self) -> list[PairingRecord]:
+        with self._lock:
+            return list(self._records.values())
+
+    def reload(self) -> None:
+        """
+        Reload persistent pairing state from disk.
+        """
+
+        with self._lock:
+            self._records = self.store.load()
