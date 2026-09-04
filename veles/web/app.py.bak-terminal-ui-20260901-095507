@@ -26,18 +26,6 @@ from veles.modules.monitoring import (
 from veles.modules.network.service import network
 from veles.modules.delivery.service import delivery
 from veles.modules.security.service import security
-from veles.security.runtime.service import (
-    security_device_runtime,
-)
-from veles.security.runtime.session_lock import (
-    security_session_lock,
-)
-from veles.security.vault.vault import (
-    VaultInvalidCredentialError,
-)
-from veles.security.pairing.manager import (
-    DeviceNotFoundError,
-)
 
 
 BASE_DIR = os.path.abspath(
@@ -115,10 +103,6 @@ from veles.modules.infrastructure.discovery import (
 app = Flask(
     __name__
 )
-
-security_device_runtime.start()
-
-
 
 sock = Sock(app)
 
@@ -3539,22 +3523,11 @@ def security_view():
 
     report = security.get_report()
 
+
     return render_template(
         "security.html",
         report=report
     )
-
-
-@app.route(
-    "/security/status"
-)
-def security_status():
-
-    return {
-        "locked": bool(
-            security_session_lock.is_locked
-        )
-    }
 
 
 @app.route(
@@ -3663,19 +3636,6 @@ def module_entry(name):
 @sock.route("/ws/terminal")
 def terminal_websocket(ws):
 
-    if security_session_lock.is_locked:
-        try:
-            ws.send("SECURITY DEVICE REQUIRED")
-        except Exception:
-            pass
-
-        try:
-            ws.close()
-        except Exception:
-            pass
-
-        return
-
     master_fd = None
     process = None
 
@@ -3716,7 +3676,7 @@ def terminal_websocket(ws):
                 )
 
             # Terminal resize message
-            if message.startswith("__VELES_RESIZE__"):
+            if message.startswith("__VELes_RESIZE__"):
 
                 try:
 
@@ -3772,21 +3732,6 @@ def terminal_websocket(ws):
                 master_fd,
                 process
             )
-
-
-# ==========================================
-# TERMINAL
-# ==========================================
-
-@app.route(
-    "/terminal",
-    methods=["GET"]
-)
-def terminal():
-
-    return render_template(
-        "terminal.html"
-    )
 
 
 # ==========================================

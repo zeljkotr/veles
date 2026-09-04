@@ -1,0 +1,1521 @@
+:root {
+
+    --bg:#0b0f14;
+
+    --panel:#141b23;
+
+    --panel2:#1a2330;
+
+    --border:#293646;
+
+    --gold:#d9a441;
+
+    --gold2:#ffe9a3;
+
+    --green:#55d66b;
+
+    --muted:#8d9aaa;
+
+    --text:#e8edf2;
+
+}
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+
+    box-sizing:border-box;
+
+}
+
+
+html,
+body {
+
+    margin:0;
+
+    padding:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:var(--bg);
+
+    color:var(--text);
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+}
+
+
+body {
+
+    overflow:hidden;
+
+}
+
+
+a {
+
+    color:inherit;
+
+}
+
+
+button,
+input,
+textarea,
+select {
+
+    font-family:inherit;
+
+}
+
+
+/* =========================================================
+   VELES OS LAYOUT
+   ========================================================= */
+
+.app-layout {
+
+    display:flex;
+
+    width:100%;
+
+    height:100vh;
+
+    overflow:hidden;
+
+    background:var(--bg);
+
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:278px;
+
+    min-width:278px;
+
+    height:100vh;
+
+    padding:28px 18px 20px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #111820 0%,
+            #0c1117 48%,
+            #080c11 100%
+        );
+
+    border-right:1px solid var(--border);
+
+    overflow:hidden;
+
+}
+
+
+/*
+SUBTLE SIDE GRID
+*/
+
+.sidebar::before {
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    pointer-events:none;
+
+    opacity:.18;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        );
+
+    background-size:32px 32px;
+
+}
+
+
+/* =========================================================
+   SIDEBAR BRAND
+   ========================================================= */
+
+.sidebar-brand {
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    padding:8px 0 26px;
+
+    border-bottom:1px solid rgba(41,54,70,.7);
+
+}
+
+
+.sidebar-brand-mark {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:48px;
+
+    height:48px;
+
+    margin-bottom:10px;
+
+    color:var(--gold);
+
+    border:1px solid rgba(217,164,65,.55);
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(217,164,65,.12),
+            rgba(217,164,65,.025)
+        );
+
+    font-size:25px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    box-shadow:
+        0 0 24px rgba(217,164,65,.07);
+
+}
+
+
+.sidebar-brand-name {
+
+    color:var(--gold);
+
+    font-size:28px;
+
+    font-weight:800;
+
+    letter-spacing:5px;
+
+    line-height:1;
+
+}
+
+
+.sidebar-brand-os {
+
+    margin-top:8px;
+
+    color:var(--muted);
+
+    font-size:10px;
+
+    font-weight:700;
+
+    letter-spacing:2.5px;
+
+}
+
+
+/* =========================================================
+   MAIN NAVIGATION
+   ========================================================= */
+
+.main-menu {
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:0;
+
+    margin-top:28px;
+
+}
+
+
+.main-menu-section {
+
+    margin-bottom:24px;
+
+}
+
+
+.main-menu-section-title {
+
+    margin:0 10px 9px;
+
+    color:#687586;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:2.2px;
+
+    text-transform:uppercase;
+
+}
+
+
+.main-menu a {
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+    min-height:50px;
+
+    margin-bottom:5px;
+
+    padding:0 14px;
+
+    border:1px solid transparent;
+
+    border-radius:10px;
+
+    color:#cbd3dc;
+
+    text-decoration:none;
+
+    font-size:16px;
+
+    font-weight:650;
+
+    letter-spacing:.2px;
+
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        transform .18s ease;
+
+}
+
+
+.main-menu a:hover {
+
+    background:rgba(26,35,48,.82);
+
+    border-color:rgba(41,54,70,.95);
+
+    color:var(--gold2);
+
+    transform:translateX(2px);
+
+}
+
+
+.main-menu a.active {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(217,164,65,.14),
+            rgba(217,164,65,.045)
+        );
+
+    border-color:rgba(217,164,65,.32);
+
+    color:var(--gold2);
+
+    box-shadow:
+        inset 3px 0 0 var(--gold);
+
+}
+
+
+.main-menu a.active::after {
+
+    content:"";
+
+    position:absolute;
+
+    right:13px;
+
+    width:5px;
+
+    height:5px;
+
+    border-radius:50%;
+
+    background:var(--gold);
+
+    box-shadow:
+        0 0 8px rgba(217,164,65,.65);
+
+}
+
+
+.main-menu-icon {
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:30px;
+
+    min-width:30px;
+
+    margin-right:11px;
+
+    color:#8290a0;
+
+    font-size:19px;
+
+    line-height:1;
+
+    transition:
+        color .18s ease,
+        transform .18s ease;
+
+}
+
+
+.main-menu a:hover .main-menu-icon,
+.main-menu a.active .main-menu-icon {
+
+    color:var(--gold);
+
+}
+
+
+.main-menu a:hover .main-menu-icon {
+
+    transform:scale(1.05);
+
+}
+
+
+.main-menu-label {
+
+    white-space:nowrap;
+
+}
+
+
+/* =========================================================
+   SIDEBAR FOOTER
+   ========================================================= */
+
+.sidebar-footer {
+
+    position:relative;
+
+    margin-top:auto;
+
+    padding:15px 10px 3px;
+
+}
+
+
+.sidebar-footer-line {
+
+    width:100%;
+
+    height:1px;
+
+    margin-bottom:14px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--border),
+            transparent
+        );
+
+}
+
+
+.sidebar-footer-label {
+
+    color:#687586;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:2px;
+
+}
+
+
+.sidebar-footer-status {
+
+    margin-top:5px;
+
+    color:#4f5d6c;
+
+    font-size:9px;
+
+    font-weight:700;
+
+    letter-spacing:1.5px;
+
+}
+
+
+/* =========================================================
+   MAIN AREA
+   ========================================================= */
+
+.main-area {
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    min-width:0;
+
+    min-height:0;
+
+    background:var(--bg);
+
+}
+
+
+/* =========================================================
+   TOP SYSTEM BAR
+   ========================================================= */
+
+.top-header {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    width:100%;
+
+    min-height:68px;
+
+    height:68px;
+
+    padding:0 28px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #141b23,
+            #10161d
+        );
+
+    border-bottom:1px solid var(--border);
+
+}
+
+
+.top-header-left {
+
+    display:flex;
+
+    align-items:center;
+
+    min-width:0;
+
+}
+
+
+.top-header-title {
+
+    color:var(--gold);
+
+    font-size:16px;
+
+    font-weight:800;
+
+    letter-spacing:2.1px;
+
+    white-space:nowrap;
+
+}
+
+
+.top-header-divider {
+
+    width:1px;
+
+    height:20px;
+
+    margin:0 16px;
+
+    background:var(--border);
+
+}
+
+
+.top-header-application {
+
+    overflow:hidden;
+
+    color:#788696;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:1.5px;
+
+    text-overflow:ellipsis;
+
+    text-transform:uppercase;
+
+    white-space:nowrap;
+
+}
+
+
+.top-header-right {
+
+    display:flex;
+
+    align-items:center;
+
+    flex-shrink:0;
+
+}
+
+
+.system-status {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:var(--green);
+
+    font-size:11px;
+
+    font-weight:800;
+
+    letter-spacing:1.5px;
+
+}
+
+
+.system-status-dot {
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:50%;
+
+    background:var(--green);
+
+    box-shadow:
+        0 0 9px rgba(85,214,107,.65);
+
+}
+
+
+.system-status-separator {
+
+    width:1px;
+
+    height:17px;
+
+    margin:0 14px;
+
+    background:var(--border);
+
+}
+
+
+.system-status-secondary {
+
+    color:#778494;
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:1.5px;
+
+}
+
+
+/* =========================================================
+   APPLICATION CONTENT
+   ========================================================= */
+
+.page-container {
+
+    flex:1;
+
+    min-width:0;
+
+    min-height:0;
+
+    padding:24px;
+
+    overflow:auto;
+
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.card {
+
+    background:var(--panel);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+}
+
+
+/* =========================================================
+   MARKDOWN
+   ========================================================= */
+
+.markdown-body {
+
+    line-height:1.6;
+
+}
+
+
+.markdown-body p {
+
+    margin-bottom:12px;
+
+}
+
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+
+    color:var(--gold);
+
+}
+
+
+.markdown-body code {
+
+    background:#0a0f14;
+
+    color:var(--gold2);
+
+    padding:3px 7px;
+
+    border-radius:6px;
+
+}
+
+
+.markdown-body pre {
+
+    background:#05080c;
+
+    border:1px solid var(--border);
+
+    border-left:4px solid var(--gold);
+
+    border-radius:10px;
+
+    padding:18px;
+
+    overflow:auto;
+
+}
+
+
+/* =========================================================
+   SCROLLBARS
+   ========================================================= */
+
+::-webkit-scrollbar {
+
+    width:10px;
+
+    height:10px;
+
+}
+
+
+::-webkit-scrollbar-track {
+
+    background:#080b10;
+
+}
+
+
+::-webkit-scrollbar-thumb {
+
+    background:#303b49;
+
+    border-radius:10px;
+
+    border:2px solid #080b10;
+
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+
+    background:#465363;
+
+}
+
+
+/* =========================================================
+   VELES CHAT CORE
+   ========================================================= */
+
+.chat-container {
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:
+        linear-gradient(
+            180deg,
+            #111820,
+            #090d12
+        );
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+}
+
+
+/* =========================================================
+   CHAT HEADER
+   ========================================================= */
+
+.chat-header {
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:20px 25px;
+
+    background:var(--panel);
+
+    border-bottom:1px solid var(--border);
+
+}
+
+
+.chat-header h1 {
+
+    margin:0;
+
+    color:var(--gold);
+
+    font-size:28px;
+
+}
+
+
+.chat-header p {
+
+    margin:5px 0 0;
+
+    color:var(--muted);
+
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-indicator {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:var(--green);
+
+    font-weight:600;
+
+}
+
+
+.status-dot {
+
+    width:12px;
+
+    height:12px;
+
+    background:var(--green);
+
+    border-radius:50%;
+
+    box-shadow:
+        0 0 10px var(--green);
+
+}
+
+
+/* =========================================================
+   CHAT HISTORY
+   ========================================================= */
+
+.chat-window {
+
+    flex:1;
+
+    padding:25px;
+
+    overflow-y:auto;
+
+}
+
+
+.message {
+
+    max-width:80%;
+
+    padding:16px 20px;
+
+    border-radius:14px;
+
+    line-height:1.6;
+
+    margin-bottom:16px;
+
+}
+
+
+.message.user {
+
+    margin-left:auto;
+
+    background:#243447;
+
+    border:1px solid #34495e;
+
+}
+
+
+.message.assistant {
+
+    margin-right:auto;
+
+    background:var(--panel);
+
+    border:1px solid var(--border);
+
+}
+
+
+.message-role {
+
+    color:var(--gold);
+
+    font-size:13px;
+
+    font-weight:700;
+
+    margin-bottom:8px;
+
+    text-transform:uppercase;
+
+}
+
+
+.message-text {
+
+    color:var(--text);
+
+}
+
+
+/* =========================================================
+   EMPTY CHAT
+   ========================================================= */
+
+.empty-chat {
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    color:var(--muted);
+
+}
+
+
+.empty-chat h2 {
+
+    color:var(--gold);
+
+}
+
+
+/* =========================================================
+   CHAT INPUT
+   ========================================================= */
+
+.chat-input {
+
+    background:var(--panel);
+
+    border-top:1px solid var(--border);
+
+    padding:15px;
+
+}
+
+
+#question {
+
+    width:100%;
+
+    min-height:70px;
+
+    max-height:160px;
+
+    resize:vertical;
+
+    background:#0b1016;
+
+    color:var(--text);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    padding:15px 18px;
+
+    font-size:16px;
+
+    outline:none;
+
+}
+
+
+#question::placeholder {
+
+    color:var(--muted);
+
+}
+
+
+#question:focus {
+
+    border-color:var(--gold);
+
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.chat-buttons {
+
+    display:flex;
+
+    gap:12px;
+
+    margin-top:15px;
+
+}
+
+
+.chat-buttons button {
+
+    padding:12px 18px;
+
+    border-radius:10px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+
+.btn-primary {
+
+    background:var(--gold);
+
+    color:#111;
+
+    border:none;
+
+}
+
+
+.btn-secondary {
+
+    background:#18222d;
+
+    color:var(--text);
+
+    border:1px solid var(--border);
+
+}
+
+
+.btn-secondary:hover,
+.btn-primary:hover {
+
+    opacity:.85;
+
+}
+
+
+/* =========================================================
+   VOICE
+   ========================================================= */
+
+#voice-button {
+
+    color:var(--gold2);
+
+}
+
+
+/* =========================================================
+   NEW CHAT
+   ========================================================= */
+
+#new-chat-button {
+
+    color:var(--text);
+
+}
+
+
+/* =========================================================
+   THINKING OVERLAY
+   ========================================================= */
+
+#thinking-overlay {
+
+    position:fixed;
+
+    inset:0;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:rgba(11,15,20,.75);
+
+    z-index:9999;
+
+}
+
+
+/* =========================================================
+   VELES DASHBOARD BASIC STYLE
+   ========================================================= */
+
+.veles-dashboard {
+
+    width:100%;
+
+    min-height:700px;
+
+}
+
+
+.operations-map {
+
+    position:relative;
+
+    min-height:650px;
+
+}
+
+
+.node {
+
+    background:var(--panel);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    padding:20px;
+
+    text-align:center;
+
+    color:var(--text);
+
+    font-weight:700;
+
+    transition:.3s;
+
+}
+
+
+.node:hover {
+
+    border-color:var(--gold);
+
+    box-shadow:
+        0 0 20px rgba(217,164,65,.25);
+
+}
+
+
+.node-status {
+
+    margin-top:8px;
+
+    color:var(--green);
+
+    font-size:12px;
+
+}
+
+
+.core {
+
+    border:2px solid var(--gold);
+
+}
+
+
+/* =========================================================
+   RESPONSIVE OS SHELL
+   ========================================================= */
+
+@media (max-width:900px) {
+
+    .sidebar {
+
+        width:225px;
+
+        min-width:225px;
+
+        padding-left:13px;
+
+        padding-right:13px;
+
+    }
+
+
+    .sidebar-brand-name {
+
+        font-size:23px;
+
+        letter-spacing:4px;
+
+    }
+
+
+    .sidebar-brand-os {
+
+        font-size:8px;
+
+        letter-spacing:2px;
+
+    }
+
+
+    .main-menu a {
+
+        font-size:14px;
+
+    }
+
+
+    .page-container {
+
+        padding:18px;
+
+    }
+
+
+    .top-header {
+
+        padding:0 18px;
+
+    }
+
+
+    .top-header-title {
+
+        font-size:13px;
+
+        letter-spacing:1.5px;
+
+    }
+
+}
+
+
+@media (max-width:700px) {
+
+    body {
+
+        overflow:auto;
+
+    }
+
+
+    .app-layout {
+
+        min-height:100vh;
+
+        height:auto;
+
+        overflow:visible;
+
+    }
+
+
+    .sidebar {
+
+        width:100%;
+
+        min-width:0;
+
+        height:auto;
+
+        min-height:0;
+
+        padding:16px;
+
+        border-right:none;
+
+        border-bottom:1px solid var(--border);
+
+    }
+
+
+    .sidebar-brand {
+
+        flex-direction:row;
+
+        justify-content:flex-start;
+
+        padding:5px 4px 15px;
+
+    }
+
+
+    .sidebar-brand-mark {
+
+        width:38px;
+
+        height:38px;
+
+        margin:0 10px 0 0;
+
+        font-size:19px;
+
+    }
+
+
+    .sidebar-brand-name {
+
+        font-size:22px;
+
+    }
+
+
+    .sidebar-brand-os {
+
+        margin:
+            0 0 0 9px;
+
+        padding-left:9px;
+
+        border-left:1px solid var(--border);
+
+        font-size:8px;
+
+    }
+
+
+    .main-menu {
+
+        display:grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap:5px;
+
+        margin-top:14px;
+
+    }
+
+
+    .main-menu-section {
+
+        margin-bottom:12px;
+
+    }
+
+
+    .main-menu-section-title {
+
+        margin-bottom:5px;
+
+    }
+
+
+    .main-menu a {
+
+        min-height:43px;
+
+        margin-bottom:3px;
+
+        padding:0 10px;
+
+        font-size:13px;
+
+    }
+
+
+    .main-menu-icon {
+
+        width:24px;
+
+        min-width:24px;
+
+        margin-right:7px;
+
+        font-size:16px;
+
+    }
+
+
+    .sidebar-footer {
+
+        display:none;
+
+    }
+
+
+    .main-area {
+
+        min-height:calc(100vh - 180px);
+
+    }
+
+
+    .top-header {
+
+        height:auto;
+
+        min-height:58px;
+
+        padding:12px 15px;
+
+    }
+
+
+    .top-header-divider,
+    .top-header-application,
+    .system-status-separator,
+    .system-status-secondary {
+
+        display:none;
+
+    }
+
+
+    .top-header-title {
+
+        font-size:12px;
+
+    }
+
+
+    .system-status {
+
+        font-size:10px;
+
+    }
+
+
+    .page-container {
+
+        padding:14px;
+
+        overflow:visible;
+
+    }
+
+}

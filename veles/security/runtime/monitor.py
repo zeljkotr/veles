@@ -34,7 +34,11 @@ class SecurityDeviceMonitor:
         on_added: DeviceCallback | None = None,
         on_removed: RemoveCallback | None = None,
     ) -> None:
-        self.registry = registry or SecurityDeviceRegistry()
+        self.registry = (
+            registry
+            if registry is not None
+            else SecurityDeviceRegistry()
+        )
 
         self.on_added = on_added
         self.on_removed = on_removed
@@ -47,31 +51,25 @@ class SecurityDeviceMonitor:
         self._paths_lock = threading.RLock()
 
     def start(self) -> None:
-        """
-        Start runtime monitoring.
-
-        udev monitoring is started before initial discovery so that
-        there is no intentional gap between discovery and hot-plug
-        monitoring.
-        """
-
         if self.is_running():
             return
 
         self._stop_event.clear()
 
-        self._start_udev_monitor()
-
+        # Establish the real current hardware state first.
         self._initial_discovery()
+
+        # Start listening for future hot-plug events afterwards.
+        self._start_udev_monitor()
 
         self._thread = threading.Thread(
             target=self._monitor_loop,
             name="veles-security-device-monitor",
             daemon=True,
         )
-
         self._thread.start()
 
+        # Reconcile once after the monitor is live.
         self._reconcile()
 
     def stop(self) -> None:

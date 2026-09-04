@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+Security Device Required
+{% endblock %}
+
+{% block content %}
+
+<div class="security-page">
+
+    <section class="security-panel">
+
+        <h1>
+            🔒 SECURITY DEVICE REQUIRED
+        </h1>
+
+        <p>
+            VELES is locked because the Security Device is not available.
+        </p>
+
+        <p>
+            Reconnect the Security Device and enter your credential to restore access.
+        </p>
+
+        <form
+            method="POST"
+            action="{{ url_for('security_unlock') }}"
+        >
+
+            <div>
+                <label for="credential">
+                    CREDENTIAL
+                </label>
+
+                <input
+                    id="credential"
+                    name="credential"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                    autofocus
+                >
+            </div>
+
+            <button
+                type="submit"
+            >
+                UNLOCK VELES
+            </button>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

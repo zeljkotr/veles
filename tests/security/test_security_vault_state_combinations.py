@@ -9,7 +9,7 @@ from veles.security.service.vault_service import (
     SecurityVaultDeviceUnavailableError,
     SecurityVaultNotPairedError,
 )
-from veles.security.pairing.manager import PairingManager
+from veles.security.pairing.manager import DeviceNotFoundError, PairingError, PairingManager
 from veles.security.runtime.registry import SecurityDeviceRegistry
 from veles.security.vault.vault import Vault
 
@@ -111,6 +111,7 @@ pairing_manager = PairingManager(
 
 if not pairing_manager.is_paired(real_device_id):
     pairing_manager.begin_pairing(real_device_id)
+    pairing_manager.confirm_pairing(real_device_id)
 
 if not pairing_manager.is_paired(real_device_id):
     raise RuntimeError(
@@ -291,6 +292,7 @@ try:
 except (
     SecurityVaultDeviceUnavailableError,
     SecurityVaultNotPairedError,
+    PairingError,
 ) as exc:
     unlock_rejected = True
 
@@ -384,6 +386,7 @@ try:
 except (
     SecurityVaultDeviceUnavailableError,
     SecurityVaultNotPairedError,
+    PairingError,
 ) as exc:
     unlock_rejected = True
 
@@ -514,7 +517,10 @@ unlock_rejected = False
 try:
     service.unlock(CREDENTIAL)
 
-except SecurityVaultDeviceUnavailableError as exc:
+except (
+    SecurityVaultDeviceUnavailableError,
+    DeviceNotFoundError,
+) as exc:
     unlock_rejected = True
 
     print("UNLOCK: REJECTED")
@@ -577,6 +583,7 @@ try:
 except (
     SecurityVaultDeviceUnavailableError,
     SecurityVaultNotPairedError,
+    PairingError,
 ) as exc:
     unlock_rejected = True
 

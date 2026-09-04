@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+<style>
+
+    .pipeline-edit-header {
+        margin-bottom: 30px;
+    }
+
+    .pipeline-edit-header h1 {
+        margin-bottom: 8px;
+    }
+
+    .pipeline-edit-card {
+        max-width: 760px;
+        padding: 28px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.15);
+        color: inherit;
+        font: inherit;
+    }
+
+    .form-group textarea {
+        min-height: 140px;
+        resize: vertical;
+    }
+
+    .form-group select {
+        min-height: 46px;
+        cursor: pointer;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 16px;
+        margin-top: 28px;
+        flex-wrap: wrap;
+    }
+
+    .veles-action {
+        font-family: "Segoe UI",
+            Arial,
+            sans-serif;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 240px;
+        min-width: 240px;
+        min-height: 58px;
+        height: 58px;
+        padding: 0 22px;
+        box-sizing: border-box;
+        background: linear-gradient(
+                145deg,
+                #1a2330,
+                #10161d
+            );
+        border: 2px solid var(--gold);
+        border-radius: 10px;
+        color: var(--gold2);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 1.3px;
+        cursor: pointer;
+        transition: .25s ease;
+        box-shadow: 0 0 18px rgba(
+                217,
+                164,
+                65,
+                .18
+            );
+        flex: 0 0 auto;
+    }
+
+    .veles-action:hover {
+        background: linear-gradient(
+                145deg,
+                #202c3a,
+                #141c25
+            );
+        box-shadow: 0 0 24px rgba(
+                217,
+                164,
+                65,
+                .30
+            );
+        transform: translateY(-1px);
+    }
+
+    .veles-action:active {
+        transform: translateY(0);
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<header class="pipeline-edit-header">
+
+    <h1>
+        ⚙️ EDIT PIPELINE
+    </h1>
+
+    <p>
+        Edit delivery pipeline configuration
+    </p>
+
+</header>
+
+{% if error %}
+<div class="alert alert-danger">
+    {{ error }}
+</div>
+{% endif %}
+
+<section class="pipeline-edit-card">
+
+<form method="post">
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input
+            type="text"
+            id="name"
+            name="name"
+            value="{{ pipeline.name }}"
+            required
+        >
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+            id="description"
+            name="description"
+            rows="4"
+        >{{ pipeline.description or "" }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="resource_id">
+            Deployment Target
+        </label>
+
+        <select
+            id="resource_id"
+            name="resource_id"
+            required
+        >
+
+            <option value="">
+                Select a target
+            </option>
+
+            {% set selected_resource_id = pipeline.target_selector.get("resource_id") if pipeline.target_selector else None %}
+
+            {% for target in targets %}
+
+                <option
+                    value="{{ target.id }}"
+                    {% if target.id == selected_resource_id %}selected{% endif %}
+                >
+                    {{ target.name }} — {{ target.host }} — {{ target.type }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+    </div>
+
+
+    <div style="margin-top: 20px;">
+        <button
+            type="submit"
+            class="veles-action"
+        >
+            SAVE
+        </button>
+
+        <a
+            href="{{ url_for('delivery_view') }}"
+            class="veles-action"
+        >
+            CANCEL
+        </a>
+    </div>
+
+</form>
+
+</section>
+
+{% endblock %}

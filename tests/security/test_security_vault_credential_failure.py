@@ -94,6 +94,7 @@ pairing_manager = PairingManager(
 
 if not pairing_manager.is_paired(device_id):
     pairing_manager.begin_pairing(device_id)
+    pairing_manager.confirm_pairing(device_id)
 
 if not pairing_manager.is_paired(device_id):
     raise RuntimeError(

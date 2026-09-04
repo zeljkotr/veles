@@ -36,22 +36,22 @@ class SecurityDeviceIdentity:
 def _canonicalize(
     evidence: IdentityEvidence,
 ) -> bytes:
+    """
+    Build canonical identity material from PRIMARY identity evidence only.
+    """
+
     parts: list[str] = []
 
-    for category, values in (
-        ("primary", evidence.primary),
-        ("secondary", evidence.secondary),
-    ):
-        for key, value in sorted(values):
-            normalized_key = key.strip().lower()
-            normalized_value = value.strip()
+    for key, value in sorted(evidence.primary):
+        normalized_key = key.strip().lower()
+        normalized_value = value.strip()
 
-            if not normalized_value:
-                continue
+        if not normalized_value:
+            continue
 
-            parts.append(
-                f"{category}:{normalized_key}={normalized_value}"
-            )
+        parts.append(
+            f"primary:{normalized_key}={normalized_value}"
+        )
 
     return "\n".join(parts).encode("utf-8")
 
@@ -61,9 +61,10 @@ def generate_device_identity(
 ) -> SecurityDeviceIdentity:
     """
     Generate a deterministic VELES identity from validated
-    hardware identity evidence.
+    primary hardware identity evidence.
 
-    Location and descriptive information are intentionally excluded.
+    Only primary identity evidence participates in the canonical
+    device ID.
     """
 
     canonical = _canonicalize(evidence)

@@ -194,111 +194,12 @@ Veles Operating System
     .power-shutdown:hover .power-menu-icon {
         color: #f87171;
     }
-    /* =================================================
-       SECURITY DEVICE LOCK OVERLAY
-       ================================================= */
-
-    .security-lock-overlay {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.72);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition:
-            opacity 0.2s ease,
-            visibility 0.2s ease;
-        z-index: 99999;
-    }
-
-    .security-lock-overlay.is-visible {
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-    }
-
-    .security-lock-modal {
-        width: min(420px, calc(100vw - 40px));
-        padding: 34px 36px;
-        text-align: center;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.75);
-    }
-
-    .security-lock-icon {
-        margin-bottom: 14px;
-        font-size: 34px;
-        line-height: 1;
-    }
-
-    .security-lock-title {
-        margin-bottom: 12px;
-        color: var(--text);
-        font-size: 17px;
-        font-weight: 800;
-        letter-spacing: 2px;
-    }
-
-    .security-lock-message {
-        margin-bottom: 8px;
-        color: var(--text);
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-    .security-lock-submessage {
-        color: var(--muted);
-        font-size: 12px;
-        line-height: 1.6;
-    }
-
 </style>
 
 </head>
 
 
 <body>
-
-
-<!-- =====================================================
-     SECURITY DEVICE LOCK OVERLAY
-     ===================================================== -->
-
-<div
-    id="security-lock-overlay"
-    class="security-lock-overlay"
-    aria-hidden="true"
->
-
-    <div class="security-lock-modal">
-
-        <div class="security-lock-icon">
-            🔒
-        </div>
-
-        <div class="security-lock-title">
-            SYSTEM LOCKED
-        </div>
-
-        <div class="security-lock-message">
-            Security Device removed.
-        </div>
-
-        <div class="security-lock-submessage">
-            Reconnect the Security Device
-            to restore access.
-        </div>
-
-    </div>
-
-</div>
 
 
 <div class="app-layout">
@@ -668,87 +569,6 @@ Veles Operating System
 {% endblock %}
 
 <script>
-    // =====================================================
-    // SECURITY DEVICE LOCK MONITOR
-    // =====================================================
-
-    (function() {
-
-        const overlay = document.getElementById(
-            "security-lock-overlay"
-        );
-
-        if (!overlay) {
-            return;
-        }
-
-        let lastLockedState = null;
-
-        async function checkSecurityStatus() {
-
-            try {
-
-                const response = await fetch(
-                    "{{ url_for('security_status') }}",
-                    {
-                        method: "GET",
-                        cache: "no-store",
-                        credentials: "same-origin"
-                    }
-                );
-
-                if (!response.ok) {
-                    return;
-                }
-
-                const data = await response.json();
-                const locked = data.locked === true;
-
-                if (locked === lastLockedState) {
-                    return;
-                }
-
-                lastLockedState = locked;
-
-                if (locked) {
-
-                    overlay.classList.add(
-                        "is-visible"
-                    );
-
-                    overlay.setAttribute(
-                        "aria-hidden",
-                        "false"
-                    );
-
-                } else {
-
-                    overlay.classList.remove(
-                        "is-visible"
-                    );
-
-                    overlay.setAttribute(
-                        "aria-hidden",
-                        "true"
-                    );
-                }
-
-            } catch (error) {
-                // Keep the current UI state if the status
-                // endpoint is temporarily unavailable.
-            }
-        }
-
-        checkSecurityStatus();
-
-        setInterval(
-            checkSecurityStatus,
-            1000
-        );
-
-    })();
-
-
     // Power menu toggle
     document.addEventListener('DOMContentLoaded', function() {
         const powerButton = document.getElementById('power-button');
